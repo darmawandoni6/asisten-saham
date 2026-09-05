@@ -20,6 +20,10 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
    - Semua ticker IDX di Yahoo Finance wajib memiliki suffix `.JK` (contoh: `BBRI.JK`, `SIDO.JK`, `DEWA.JK`). Gunakan helper `normalize_ticker(ticker)`.
 6. **TRANSPARANSI AI**:
    - Jika API Key Google Gemini belum dikonfigurasi atau limit kuota habis, **berikan alert transparan** bahwa AI belum tersedia/limit habis. **DILARANG** memalsukan analisis rule-based sebagai hasil generate AI.
+7. **DILARANG AUTO-COMMIT / AUTO-PUSH (NO AUTO-COMMIT)**:
+   - AI **DILARANG KERAS** menjalankan perintah `git commit` maupun `git push` secara otomatis setelah membuat fitur/perubahan.
+   - Seluruh perubahan kode dan pengujian hanya boleh dilakukan di file lokal.
+   - `git commit` / `git push` **HANYA** boleh dijalankan jika pengguna memberikan perintah/izin eksplisit secara langsung.
 
 ---
 
