@@ -28,6 +28,11 @@ export default function ScreenerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [isKamusOpen, setIsKamusOpen] = useState(false);
 
+  // Custom ticker analyzer state
+  const [customTickerInput, setCustomTickerInput] = useState("");
+  const [isAnalyzingCustom, setIsAnalyzingCustom] = useState(false);
+  const [customFeedback, setCustomFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const loadScreener = async () => {
     try {
       const res = await api.getScreener(activeTab);
@@ -55,6 +60,7 @@ export default function ScreenerPage() {
 
   const handleRunScan = async () => {
     setIsScanning(true);
+    setCustomFeedback(null);
     try {
       const res = await api.scanScreener();
       if (res) {
@@ -81,6 +87,57 @@ export default function ScreenerPage() {
     }
   };
 
+  const handleAnalyzeCustomTicker = async () => {
+    const rawTicker = customTickerInput.trim().toUpperCase();
+    if (!rawTicker) return;
+
+    setIsAnalyzingCustom(true);
+    setCustomFeedback(null);
+
+    try {
+      const res = await api.analyzeScreenerTicker(rawTicker);
+      if (res && res.ticker) {
+        const newItem: ScreenerItem = {
+          ticker: res.ticker,
+          name: res.name,
+          sector: res.sector,
+          price: res.price,
+          changePct: res.change_pct,
+          volume: res.volume,
+          rsi: res.rsi,
+          maStatus: res.ma_status,
+          strategy: res.strategy,
+          score: res.score,
+          catalyst: res.catalyst,
+          support: res.support,
+          resistance: res.resistance,
+        };
+
+        // Prepend new item and filter out duplicates
+        setItems((prev) => [newItem, ...prev.filter((p) => p.ticker !== res.ticker)]);
+        setActiveTab("ALL");
+        setCustomTickerInput("");
+        setCustomFeedback({
+          type: "success",
+          message: `Saham ${res.ticker} (${res.name}) berhasil dianalisis! Strategi: ${res.strategy} | AI Score: ${res.score}/100.`
+        });
+      } else {
+        setCustomFeedback({
+          type: "error",
+          message: `Gagal memuat data saham ${rawTicker}. Pastikan kode ticker terdaftar di Bursa Efek Indonesia (IDX).`
+        });
+      }
+    } catch (err: any) {
+      console.error("Custom ticker analysis error:", err);
+      setCustomFeedback({
+        type: "error",
+        message: err.message || `Gagal menganalisis saham ${rawTicker}. Pastikan ticker terdaftar di BEI.`
+      });
+    } finally {
+      setIsAnalyzingCustom(false);
+    }
+  };
+
   useEffect(() => {
     loadScreener();
   }, [activeTab]);
@@ -96,12 +153,91 @@ export default function ScreenerPage() {
   return (
     <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
       <Topbar
-        title="EOD Stock Screener (Pemilih Saham Otomatis)"
-        subtitle="Filter peluang harian berbasis algoritma teknikal, volume spike, & valuasi pasca-closing"
+        title="EOD Stock Screener & Analisis Saham (Top 10 Picks)"
+        subtitle="Top 10 rekomendasi saham harian pasca-closing market + analisis saham kustom on-demand"
         onRefresh={loadScreener}
       />
 
-      <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="p-6 space-y-6 max-w-7xl mx-auto w-full">
+        {/* Custom On-Demand Stock Analyzer Box */}
+        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700">
+                  <Search className="w-4 h-4" />
+                </span>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Analisis Saham Pilihan Sendiri (On-Demand)
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500">
+                Ketik kode emiten BEI di luar Top 10 (contoh: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">BREN</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">AMMN</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">PGAS</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">MEDC</code>) untuk langsung dianalisis &amp; dimasukkan ke daftar.
+              </p>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAnalyzeCustomTicker();
+              }}
+              className="flex items-center gap-2 w-full md:w-auto"
+            >
+              <div className="relative flex-1 md:w-60">
+                <input
+                  type="text"
+                  placeholder="Ketik Kode Ticker (cth: BREN)..."
+                  value={customTickerInput}
+                  onChange={(e) => setCustomTickerInput(e.target.value.toUpperCase())}
+                  disabled={isAnalyzingCustom}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-xs font-mono font-bold uppercase placeholder:font-normal placeholder:normal-case focus:outline-none focus:border-emerald-600 focus:bg-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isAnalyzingCustom || !customTickerInput.trim()}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow-2xs transition-colors shrink-0 cursor-pointer"
+              >
+                {isAnalyzingCustom ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menganalisis...</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    <span>Analisis &amp; Masukkan</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Feedback Alerts */}
+          {customFeedback && (
+            <div className={`mt-3 p-3 rounded-xl text-xs flex items-center justify-between border ${
+              customFeedback.type === "success" 
+                ? "bg-emerald-50 text-emerald-900 border-emerald-200" 
+                : "bg-rose-50 text-rose-900 border-rose-200"
+            }`}>
+              <div className="flex items-center gap-2">
+                <span className="font-bold">
+                  {customFeedback.type === "success" ? "✅ Sukses:" : "⚠️ Gagal:"}
+                </span>
+                <span>{customFeedback.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomFeedback(null)}
+                className="text-slate-400 hover:text-slate-600 text-xs font-bold ml-4 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Preset Strategy Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -193,12 +329,13 @@ export default function ScreenerPage() {
               ) : (
                 <>
                   <Zap className="w-4 h-4" />
-                  <span>Scan EOD</span>
+                  <span>Scan EOD (Top 10)</span>
                 </>
               )}
             </button>
           </div>
         </div>
+
 
         {/* Screener Results Table */}
         <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">

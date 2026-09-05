@@ -109,6 +109,10 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Pusat Kamus (`/guide` Tab 3)**: Memetakan 4 kategori (Badge Screener `OVERSOLD`/`BREAKOUT`/`VALUE` + AI Score scale, Badge Kelayakan Recovery, 5 Warna Status Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
 - **Quick Modal Bantuan (`/screener`)**: Komponen modal pop-up `[ℹ️ Kamus Badge]` di samping tombol scan untuk referensi instan tanpa meninggalkan halaman.
 
+### I. EOD Screener Top 10 & Analisis Saham Kustom On-Demand
+- **Top 10 Curated Picks**: Fungsi `scan_market_pool(db, top_n=10)` memindai universe LQ45 & saham likuid BEI pasca penutupan pasar, lalu membatasi hasil ke 10 saham dengan AI Score tertinggi untuk menjaga fokus trader.
+- **On-Demand Custom Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI di luar daftar rekomendasi (contoh: `BREN`, `AMMN`, `PGAS`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal (MA, RSI, Support, Resistance), menentukan strategi & AI Score, serta menyimpannya ke database `ScreenerResult`.
+
 ---
 
 

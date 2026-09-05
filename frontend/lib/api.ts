@@ -74,6 +74,11 @@ export const api = {
   // Screener
   getScreener: (strategy: string = "ALL") => fetchApi<any[]>(`/api/v1/screener?strategy=${strategy}`),
   scanScreener: () => fetchApi<any[]>("/api/v1/screener/scan", { method: "POST" }),
+  analyzeScreenerTicker: (ticker: string) =>
+    fetchApi<any>("/api/v1/screener/analyze", {
+      method: "POST",
+      body: JSON.stringify({ ticker }),
+    }),
 
   // Journal
   getTrades: () => fetchApi<any[]>("/api/v1/journal/trades"),

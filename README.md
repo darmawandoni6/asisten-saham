@@ -47,9 +47,10 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Tanya jawab interaktif lanjutan (Q&A) dengan Gemini 2.0 Flash / Rule-Based Expert Engine.
 * **🔎 Skala Tipografi Nyaman (+1x Scale-Up)**: Teks penjelasan, metrik, dan checklist aksi disesuaikan agar sangat ergonomis dan mudah dibaca di layar desktop/laptop.
 
-### 5. 🔍 EOD Stock Screener (`/screener`)
-* Pemindaian pasar harian bursa IDX secara live menggunakan data Yahoo Finance.
-* Preset strategi: **Technical Oversold**, **Breakout / Golden Cross**, dan **Undervalued Growth / Value**.
+### 5. 🔍 EOD Stock Screener & Custom Analyzer (`/screener`)
+* **Top 10 Rekomendasi Terkurasi**: Pemindaian universe likuid BEI (LQ45 & saham aktif) pasca-closing market yang otomatis disortir dan dibatasi ke **Top 10 saham terbaik** berdasarkan AI Score tertinggi.
+* **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung dianalisis kondisi teknikalnya dan dimasukkan ke daftar screener.
+* Preset strategi otomatis: **Technical Oversold (RSI < 35)**, **Breakout / Golden Cross (Close >= MA20 & RSI >= 55)**, dan **Undervalued Growth / Value (Support MA50)**.
 * **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`)**: Pop-up ringkas di samping tombol scan untuk melihat formula strategi dan arti tingkatan **AI Score (0–100)** secara instan.
 
 ### 6. 📔 AI Trading Journal & Post-Mortem (`/journal`)
