@@ -1,9 +1,10 @@
-from typing import Optional
+from datetime import date
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
-from models import Holding, PriceHistory
+from models import Holding, PriceHistory, RecoveryChatLog
 from services.data_fetcher import normalize_ticker
 from services.technical import get_latest_indicators
 from services.recovery_engine import diagnose_recovery, calculate_precision_avg_down
@@ -81,11 +82,70 @@ def calculate_avg_down(req: AvgDownRequest):
 class RecoveryDiscussRequest(BaseModel):
     scenario_id: str
     user_question: Optional[str] = None
+    provider: Optional[str] = None  # 'gemini' | 'opencode_zen'
+
+
+@router.get("/{ticker}/chat-history")
+def get_recovery_chat_history(
+    ticker: str,
+    scenario_id: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    ticker = normalize_ticker(ticker)
+    today = date.today()
+
+    # Auto-purge expired chat logs from previous days
+    db.query(RecoveryChatLog).filter(RecoveryChatLog.session_date < today).delete()
+    db.commit()
+
+    query = db.query(RecoveryChatLog).filter(
+        RecoveryChatLog.ticker == ticker,
+        RecoveryChatLog.session_date == today
+    )
+    if scenario_id:
+        query = query.filter(RecoveryChatLog.scenario_id == scenario_id)
+
+    logs = query.order_by(RecoveryChatLog.created_at.asc()).all()
+    return [
+        {
+            "id": log.id,
+            "ticker": log.ticker,
+            "scenarioId": log.scenario_id,
+            "role": log.role,
+            "message": log.message,
+            "source": log.source,
+            "sessionDate": str(log.session_date),
+            "createdAt": log.created_at.isoformat() if log.created_at else None
+        }
+        for log in logs
+    ]
+
+
+@router.delete("/{ticker}/chat-history")
+def clear_recovery_chat_history(
+    ticker: str,
+    scenario_id: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    ticker = normalize_ticker(ticker)
+    today = date.today()
+
+    query = db.query(RecoveryChatLog).filter(
+        RecoveryChatLog.ticker == ticker,
+        RecoveryChatLog.session_date == today
+    )
+    if scenario_id:
+        query = query.filter(RecoveryChatLog.scenario_id == scenario_id)
+
+    deleted_count = query.delete()
+    db.commit()
+    return {"status": "success", "deleted": deleted_count}
 
 
 @router.post("/{ticker}/discuss")
 def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Depends(get_db)):
     ticker = normalize_ticker(ticker)
+    today = date.today()
     holding = db.query(Holding).filter(Holding.ticker == ticker).first()
     if not holding:
         raise HTTPException(status_code=404, detail="Saham tidak ditemukan dalam portofolio")
@@ -114,13 +174,60 @@ def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Dep
     except Exception as e:
         print(f"[recovery] Error fetching fundamentals for {ticker}: {e}")
 
+    # Fetch today's conversation history for multi-turn context
+    conversation_history = []
+    if req.user_question and req.user_question.strip():
+        # Auto-purge expired history
+        db.query(RecoveryChatLog).filter(RecoveryChatLog.session_date < today).delete()
+        db.commit()
+
+        past_logs = db.query(RecoveryChatLog).filter(
+            RecoveryChatLog.ticker == ticker,
+            RecoveryChatLog.scenario_id == req.scenario_id,
+            RecoveryChatLog.session_date == today
+        ).order_by(RecoveryChatLog.created_at.asc()).all()
+
+        conversation_history = [
+            {"role": log.role, "message": log.message}
+            for log in past_logs
+        ]
+
     result = discuss_recovery_scenario(
         holding=holding,
         scenario_id=req.scenario_id,
         user_question=req.user_question,
         latest_indicators=indicators,
         fundamental_info=fundamental_info,
-        cash_balance=168755.0
+        cash_balance=168755.0,
+        conversation_history=conversation_history,
+        provider=req.provider
     )
+
+    # If this was a user Q&A interaction, persist to today's chat history
+    if req.user_question and req.user_question.strip():
+        user_text = req.user_question.strip()
+        ai_answer = result.get("answer", "")
+        source = result.get("source", "gemini")
+
+        # Save user message
+        db.add(RecoveryChatLog(
+            ticker=ticker,
+            scenario_id=req.scenario_id,
+            role="user",
+            message=user_text,
+            source=None,
+            session_date=today
+        ))
+        # Save assistant message
+        db.add(RecoveryChatLog(
+            ticker=ticker,
+            scenario_id=req.scenario_id,
+            role="assistant",
+            message=ai_answer,
+            source=source,
+            session_date=today
+        ))
+        db.commit()
+
     return result
 

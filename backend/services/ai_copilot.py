@@ -1,11 +1,155 @@
 import os
 import json
+import requests
 from datetime import date
-from typing import Dict, Any
+from typing import Dict, Any, Tuple, Optional, List
+from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from models import AIAnalysis, Holding
 
-def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Session) -> Dict[str, Any]:
+load_dotenv(override=True)
+
+# Runtime in-memory provider selection
+_RUNNING_PROVIDER: Optional[str] = None
+
+def get_gemini_api_key() -> Optional[str]:
+    load_dotenv(override=True)
+    key = os.getenv("GEMINI_API_KEY")
+    if key and key.strip() and key != "your_gemini_api_key_here":
+        return key.strip()
+    return None
+
+def get_opencode_api_key() -> Optional[str]:
+    load_dotenv(override=True)
+    key = os.getenv("OPENCODE_API_KEY")
+    if key and key.strip() and key != "your_opencode_api_key_here":
+        return key.strip()
+    return None
+
+
+def get_active_provider() -> str:
+    global _RUNNING_PROVIDER
+    if _RUNNING_PROVIDER:
+        return _RUNNING_PROVIDER
+    
+    env_provider = os.getenv("AI_PROVIDER", "").strip().lower()
+    if env_provider in ("gemini", "opencode_zen"):
+        return env_provider
+    
+    # Auto-detect fallback based on configured keys
+    if get_opencode_api_key() and not get_gemini_api_key():
+        return "opencode_zen"
+    return "gemini"
+
+def set_active_provider(provider: str) -> str:
+    global _RUNNING_PROVIDER
+    if provider in ("gemini", "opencode_zen"):
+        _RUNNING_PROVIDER = provider
+        return provider
+    raise ValueError(f"Provider tidak valid: {provider}. Pilihan: 'gemini' atau 'opencode_zen'")
+
+def get_ai_providers_status() -> Dict[str, Any]:
+    load_dotenv()
+    gemini_key = get_gemini_api_key()
+    opencode_key = get_opencode_api_key()
+    active = get_active_provider()
+    
+    return {
+        "active_provider": active,
+        "providers": [
+            {
+                "id": "gemini",
+                "name": "Google Gemini",
+                "model": os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
+                "is_configured": bool(gemini_key),
+                "badge_label": "Google Gemini AI"
+            },
+            {
+                "id": "opencode_zen",
+                "name": "OpenCode Zen",
+                "model": os.getenv("OPENCODE_MODEL", "deepseek-chat"),
+                "base_url": os.getenv("OPENCODE_BASE_URL", "https://opencode.ai/zen/v1"),
+                "is_configured": bool(opencode_key),
+                "badge_label": "OpenCode Zen AI"
+            }
+        ]
+    }
+
+def _extract_json(text: str) -> dict:
+    text = text.strip()
+    if "```json" in text:
+        text = text.split("```json", 1)[1].split("```", 1)[0].strip()
+    elif "```" in text:
+        text = text.split("```", 1)[1].split("```", 1)[0].strip()
+    return json.loads(text)
+
+def call_llm(
+    prompt: str,
+    system_prompt: Optional[str] = None,
+    preferred_provider: Optional[str] = None,
+    json_mode: bool = False
+) -> Tuple[str, str]:
+    """
+    Calls the selected LLM provider (or active provider).
+    Returns (response_text, provider_name).
+    """
+    provider = preferred_provider or get_active_provider()
+    
+    if provider == "opencode_zen":
+        api_key = get_opencode_api_key()
+        if not api_key:
+            raise ValueError("API Key OpenCode Zen belum dikonfigurasi di backend/.env (OPENCODE_API_KEY)")
+        
+        base_url = os.getenv("OPENCODE_BASE_URL", "https://opencode.ai/zen/v1").rstrip("/")
+        model_name = os.getenv("OPENCODE_MODEL", "deepseek-chat")
+        
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        
+        payload: Dict[str, Any] = {
+            "model": model_name,
+            "messages": messages,
+            "temperature": 0.2
+        }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+            
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        resp = requests.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=60)
+        if resp.status_code != 200:
+            raise RuntimeError(f"OpenCode Zen API Error ({resp.status_code}): {resp.text}")
+            
+        data = resp.json()
+        content = data["choices"][0]["message"]["content"]
+        return content.strip(), "opencode_zen"
+        
+    else:  # Gemini
+        api_key = get_gemini_api_key()
+        if not api_key:
+            raise ValueError("API Key Google Gemini belum dikonfigurasi di backend/.env (GEMINI_API_KEY)")
+            
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model_name = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+        model = genai.GenerativeModel(model_name)
+        
+        full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+        resp = model.generate_content(full_prompt)
+        return resp.text.strip(), "gemini"
+
+
+def analyze_holding_with_ai(
+    holding: Holding,
+    latest_indicators: dict,
+    db: Session,
+    provider: Optional[str] = None
+) -> Dict[str, Any]:
     ticker = holding.ticker
     today = date.today()
 
@@ -19,15 +163,18 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
     resistance = float(latest_indicators.get("resistance", close * 1.05))
     jenis = getattr(holding, "jenis", "trading") or "trading"
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    active_provider = provider or get_active_provider()
+    has_key = bool(get_opencode_api_key() if active_provider == "opencode_zen" else get_gemini_api_key())
 
-    # User preference: Jika belum pakai AI, berikan alert AI belum tersedia
-    if not api_key or api_key == "your_gemini_api_key_here":
+    if not has_key:
+        provider_name = "OpenCode Zen" if active_provider == "opencode_zen" else "Google Gemini"
+        key_name = "OPENCODE_API_KEY" if active_provider == "opencode_zen" else "GEMINI_API_KEY"
         return {
             "status": "unavailable",
             "error_type": "NO_API_KEY",
-            "message": "Fitur AI Copilot belum tersedia karena API Key Google Gemini belum dikonfigurasi di backend.",
-            "detail": "Tambahkan GEMINI_API_KEY di file backend/.env untuk mengaktifkan analisis generatif Gemini 2.0 Flash.",
+            "provider": active_provider,
+            "message": f"Fitur AI Copilot belum tersedia karena API Key {provider_name} belum dikonfigurasi.",
+            "detail": f"Tambahkan {key_name} di file backend/.env untuk mengaktifkan analisis AI.",
             "ticker": ticker,
             "name": f"{ticker.replace('.JK', '')} Tbk",
             "date": str(today),
@@ -52,6 +199,7 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
 
         return {
             "status": "success",
+            "provider": snapshot.get("source", active_provider),
             "ticker": ticker,
             "name": f"{ticker.replace('.JK', '')} Tbk",
             "date": str(cached.date),
@@ -69,23 +217,27 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
         }
 
     try:
+        tp_text = f"Rp {round(holding.target_price):,d}" if holding.target_price else "Belum ditentukan"
+        sl_text = "Tidak ada hard stop loss (Saham Investasi)" if jenis == "investasi" else (f"Rp {round(holding.stop_loss):,d}" if holding.stop_loss else "Belum ditentukan")
 
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        system_prompt = (
+            "Anda adalah AI Decision Copilot profesional untuk saham IDX (Bursa Efek Indonesia). "
+            "Berikan analisis EOD pasca-closing objektif, berbasis data teknikal historis, dan bebas emosi."
+        )
 
         prompt = f"""
-        Anda adalah AI Decision Copilot profesional untuk saham IDX (Bursa Efek Indonesia).
-        Berikan analisis EOD pasca-closing objektif dan bebas emosi untuk:
         Ticker: {ticker}
         Jenis Kepemilikan: {jenis.upper()} (PENTING: Jika jenis INVESTASI, jangan rekomendasikan Cut Loss panik. Fokus pada valuasi, dividen, support historis, dan kelayakan averaging down bertahap. Jika TRADING, utamakan disiplin Stop Loss ketat)
-        Harga Close EOD: Rp {close}
-        Avg Price Beli: Rp {avg_price} (PnL: {pnl_pct:.2f}%)
-        Target Price: Rp {holding.target_price}
-        Stop Loss: {'Tidak ada hard stop loss (Saham Investasi)' if jenis == 'investasi' else f'Rp {holding.stop_loss}'}
-        Indikator: MA20={ma20}, MA50={ma50}, RSI(14)={rsi}, Support={support}, Resistance={resistance}
+        Harga Close EOD: Rp {round(close):,d}
+        Avg Price Beli: Rp {round(avg_price):,d} (PnL: {pnl_pct:.2f}%)
+        Target Price: {tp_text}
+        Stop Loss: {sl_text}
+        Indikator: MA20=Rp {round(ma20):,d}, MA50=Rp {round(ma50):,d}, RSI(14)={rsi:.1f}, Support=Rp {round(support):,d}, Resistance=Rp {round(resistance):,d}
 
-        Format jawaban JSON:
+        ATURAN FORMAT PENTING:
+        - Seluruh harga saham, level support/resistance, target, dan nominal Rupiah WAJIB dinyatakan dalam BILANGAN BULAT (integer) tanpa desimal/sen (contoh: Rp {round(close):,d}, bukan {close}).
+
+        Format jawaban JSON murni:
         {{
             "recommendation": "HOLD" | "TRIM 50%" | "SELL ALL" | "CUT LOSS" | "AVERAGE DOWN" | "BUY MORE",
             "confidence": 85-95,
@@ -93,9 +245,13 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
             "action_items": ["item 1", "item 2", "item 3"]
         }}
         """
-        response = model.generate_content(prompt)
-        clean_text = response.text.replace("```json", "").replace("```", "").strip()
-        data = json.loads(clean_text)
+        response_text, used_provider = call_llm(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            preferred_provider=active_provider,
+            json_mode=True
+        )
+        data = _extract_json(response_text)
         recommendation = data.get("recommendation", "HOLD")
         rationale = data.get("rationale", "")
         action_items = data.get("action_items", [])
@@ -108,7 +264,7 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
             recommendation=recommendation,
             analysis_text=rationale,
             raw_data_snapshot=json.dumps({
-                "source": "gemini",
+                "source": used_provider,
                 "action_items": action_items,
                 "confidence": confidence,
                 "indicators": latest_indicators
@@ -119,6 +275,7 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
 
         return {
             "status": "success",
+            "provider": used_provider,
             "ticker": ticker,
             "name": f"{ticker.replace('.JK', '')} Tbk",
             "date": str(today),
@@ -134,13 +291,13 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
 
     except Exception as e:
         err_msg = str(e)
-        print(f"[ai_copilot] Error memanggil Gemini: {err_msg}")
+        print(f"[ai_copilot] Error memanggil AI ({active_provider}): {err_msg}")
         is_quota = any(k in err_msg.lower() for k in ["429", "resourceexhausted", "quota", "limit", "exhausted"])
         error_type = "QUOTA_EXCEEDED" if is_quota else "AI_ERROR"
         user_message = (
-            "AI belum dapat menjawab saat ini karena limit atau kuota token Gemini API telah habis."
+            f"AI ({active_provider}) belum dapat menjawab saat ini karena limit atau kuota token telah habis."
             if is_quota else
-            f"AI belum dapat memproses jawaban: {err_msg}"
+            f"AI ({active_provider}) belum dapat memproses jawaban: {err_msg}"
         )
         user_detail = (
             "Batas kuota harian (rate limit) API tercapai. Mohon tunggu beberapa saat sebelum mencoba analisis ulang."
@@ -150,6 +307,7 @@ def analyze_holding_with_ai(holding: Holding, latest_indicators: dict, db: Sessi
 
         return {
             "status": "error",
+            "provider": active_provider,
             "error_type": error_type,
             "message": user_message,
             "detail": user_detail,
@@ -169,7 +327,9 @@ def discuss_recovery_scenario(
     user_question: str | None,
     latest_indicators: dict,
     fundamental_info: dict,
-    cash_balance: float = 168755.0
+    cash_balance: float = 168755.0,
+    conversation_history: list = None,
+    provider: Optional[str] = None
 ) -> Dict[str, Any]:
     ticker = holding.ticker
     jenis = getattr(holding, "jenis", "trading") or "trading"
@@ -205,40 +365,55 @@ def discuss_recovery_scenario(
     }
     scenario_title = scenario_names.get(scenario_id, "Skenario Penyelamatan")
 
-    api_key = os.getenv("GEMINI_API_KEY")
-    has_valid_api = bool(api_key and api_key != "your_gemini_api_key_here")
+    active_provider = provider or get_active_provider()
+    has_valid_api = bool(get_opencode_api_key() if active_provider == "opencode_zen" else get_gemini_api_key())
 
     # If user provided a specific follow-up question
     if user_question and user_question.strip():
         q_clean = user_question.strip()
         
-        # Check if Gemini API is available
         if has_valid_api:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel("gemini-2.0-flash")
+                history_context = ""
+                if conversation_history and len(conversation_history) > 0:
+                    history_lines = []
+                    for h in conversation_history[-6:]:
+                        role_label = "USER" if h.get("role") == "user" else "AI"
+                        msg_text = h.get("message") or h.get("text", "")
+                        if msg_text:
+                            history_lines.append(f"{role_label}: {msg_text}")
+                    if history_lines:
+                        history_context = "\nRiwayat Percakapan Sebelumnya Sesi Hari Ini:\n" + "\n".join(history_lines) + "\n"
+
+                system_prompt = (
+                    "Anda adalah AI Financial & Trading Copilot profesional untuk pasar saham IDX (Bursa Efek Indonesia). "
+                    "Berikan jawaban yang edukatif, jujur, berbasis matematika & data teknikal, bebas halusinasi, dan dalam Bahasa Indonesia profesional."
+                )
 
                 prompt = f"""
-                Anda adalah AI Financial & Trading Copilot profesional untuk saham IDX.
                 Konteks Pengguna:
                 - Ticker: {ticker} (Tipe: {jenis.upper()})
-                - Posisi: {lot} Lot di Avg Rp {avg_price:,.0f}, Harga saat ini Rp {close:,.0f} (Floating Loss: {pnl_pct:.2f}% / Rp {floating_nominal:,.0f})
-                - Sisa Saldo Kas Pengguna: Rp {cash_balance:,.0f}
-                - Indikator: Support Major Rp {support:,.0f}, Resistance Rp {resistance:,.0f}, MA20 Rp {ma20:,.0f}, RSI {rsi:.1f}
+                - Posisi: {lot} Lot di Avg Rp {round(avg_price):,d}, Harga saat ini Rp {round(close):,d} (Floating Loss: {pnl_pct:.2f}% / Rp {round(floating_nominal):,d})
+                - Sisa Saldo Kas Pengguna: Rp {round(cash_balance):,d}
+                - Indikator: Support Major Rp {round(support):,d}, Resistance Rp {round(resistance):,d}, MA20 Rp {round(ma20):,d}, RSI {rsi:.1f}
                 - Fundamental: Dividend Yield {div_text}, PE {pe if pe else '-'}x, PBV {pbv if pbv else '-'}x
                 - Skenario yang Dipilih: {scenario_title}
+                {history_context}
+                Pertanyaan Pengguna Terbaru: "{q_clean}"
 
-                Pertanyaan Pengguna: "{q_clean}"
-
-                Berikan jawaban yang edukatif, jujur, objektif, bebas halusinasi, dan langsung ke poin dalam 1-3 paragraf ringkas berbahasa Indonesia yang bersahabat dan profesional.
-                Sertakan perhitungan nominal riil jika pengguna bertanya tentang nominal kas/dividen/lot.
+                ATURAN FORMAT WAJIB:
+                - Seluruh harga saham, target pergerakan harga, dan nominal Rupiah WAJIB berupa BILANGAN BULAT tanpa pecahan/desimal/sen (contoh: Rp {round(avg_price):,d}, bukan {avg_price}).
+                - Berikan jawaban langsung ke poin dalam 1-3 paragraf ringkas yang bersahabat dan profesional.
+                - Sertakan perhitungan nominal riil jika pengguna bertanya tentang nominal kas/dividen/lot.
                 """
-                resp = model.generate_content(prompt)
-                ai_answer = resp.text.strip()
+                ai_answer, used_provider = call_llm(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    preferred_provider=active_provider
+                )
                 return {
                     "status": "success",
-                    "source": "gemini",
+                    "source": used_provider,
                     "hasApiKey": True,
                     "scenarioId": scenario_id,
                     "scenarioTitle": scenario_title,
@@ -246,9 +421,9 @@ def discuss_recovery_scenario(
                     "answer": ai_answer
                 }
             except Exception as e:
-                print(f"[recovery_discuss] Gemini error: {e}")
+                print(f"[recovery_discuss] {active_provider} error: {e}")
         
-        # Rule-based Q&A responder
+        # Rule-based Q&A fallback responder
         q_lower = q_clean.lower()
         if any(w in q_lower for w in ["dividen", "yield", "passive", "penghasilan", "bagi hasil"]):
             if est_annual_div_total > 0:
@@ -299,7 +474,7 @@ def discuss_recovery_scenario(
 
         return {
             "status": "success",
-            "source": "rule_based" if not has_valid_api else "gemini",
+            "source": "rule_based",
             "hasApiKey": has_valid_api,
             "scenarioId": scenario_id,
             "scenarioTitle": scenario_title,
@@ -310,21 +485,22 @@ def discuss_recovery_scenario(
     # Initial Deep-Dive breakdown
     if has_valid_api:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
-
+            system_prompt = (
+                "Anda adalah AI Decision Copilot profesional saham IDX. "
+                "Berikan analisis bedah logika mendalam dalam format JSON murni."
+            )
             prompt = f"""
-            Anda adalah AI Decision Copilot profesional saham IDX.
-            Berikan analisis bedah logika mendalam untuk:
             Ticker: {ticker} (Tipe: {jenis.upper()})
-            Lot: {lot} | Avg Price: Rp {avg_price} | Harga EOD: Rp {close} (Floating PnL: {pnl_pct:.2f}%)
-            Saldo Kas Pengguna: Rp {cash_balance:,.0f}
-            Support: Rp {support} | Resistance: Rp {resistance} | MA20: Rp {ma20} | RSI: {rsi}
+            Lot: {lot} | Avg Price: Rp {round(avg_price):,d} | Harga EOD: Rp {round(close):,d} (Floating PnL: {pnl_pct:.2f}%)
+            Saldo Kas Pengguna: Rp {round(cash_balance):,d}
+            Support: Rp {round(support):,d} | Resistance: Rp {round(resistance):,d} | MA20: Rp {round(ma20):,d} | RSI: {rsi:.1f}
             Fundamental: Yield {div_text}, PE {pe}, PBV {pbv}
             Skenario yang Dibedah: {scenario_title}
 
-            Format jawaban JSON:
+            ATURAN FORMAT WAJIB:
+            - Seluruh harga saham, target pergerakan harga, level support/resistance, dan nominal Rupiah WAJIB berupa BILANGAN BULAT tanpa pecahan/desimal/sen (contoh: Rp {round(avg_price):,d}, bukan {avg_price}).
+
+            Format JSON:
             {{
                 "coreLogic": "1-2 paragraf penjelasan mendalam mengapa opsi ini paling logis secara finansial dan psikologis bagi investor",
                 "invalidationRisk": "Kondisi terburuk apa yang membatalkan skenario ini dan apa batas toleransinya",
@@ -336,12 +512,16 @@ def discuss_recovery_scenario(
                 ]
             }}
             """
-            resp = model.generate_content(prompt)
-            clean_text = resp.text.replace("```json", "").replace("```", "").strip()
-            data = json.loads(clean_text)
+            response_text, used_provider = call_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                preferred_provider=active_provider,
+                json_mode=True
+            )
+            data = _extract_json(response_text)
             return {
                 "status": "success",
-                "source": "gemini",
+                "source": used_provider,
                 "hasApiKey": True,
                 "scenarioId": scenario_id,
                 "scenarioTitle": scenario_title,
@@ -353,7 +533,7 @@ def discuss_recovery_scenario(
                 ]
             }
         except Exception as e:
-            print(f"[recovery_deepdive] Gemini error: {e}")
+            print(f"[recovery_deepdive] {active_provider} error: {e}")
 
     # Deterministic Rule-Based Deep Dive (Clean, Transparent, Accurate)
     if scenario_id == "holdForBep":
@@ -444,5 +624,3 @@ def discuss_recovery_scenario(
             "Bolehkah saya mencicil bertahap dengan saldo kas yang ada?"
         ]
     }
-
-

@@ -146,7 +146,7 @@ export interface RecoveryDiagnosis {
 
 export interface RecoveryDiscussion {
   status: string;
-  source: 'gemini' | 'rule_based';
+  source: 'gemini' | 'opencode_zen' | 'rule_based';
   hasApiKey?: boolean;
   scenarioId: string;
   scenarioTitle: string;
@@ -159,6 +159,17 @@ export interface RecoveryDiscussion {
   suggestedQuestions?: string[];
   question?: string;
   answer?: string;
+}
+
+export interface RecoveryChatMessage {
+  id?: number;
+  ticker: string;
+  scenarioId: string;
+  role: 'user' | 'assistant';
+  message: string;
+  source?: string;
+  sessionDate?: string;
+  createdAt?: string;
 }
 
 
@@ -217,3 +228,46 @@ export interface PortfolioSummary {
     recoveryMode: number;
   };
 }
+
+export interface AICopilotAnalysisResult {
+  status: 'success' | 'unavailable' | 'error';
+  error_type?: 'NO_API_KEY' | 'QUOTA_EXCEEDED' | 'AI_ERROR';
+  message?: string;
+  detail?: string;
+  ticker?: string;
+  name?: string;
+  date?: string;
+  currentPrice?: number;
+  avgPrice?: number;
+  pnlPct?: number;
+  recommendation?: string;
+  confidence?: number;
+  rationale?: string;
+  indicators?: {
+    ma20?: number;
+    ma50?: number;
+    ma200?: number;
+    rsi?: number;
+    support?: number;
+    resistance?: number;
+    trend?: string;
+    volume_status?: string;
+  };
+  actionItems?: string[];
+  provider?: string;
+}
+
+export interface AIProviderInfo {
+  id: 'gemini' | 'opencode_zen';
+  name: string;
+  model: string;
+  base_url?: string;
+  is_configured: boolean;
+  badge_label: string;
+}
+
+export interface AIProvidersResponse {
+  active_provider: 'gemini' | 'opencode_zen';
+  providers: AIProviderInfo[];
+}
+

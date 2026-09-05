@@ -34,9 +34,9 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 | **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS | Port `3000` (`http://localhost:3000`) |
 | **Interactive Chart** | TradingView Lightweight Charts v5 | Gunakan syntax `chart.addSeries(CandlestickSeries, ...)` |
 | **Backend API** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
-| **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `trade_log`, `ai_analysis`, `screener_results` |
+| **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `trade_log`, `ai_analysis`, `screener_results`, `recovery_chat_logs` |
 | **Data Pasar** | Yahoo Finance (`yfinance`) | EOD update pasca-closing market BEI (17:30 WIB) |
-| **AI LLM** | Google Gemini 2.0 Flash (`google-generativeai`) | API key diatur via `GEMINI_API_KEY` di `backend/.env` |
+| **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`) | Toggle via UI `[ ✨ Gemini ] [ ⚡ Zen ]`, API `/api/v1/analysis/providers` |
 
 ---
 
@@ -94,16 +94,25 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 ### E. Status Fitur Eksternal
 - **Telegram Bot Notification**: Status saat ini adalah **Under Development** (diarahkan ke log sistem internal, belum dikaitkan ke API live).
 
-### F. Bedah Logika Skenario & Tanya Jawab Interaktif AI (`backend/services/ai_copilot.py`)
-- Endpoint: `POST /api/v1/recovery/{ticker}/discuss` dengan payload `{ "scenario_id": str, "user_question": Optional[str] }`.
+### F. Multi-Provider AI Copilot & Bedah Logika Skenario (`backend/services/ai_copilot.py`)
+- **Dukungan Multi-Provider**:
+  - **Google Gemini**: Menggunakan `gemini-3.5-flash-lite` via `google-generativeai`.
+  - **OpenCode Zen**: Menggunakan OpenAI-compatible client via endpoint `https://opencode.ai/zen/v1` (`nemotron-3.5-lightning-free`, `deepseek`, `claude`).
+  - **Provider Switcher UI**: Pengguna dapat beralih provider secara instan via pill `[ ✨ Gemini ] [ ⚡ Zen ]` di modal recovery dan dashboard.
+  - **API Endpoints**: `GET /api/v1/analysis/providers` (status konfigurasi), `POST /api/v1/analysis/provider` (ganti provider aktif).
+  - **Hot-Reload Environment**: Menggunakan `load_dotenv(override=True)` sehingga perubahan key di `.env` langsung aktif tanpa perlu me-restart server.
+- **Failover Transparan (Graceful Fallback)**:
+  - Jika kuota/rate limit habis (HTTP 429) atau API belum dikonfigurasi, sistem otomatis beralih ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`).
 - **4 Pilar Analisis Mendalam**:
   1. `coreLogic`: Logika objektif pemilihan skenario berdasarkan profil emiten & kecukupan kas.
   2. `invalidationRisk`: Batas risiko dan level harga invalidasi (Plan B) bila tren breakdown.
   3. `cashflowAndTimeline`: Estimasi arus kas dividen riil per tahun & estimasi rentang waktu rebound.
   4. `tomorrowActionPlan`: Checklist 3 langkah aksi konkret sebelum market buka pukul 09:00 WIB.
-- **Dual Engine Architecture**:
-  - Menggunakan **Google Gemini 2.0 Flash** bila `GEMINI_API_KEY` aktif.
-  - Fallback otomatis dan transparan ke **Deterministic Rule-Based Expert Engine** bila tanpa API key (`source: "rule_based"`).
+- **1-Day Ephemeral Chat History**:
+  - Model: `RecoveryChatLog` (`recovery_chat_logs`).
+  - Menyimpan riwayat percakapan interaktif khusus untuk sesi hari perdagangan berjalan.
+  - Otomatis dibersihkan (*purged*) saat penutupan bursa (17:30 WIB) via `APScheduler` di `backend/scheduler.py` atau saat pergantian tanggal bursa.
+  - Dilengkapi endpoint `GET /api/v1/recovery/{ticker}/chat-history` dan `DELETE /api/v1/recovery/{ticker}/chat-history` (tombol *Bersihkan Riwayat* di UI).
 
 ### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
 - Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.

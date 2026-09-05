@@ -16,12 +16,15 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - 🔵 **AVERAGING DOWN REVIEW**: Saham investasi yang mengalami koreksi dalam (> 30%) untuk evaluasi cicil beli.
 * **Daily Action Sheet**: Rangkuman urutan aksi prioritas pasca penutupan bursa untuk persiapan order esok pagi.
 
-### 2. 🧠 AI Decision Copilot Panel
+### 2. 🧠 Multi-Provider AI Decision Copilot Panel
 * Evaluasi kondisi teknikal terkini (Close, MA20, MA50, RSI, Support/Resistance) terhadap **Avg Beli** dan **Trading Plan**.
-* **Prinsip Transparansi AI**:
-  - Menampilkan alert informatif jika API Key Gemini belum dipasang (lengkap dengan panduan setup).
-  - Menampilkan alert jika batas kuota/token Gemini API telah habis (rate limit), tanpa memalsukan analisis.
-  - Saat aktif, menghasilkan rekomendasi naratif mendalam dari model **Google Gemini 2.0 Flash**.
+* **Dukungan Multi-Provider LLM (Google Gemini & OpenCode Zen)**:
+  - Pengguna dapat memilih model AI yang digunakan melalui **Provider Switcher Toggle** `[ ✨ Gemini ] [ ⚡ Zen ]` secara instan langsung di UI.
+  - Mendukung **Google Gemini** (`gemini-3.5-flash-lite`) via Google AI Studio.
+  - Mendukung **OpenCode Zen** (`nemotron-3.5-lightning-free`, `claude`, `deepseek`, dll.) via OpenAI-compatible endpoint (`https://opencode.ai/zen/v1`).
+* **Prinsip Transparansi & Graceful Fallback AI**:
+  - Menampilkan alert informatif jika API Key belum dipasang (lengkap dengan panduan setup).
+  - Jika kuota/rate limit habis (HTTP 429), sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** tanpa crash atau error layar kosong.
 
 ### 3. 💼 Portfolio & Trading Plan Management (`/portfolio`)
 * **Diferensiasi Posisi**: Membedakan saham **Trading** (dengan proteksi Stop Loss ketat) dan **Investasi** (tanpa hard Stop Loss, fokus pada horizon panjang & dividen).
@@ -94,7 +97,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM |
 | **Data Market** | Yahoo Finance (`yfinance`) dengan format ticker `.JK` |
 | **Technical Analysis** | Native Pandas (kompatibel penuh dengan Python 3.14 macOS) |
-| **AI LLM** | Google Gemini 2.0 Flash (`google-generativeai`) |
+| **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`, `deepseek`, `claude`) |
 | **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB) |
 
 ---
@@ -152,20 +155,30 @@ Data pasar BEI otomatis ditarik setiap Senin–Jumat pukul 17:30 WIB. Namun Anda
 
 ---
 
-## 🔒 Konfigurasi API Key (`backend/.env`)
+## 🔒 Konfigurasi API Key Multi-Provider (`backend/.env`)
 
-Edit file `backend/.env` untuk mengaktifkan fitur AI Copilot dan Notifikasi Telegram:
+Edit file `backend/.env` untuk mengaktifkan fitur AI Copilot (Google Gemini & OpenCode Zen) dan Notifikasi Telegram:
 
 ```env
-# Google Gemini API Key (Dapatkan gratis di https://aistudio.google.com)
+# 1. Google Gemini API (Dapatkan gratis di https://aistudio.google.com)
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-3.5-flash-lite
 
-# Telegram Bot (Opsional — untuk notifikasi EOD ke smartphone)
+# 2. OpenCode Zen API (Dapatkan di https://opencode.ai)
+OPENCODE_API_KEY=sk-your_opencode_api_key_here
+OPENCODE_MODEL=nemotron-3.5-lightning-free
+OPENCODE_BASE_URL=https://opencode.ai/zen/v1
+
+# 3. Default Active Provider ("gemini" | "opencode_zen")
+AI_PROVIDER=gemini
+
+# 4. Telegram Bot (Opsional — untuk notifikasi EOD ke smartphone)
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 ```
 
-*(Catatan: Tanpa memasukkan API Key, seluruh kalkulasi teknikal, chart, portofolio, dan kalkulator average down tetap beroperasi 100% secara lokal).*
+*(Catatan: Tanpa memasukkan API Key, seluruh kalkulasi teknikal, chart, portofolio, dan kalkulator average down tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
+
 
 ---
 

@@ -74,3 +74,15 @@ class ScreenerResult(Base):
     score = Column(Float, nullable=True)
     details = Column(Text, nullable=True) # JSON
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class RecoveryChatLog(Base):
+    __tablename__ = "recovery_chat_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    ticker = Column(String, nullable=False, index=True)
+    scenario_id = Column(String, nullable=False, index=True)
+    role = Column(String, nullable=False) # 'user' or 'assistant'
+    message = Column(Text, nullable=False)
+    source = Column(String, nullable=True) # 'gemini' or 'rule_based'
+    session_date = Column(Date, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -1,17 +1,44 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from database import get_db
 from models import Holding, PriceHistory
 from services.data_fetcher import normalize_ticker, fetch_and_store_stock_data
 from services.technical import get_latest_indicators
-from services.ai_copilot import analyze_holding_with_ai
+from services.ai_copilot import (
+    analyze_holding_with_ai,
+    get_ai_providers_status,
+    set_active_provider
+)
 import pandas as pd
 
 router = APIRouter(prefix="/api/v1/analysis", tags=["AI Copilot"])
 
+class SetProviderRequest(BaseModel):
+    provider: str  # 'gemini' | 'opencode_zen'
+
+@router.get("/providers")
+def get_providers():
+    """Get list of AI providers, configuration status, and active provider."""
+    return get_ai_providers_status()
+
+@router.post("/provider")
+def set_provider(req: SetProviderRequest):
+    """Switch the runtime active AI provider."""
+    try:
+        active = set_active_provider(req.provider)
+        return {"status": "success", "active_provider": active}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/{ticker}")
 @router.get("/{ticker}")
-def analyze_stock(ticker: str, db: Session = Depends(get_db)):
+def analyze_stock(
+    ticker: str,
+    provider: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
     ticker = normalize_ticker(ticker)
     holding = db.query(Holding).filter(Holding.ticker == ticker).first()
     
@@ -30,5 +57,5 @@ def analyze_stock(ticker: str, db: Session = Depends(get_db)):
         } for r in records])
 
     indicators = get_latest_indicators(df)
-    result = analyze_holding_with_ai(holding, indicators, db)
+    result = analyze_holding_with_ai(holding, indicators, db, provider=provider)
     return result

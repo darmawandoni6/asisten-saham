@@ -89,13 +89,27 @@
 
 ---
 
-## 📌 TAHAP 6 — Integrasi Live AI LLM & Multi-Turn Conversational Memory [PLANNED ⏳]
-> Menghubungkan Google Gemini 2.0 Flash secara live dan menyempurnakan memori percakapan multi-turn di chat recovery.
+## 📌 TAHAP 6 — Integrasi Live AI LLM & Multi-Turn Conversational Memory (1-Day Ephemeral) [SELESAI ✅]
+> Menghubungkan Google Gemini secara live dan menyempurnakan memori percakapan multi-turn di chat recovery dengan retensi 1 hari (auto-purge saat market close).
 
-- [ ] 6.1 Konfigurasi Environment & Key Setup (`backend/.env` dengan `GEMINI_API_KEY`)
-- [ ] 6.2 Integrasi Multi-Turn Chat Memory di Backend (`backend/routers/recovery.py` & `backend/services/ai_copilot.py` menerima array `chat_history`)
-- [ ] 6.3 Pengiriman State `chatHistory` dari Frontend (`frontend/app/recovery/page.tsx` line 62) ke API
-- [ ] 6.4 Handling Token Context Window & Pruning riwayat percakapan lama agar tetap hemat kuota
-- [ ] 6.5 Uji Coba End-to-End percakapan multi-turn live dengan model Gemini 2.0 Flash
+- [x] 6.1 Konfigurasi Environment & Key Setup (`backend/.env` dengan `GEMINI_API_KEY`)
+- [x] 6.2 Integrasi Multi-Turn Chat Memory di Backend (`backend/routers/recovery.py` & `backend/services/ai_copilot.py` dengan model `RecoveryChatLog`)
+- [x] 6.3 Pengiriman & Penyimpanan State `chatHistory` (Endpoint GET/DELETE `/chat-history`, auto-load saat buka modal diskusi)
+- [x] 6.4 Auto-Purge Pasca-Closing: Pembersihan otomatis riwayat chat pada penutupan bursa (17:30 WIB) via `APScheduler`
+- [x] 6.5 Uji Coba End-to-End percakapan multi-turn live dengan model Gemini Flash & tombol Bersihkan Riwayat di UI
+
+---
+
+## ⚡ TAHAP 7 — Multi-Provider LLM Architecture (Google Gemini & OpenCode Zen) [SELESAI ✅]
+> Dukungan hybrid multi-provider LLM dengan UI toggle selector dan hot-reload configuration.
+
+- [x] 7.1 Backend Multi-Provider Engine (`services/ai_copilot.py` — Google Gemini & OpenCode Zen OpenAI-compatible client)
+- [x] 7.2 API Router Endpoints (`GET /api/v1/analysis/providers`, `POST /api/v1/analysis/provider`, parameter `provider` di discuss/analyze)
+- [x] 7.3 Frontend UI Provider Switcher (`[ ✨ Gemini ] [ ⚡ Zen ]`) pada modal Recovery Discussion & AI Copilot Panel
+- [x] 7.4 Hot-Reload Environment Variables (`load_dotenv(override=True)` untuk instant runtime key sync)
+- [x] 7.5 Integrasi Native Markdown Renderer (`frontend/components/MarkdownText.tsx` tanpa dependency external)
+- [x] 7.6 Standarisasi format seluruh harga saham IDX sebagai integer (bilangan bulat)
+- [x] 7.7 Pemutakhiran dokumentasi `README.md` & `AGENTS.md`
+
 
 

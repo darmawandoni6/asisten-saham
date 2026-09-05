@@ -19,10 +19,13 @@ import {
   MessageSquare,
   Send,
   X,
-  CheckSquare
+  Trash2,
+  Clock,
+  Bot
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { RecoveryDiagnosis, Holding, RecoveryDiscussion } from "@/types";
+import { RecoveryDiagnosis, Holding, RecoveryDiscussion, RecoveryChatMessage } from "@/types";
+import { MarkdownText } from "@/components/MarkdownText";
 
 export default function RecoveryPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -41,21 +44,51 @@ export default function RecoveryPage() {
   const [chatHistory, setChatHistory] = useState<Array<{ role: "user" | "assistant"; text: string; source?: string }>>([]);
   const [customQuestion, setCustomQuestion] = useState("");
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<"gemini" | "opencode_zen">("gemini");
 
-  const handleOpenDiscussion = async (scenarioId: string) => {
+  const handleOpenDiscussion = async (scenarioId: string, providerOverride?: "gemini" | "opencode_zen") => {
     setActiveScenarioModal(scenarioId);
     setIsDiscussionLoading(true);
     setChatHistory([]);
     setCustomQuestion("");
+    const providerToUse = providerOverride || selectedProvider;
     try {
-      const res = await api.discussRecovery(selectedTicker, { scenario_id: scenarioId });
+      const [res, history] = await Promise.all([
+        api.discussRecovery(selectedTicker, { scenario_id: scenarioId, provider: providerToUse }),
+        api.getRecoveryChatHistory(selectedTicker, scenarioId).catch(() => [])
+      ]);
       if (res) {
         setDiscussionData(res);
+      }
+      if (history && history.length > 0) {
+        setChatHistory(
+          history.map((item: RecoveryChatMessage) => ({
+            role: item.role,
+            text: item.message,
+            source: item.source
+          }))
+        );
       }
     } catch (err) {
       console.warn("Error loading scenario discussion:", err);
     } finally {
       setIsDiscussionLoading(false);
+    }
+  };
+
+  const handleSwitchProvider = async (newProvider: "gemini" | "opencode_zen") => {
+    setSelectedProvider(newProvider);
+    if (!activeScenarioModal) return;
+    await handleOpenDiscussion(activeScenarioModal, newProvider);
+  };
+
+  const handleClearChatHistory = async () => {
+    if (!activeScenarioModal || !selectedTicker) return;
+    try {
+      await api.clearRecoveryChatHistory(selectedTicker, activeScenarioModal);
+      setChatHistory([]);
+    } catch (err) {
+      console.warn("Error clearing chat history:", err);
     }
   };
 
@@ -69,11 +102,12 @@ export default function RecoveryPage() {
       const res = await api.discussRecovery(selectedTicker, {
         scenario_id: activeScenarioModal,
         user_question: q,
+        provider: selectedProvider
       });
       if (res && res.answer) {
         setChatHistory((prev) => [...prev, { role: "assistant", text: res.answer, source: res.source }]);
       }
-    } catch (err) {
+    } catch {
       setChatHistory((prev) => [
         ...prev,
         { role: "assistant", text: "Maaf, terjadi kendala saat memproses pertanyaan Anda. Silakan coba lagi." },
@@ -95,7 +129,6 @@ export default function RecoveryPage() {
     try {
       const dash = await api.getDashboard();
       if (dash && dash.holdings) {
-        // Find holdings in loss or recovery/averaging mode
         const candidates = dash.holdings.filter(
           (h: Holding) => h.floatingPnlPct < 0 || h.actionStatus === "RECOVERY_MODE" || h.actionStatus === "AVERAGING_REVIEW"
         );
@@ -122,7 +155,34 @@ export default function RecoveryPage() {
   };
 
   useEffect(() => {
-    loadData();
+    void (async () => {
+      try {
+        const dash = await api.getDashboard();
+        if (dash && dash.holdings) {
+          const candidates = dash.holdings.filter(
+            (h: Holding) => h.floatingPnlPct < 0 || h.actionStatus === "RECOVERY_MODE" || h.actionStatus === "AVERAGING_REVIEW"
+          );
+          setHoldings(candidates);
+
+          if (candidates.length > 0) {
+            const initialTicker = candidates[0].ticker;
+            setSelectedTicker(initialTicker);
+            const rec = await api.getRecovery(initialTicker);
+            if (rec) {
+              setData(rec);
+              setTargetBuyPrice(Math.round(rec.currentPrice * 0.95));
+              setTargetAvgPrice(Math.round((rec.avgPrice + rec.currentPrice) / 2));
+            }
+          } else {
+            setData(null);
+          }
+        }
+      } catch (err) {
+        console.warn("Error loading recovery data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, []);
 
   const handleSelectStock = async (stock: Holding) => {
@@ -279,14 +339,14 @@ export default function RecoveryPage() {
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">Harga EOD</span>
                   <span className="text-base font-mono font-bold text-slate-900">
-                    Rp {formatNumber(data.currentPrice)}
+                    Rp {formatNumber(Math.round(data.currentPrice))}
                   </span>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">Avg Price Beli</span>
                   <span className="text-base font-mono font-bold text-slate-800">
-                    Rp {formatNumber(data.avgPrice)}
+                    Rp {formatNumber(Math.round(data.avgPrice))}
                   </span>
                 </div>
 
@@ -296,14 +356,14 @@ export default function RecoveryPage() {
                     {formatPercent(data.floatingLossPct)}
                   </div>
                   <span className="text-xs text-rose-500 font-mono font-medium">
-                    ({formatRupiah(data.floatingLossNominal)})
+                    ({formatRupiah(Math.round(data.floatingLossNominal))})
                   </span>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">Major Support</span>
                   <span className="text-base font-mono font-bold text-emerald-700">
-                    Rp {formatNumber(data.supportMajor)}
+                    Rp {formatNumber(Math.round(data.supportMajor))}
                   </span>
                 </div>
 
@@ -539,7 +599,7 @@ export default function RecoveryPage() {
 
                   <div className="mt-2 pt-3.5 border-t border-slate-100 flex flex-col gap-2.5">
                     <div className="text-xs font-mono text-purple-800 font-bold">
-                      Kebutuhan: Beli {data.scenarios.averageDown.minRequiredLot} Lot @ Rp {formatNumber(data.scenarios.averageDown.suggestedEntryPrice)} ({formatRupiah(data.scenarios.averageDown.capitalRequired)})
+                      Kebutuhan: Beli {data.scenarios.averageDown.minRequiredLot} Lot @ Rp {formatNumber(Math.round(data.scenarios.averageDown.suggestedEntryPrice))} ({formatRupiah(Math.round(data.scenarios.averageDown.capitalRequired))})
                     </div>
                     <button
                       type="button"
@@ -611,7 +671,7 @@ export default function RecoveryPage() {
 
                   <div className="mt-2 pt-3.5 border-t border-slate-100 flex flex-col gap-2.5">
                     <div className="text-xs font-mono text-amber-800 font-bold">
-                      Target Exit Rebound: Rp {formatNumber(data.scenarios.holdForBep.realisticExitPrice)} ({data.scenarios.holdForBep.expectedDays})
+                      Target Exit Rebound: Rp {formatNumber(Math.round(data.scenarios.holdForBep.realisticExitPrice))} ({data.scenarios.holdForBep.expectedDays})
                     </div>
                     <button
                       type="button"
@@ -656,7 +716,7 @@ export default function RecoveryPage() {
                       className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono text-sm focus:outline-none focus:border-purple-600"
                     />
                     <span className="text-xs text-slate-500 mt-1 block">
-                      Disarankan di Major Support: Rp {formatNumber(data.supportMajor)}
+                      Disarankan di Major Support: Rp {formatNumber(Math.round(data.supportMajor))}
                     </span>
                   </div>
 
@@ -671,7 +731,7 @@ export default function RecoveryPage() {
                       className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono text-sm focus:outline-none focus:border-purple-600"
                     />
                     <span className="text-xs text-slate-500 mt-1 block">
-                      Avg saat ini: Rp {formatNumber(data.avgPrice)}
+                      Avg saat ini: Rp {formatNumber(Math.round(data.avgPrice))}
                     </span>
                   </div>
 
@@ -763,7 +823,7 @@ export default function RecoveryPage() {
           <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
                   <Sparkles className="w-4 h-4" />
@@ -774,10 +834,14 @@ export default function RecoveryPage() {
                       {selectedTicker} — {discussionData?.scenarioTitle || "Bedah Skenario"}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
                     {discussionData?.source === "gemini" ? (
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" /> Gemini 2.0 Flash
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Google Gemini AI
+                      </span>
+                    ) : discussionData?.source === "opencode_zen" ? (
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 flex items-center gap-1">
+                        <Bot className="w-3.5 h-3.5 text-indigo-600" /> OpenCode Zen AI
                       </span>
                     ) : (
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
@@ -788,13 +852,46 @@ export default function RecoveryPage() {
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={handleCloseDiscussion}
-                className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                {/* Provider Selector Switcher */}
+                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-medium border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchProvider("gemini")}
+                    disabled={isDiscussionLoading}
+                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 text-[11px] ${
+                      selectedProvider === "gemini"
+                        ? "bg-white text-emerald-800 shadow-2xs font-bold border border-emerald-200"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Sparkles className="w-3 h-3 text-emerald-600" />
+                    <span>Gemini</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchProvider("opencode_zen")}
+                    disabled={isDiscussionLoading}
+                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 text-[11px] ${
+                      selectedProvider === "opencode_zen"
+                        ? "bg-white text-indigo-800 shadow-2xs font-bold border border-indigo-200"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Bot className="w-3 h-3 text-indigo-600" />
+                    <span>Zen</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCloseDiscussion}
+                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Body (Scrollable) */}
@@ -814,9 +911,10 @@ export default function RecoveryPage() {
                         <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
                         <span>Logika Utama: Mengapa Opsi Ini Terpilih?</span>
                       </div>
-                      <p className="text-slate-700 leading-relaxed text-sm">
-                        {discussionData.deepDive.coreLogic}
-                      </p>
+                      <MarkdownText
+                        content={discussionData.deepDive.coreLogic}
+                        className="text-slate-700 leading-relaxed text-sm"
+                      />
                     </div>
 
                     {/* Invalidation Risk */}
@@ -825,9 +923,10 @@ export default function RecoveryPage() {
                         <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                         <span>Kondisi Risiko &amp; Batas Invalidasi (Plan B):</span>
                       </div>
-                      <p className="text-slate-700 leading-relaxed text-sm">
-                        {discussionData.deepDive.invalidationRisk}
-                      </p>
+                      <MarkdownText
+                        content={discussionData.deepDive.invalidationRisk}
+                        className="text-slate-700 leading-relaxed text-sm"
+                      />
                     </div>
 
                     {/* Cashflow & Timeline */}
@@ -836,43 +935,62 @@ export default function RecoveryPage() {
                         <Coins className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>Kalkulasi Arus Kas &amp; Estimasi Waktu:</span>
                       </div>
-                      <p className="text-slate-700 leading-relaxed text-sm">
-                        {discussionData.deepDive.cashflowAndTimeline}
-                      </p>
+                      <MarkdownText
+                        content={discussionData.deepDive.cashflowAndTimeline}
+                        className="text-slate-700 leading-relaxed text-sm"
+                      />
                     </div>
 
                     {/* Tomorrow Action Plan */}
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                       <div className="flex items-center gap-2 text-slate-900 font-bold text-sm mb-2">
-                        <CheckSquare className="w-4 h-4 text-slate-600 shrink-0" />
-                        <span>Checklist Aksi Jam Bursa Besok Pagi:</span>
+                        <Clock className="w-4 h-4 text-slate-700 shrink-0" />
+                        <span>Rencana Aksi Konkret Sebelum Jam 09:00 WIB Besok:</span>
                       </div>
-                      <ul className="space-y-2">
-                        {discussionData.deepDive.tomorrowActionPlan.map((step, idx) => (
-                          <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700">
-                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center shrink-0 text-xs mt-0.5">
+                      <div className="space-y-1.5">
+                        {discussionData.deepDive.tomorrowActionPlan?.map((plan, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-slate-700 text-sm">
+                            <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                               {idx + 1}
                             </span>
-                            <span className="leading-relaxed">{step}</span>
-                          </li>
+                            <span className="flex-1"><MarkdownText content={plan} /></span>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Follow-Up Discussion Section */}
-                  <div className="pt-4 border-t border-slate-200 space-y-3">
+                  {/* Section 2: Interactive Q&A */}
+                  <div className="pt-4 border-t border-slate-100 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                        <MessageSquare className="w-4 h-4 text-purple-600" />
-                        <span>Tanya Jawab Lanjutan (Q&amp;A)</span>
-                      </span>
-                      <span className="text-xs text-slate-500">Tanyakan keraguan Anda</span>
+                      <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                        <Bot className="w-4 h-4 text-purple-600 shrink-0" />
+                        <span>Tanya Jawab Lanjutan dengan AI Copilot</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {chatHistory.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleClearChatHistory}
+                            className="text-[11px] font-medium text-slate-500 hover:text-rose-600 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Bersihkan riwayat chat sesi hari ini"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Bersihkan Riwayat</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Expiry / Session Info Banner */}
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
+                      <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Riwayat chat tersimpan khusus sesi hari ini (otomatis dihapus saat market close 17:30 WIB).</span>
                     </div>
 
                     {/* Chat history */}
                     {chatHistory.length > 0 && (
-                      <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                      <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
                         {chatHistory.map((item, idx) => (
                           <div
                             key={idx}
@@ -882,10 +1000,27 @@ export default function RecoveryPage() {
                                 : "bg-slate-100 text-slate-800 mr-4 border border-slate-200"
                             }`}
                           >
-                            <strong className="block text-xs uppercase font-mono mb-1 font-semibold opacity-75">
-                              {item.role === "user" ? "Pertanyaan Anda" : "Jawaban AI Copilot"}
-                            </strong>
-                            <div className="whitespace-pre-line">{item.text}</div>
+                            <div className="flex items-center justify-between mb-1">
+                              <strong className="block text-xs uppercase font-mono font-semibold opacity-75">
+                                {item.role === "user" ? "Pertanyaan Anda" : "Jawaban AI Copilot"}
+                              </strong>
+                              {item.role === "assistant" && item.source && (
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded font-sans font-bold ${
+                                  item.source === "opencode_zen"
+                                    ? "bg-indigo-100 text-indigo-800"
+                                    : item.source === "gemini"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-slate-200 text-slate-700"
+                                }`}>
+                                  {item.source === "opencode_zen" ? "OpenCode Zen" : item.source === "gemini" ? "Gemini" : "Rule-Based"}
+                                </span>
+                              )}
+                            </div>
+                            {item.role === "user" ? (
+                              <div className="whitespace-pre-line">{item.text}</div>
+                            ) : (
+                              <MarkdownText content={item.text} className="text-xs leading-relaxed text-slate-800" />
+                            )}
                           </div>
                         ))}
                         {isSubmittingQuestion && (

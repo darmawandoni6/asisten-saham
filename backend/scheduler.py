@@ -34,6 +34,12 @@ def run_eod_market_pipeline():
             msg = "🔔 *Asisten Saham — EOD Alert 17:30 WIB*\n\n" + "\n".join(urgent_actions)
             send_telegram_notification(msg)
             print("[Scheduler] Telegram notification terkirim.")
+
+        # Purge temporary 1-day recovery discussion chat history on market close
+        from models import RecoveryChatLog
+        deleted_chats = db.query(RecoveryChatLog).delete()
+        db.commit()
+        print(f"[Scheduler] EOD Market Close: {deleted_chats} riwayat chat diskusi recovery berhasil dibersihkan.")
     except Exception as e:
         print(f"[Scheduler] Error pipeline: {e}")
     finally:
