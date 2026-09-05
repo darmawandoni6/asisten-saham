@@ -80,6 +80,11 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * Modul kemampuan AI terintegrasi di folder `.agents/skills/idx-eod-sync/`.
 * Pengguna cukup mengetik di chat: *"Tolong update EOD hari ini"* atau *"Sync portofolio saya"*, AI secara otomatis akan menjalankan penarikan data Yahoo Finance, menghitung ulang indikator, dan memunculkan tabel evaluasi portofolio pasca-closing langsung di jendela chat.
 
+### 10. ⚡ Ultra-Light Architecture & Auto-Shutdown (0 MB RAM saat Idle)
+* **Single-Process FastAPI Port 8000**: Frontend Next.js di-export menjadi static web bundle (`frontend/out`) dan disajikan langsung oleh FastAPI. Server Node.js **tidak perlu berjalan di background** (hemat ~100MB RAM permanen).
+* **Auto-Shutdown Heartbeat Engine**: Tab browser mengirim sinyal detak jantung berkala (`/api/v1/system/heartbeat`). Ketika seluruh tab browser ditutup selama $\ge 75$ detik, server otomatis mati secara bersih sehingga memori RAM kembali **0 MB (0% CPU)**.
+* **macOS Desktop App Launcher (`Asisten Saham.app`)**: Aplikasi desktop 1-klik dengan ikon grafik candlestick Stockbit, siap disematkan di Dock atau Desktop untuk membuka aplikasi secara instan.
+
 ---
 
 ## 🎨 Filosofi Desain UI
@@ -91,52 +96,39 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 
 | Layer | Teknologi |
 |---|---|
-| **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS, Lucide Icons |
+| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, Lucide Icons |
 | **Charts** | TradingView Lightweight Charts (v5) |
-| **Backend API** | Python FastAPI, Uvicorn |
+| **Backend & Web Server** | Python FastAPI, Uvicorn (Port `8000`) |
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM |
 | **Data Market** | Yahoo Finance (`yfinance`) dengan format ticker `.JK` |
 | **Technical Analysis** | Native Pandas (kompatibel penuh dengan Python 3.14 macOS) |
 | **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`, `deepseek`, `claude`) |
 | **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB) |
+| **Memory Optimization** | Heartbeat Auto-Shutdown Daemon (0 MB RAM idle footprint) |
 
 ---
 
 ## 🚀 Panduan Menjalankan Aplikasi
 
-### 1. Persiapan Backend (Python FastAPI)
+### 1. Cara Cepat (Desktop App 1-Klik)
+* **Double-click** `Asisten Saham.app` di Desktop atau folder proyek.
+* Server akan otomatis menyala dan browser langsung terbuka ke `http://localhost:8000`.
+* Saat selesai, cukup **tutup tab browser**, server akan otomatis mati dalam 75 detik.
+
+### 2. Cara Terminal / CLI (Mode Ultra-Light Single Process)
 
 ```bash
-cd backend
+# Menjalankan server tunggal (FastAPI melayani API + Frontend)
+./start_app.sh
 
-# Buat dan aktifkan virtualenv
-python3 -m venv venv
-source venv/bin/activate
+# Mode Development dengan Hot-Reloading Next.js di :3000
+./start_app.sh --dev
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Buat file konfigurasi environment
-cp .env.example .env
-
-# Jalankan server FastAPI
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# Menghentikan server secara manual
+./stop_app.sh
 ```
-* Backend aktif di: `http://localhost:8000`
-* Dokumentasi Interaktif Swagger UI: `http://localhost:8000/docs`
-
-### 2. Persiapan Frontend (Next.js)
-
-```bash
-cd frontend
-
-# Install packages
-npm install
-
-# Jalankan server Next.js development
-npm run dev
-```
-* Frontend aktif di: `http://localhost:3000`
+* Akses aplikasi: `http://localhost:8000`
+* Dokumentasi API Swagger: `http://localhost:8000/docs`
 
 ### 3. Pemutakhiran Data Pasar EOD (3 Cara Fleksibel)
 

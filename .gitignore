@@ -66,3 +66,12 @@ Thumbs.db
 *.swo
 *~
 *.log
+logs/
+scripts/
+
+# Desktop App Launchers & Local OS Shortcuts
+*.app/
+*.app
+*.command
+start_app.sh
+stop_app.sh

@@ -111,5 +111,18 @@
 - [x] 7.6 Standarisasi format seluruh harga saham IDX sebagai integer (bilangan bulat)
 - [x] 7.7 Pemutakhiran dokumentasi `README.md` & `AGENTS.md`
 
+---
+
+## ⚡ TAHAP 8 — Ultra-Light Single Process & Auto-Shutdown Architecture [SELESAI ✅]
+> Eliminasi background Node.js server, penyajian frontend statis via FastAPI di port 8000, dan heartbeat auto-shutdown (0 MB RAM saat idle).
+
+- [x] 8.1 Konfigurasi Static HTML Export Next.js (`next.config.ts` dengan `output: 'export'`)
+- [x] 8.2 Frontend Heartbeat Component (`frontend/components/HeartbeatSender.tsx` — ping setiap 15 detik)
+- [x] 8.3 Backend Auto-Shutdown Engine (`backend/routers/system.py` — mematikan server otomatis jika browser ditutup $\ge 75$ detik)
+- [x] 8.4 Single-Process Mounting FastAPI (`backend/main.py` — melayani API + Web statis di `http://localhost:8000`)
+- [x] 8.5 Pembuatan Native macOS Desktop Launcher (`Asisten Saham.app`) dengan ikon retina 1024x1024
+- [x] 8.6 Pengabaian artifact lokal & launcher di `.gitignore`
+- [x] 8.7 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`
+
 
 

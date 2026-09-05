@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (typeof window !== "undefined" && (window.location.port === "8000" || window.location.port === "")
+    ? ""
+    : "http://localhost:8000");
 
 export async function fetchApi<T>(
   endpoint: string,

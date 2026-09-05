@@ -31,12 +31,13 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 
 | Layer | Teknologi | Catatan Khusus |
 |---|---|---|
-| **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS | Port `3000` (`http://localhost:3000`) |
+| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS | Build statis di `frontend/out/`, disajikan via FastAPI di port `8000` |
 | **Interactive Chart** | TradingView Lightweight Charts v5 | Gunakan syntax `chart.addSeries(CandlestickSeries, ...)` |
-| **Backend API** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
+| **Backend & Web Server** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `trade_log`, `ai_analysis`, `screener_results`, `recovery_chat_logs` |
 | **Data Pasar** | Yahoo Finance (`yfinance`) | EOD update pasca-closing market BEI (17:30 WIB) |
 | **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`) | Toggle via UI `[ ✨ Gemini ] [ ⚡ Zen ]`, API `/api/v1/analysis/providers` |
+| **Memory Optimization** | Heartbeat Auto-Shutdown Daemon | 0 MB RAM idle footprint (auto-shutdown 75s saat browser ditutup) |
 
 ---
 
@@ -136,6 +137,18 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Rumus RRR: $1 : (\text{TP} - \text{Entry}) / (\text{Entry} - \text{SL})$. Standar transaksi ideal $\ge 1 : 2.0$.
   - AI Score (0–100): Filter probabilitas statistik data historis (bukan ramalan masa depan).
   - Terintegrasi di Quick Modal Kamus, Tooltips tabel/kartu, dan Glosarium `/guide` (Tab 3).
+
+### K. Ultra-Light Architecture & Auto-Shutdown Engine (`backend/routers/system.py`)
+- **Single-Process FastAPI Port 8000**:
+  - Frontend Next.js di-export secara statis (`output: 'export'`) ke direktori `frontend/out/`.
+  - Backend FastAPI (`backend/main.py`) bertindak sebagai single unified server yang melayani REST API (`/api/v1/*`) sekaligus menyajikan aset frontend statis di `http://localhost:8000`.
+  - Server Node.js tidak perlu berjalan di background (menghemat 100MB RAM permanen).
+- **Heartbeat Daemon & Auto-Shutdown**:
+  - Komponen frontend `<HeartbeatSender />` (`frontend/components/HeartbeatSender.tsx`) mengirim sinyal detak jantung berkala (`POST /api/v1/system/heartbeat`) setiap 15 detik selama tab browser aktif.
+  - Background daemon thread di `backend/routers/system.py` memantau sinyal heartbeat. Jika seluruh tab browser ditutup selama $\ge 75$ detik (setelah grace period 90 detik pasca boot), server FastAPI otomatis menghentikan prosesnya sendiri secara bersih (`os._exit(0)`).
+  - Menghasilkan **0 MB RAM (0% CPU)** saat aplikasi tidak digunakan.
+- **Desktop Launcher & Ignored Local Artifacts**:
+  - `Asisten Saham.app` dan skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
 
 ---
 
