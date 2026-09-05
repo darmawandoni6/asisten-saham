@@ -1,0 +1,71 @@
+1. Core Feature: Smart Decision Dashboard (Hold / Sell / Buy)
+Smart Action Cards: Kartu ringkasan status harian untuk setiap saham di portofolio dengan indikator warna yang tegas:
+
+🔴 SELL / CUT LOSS: Harga closing menembus batas Stop Loss.
+
+🟢 TAKE PROFIT / TRIM: Harga menyentuh target profit (disarankan amankan profit/jual bertahap).
+
+🟡 HOLD / MONITOR: Kondisi aman, tren berjalan sesuai trading plan.
+
+🟠 TRAILING STOP WARNING: Harga berbalik arah dari puncak profit.
+
+🟣 RECOVERY MODE: Khusus untuk saham yang sedang mengalami floating loss.
+
+Daily Action Sheet: Rangkuman otomatis pasca-closing market (setelah pukul 17:30 WIB) yang menampilkan daftar saham yang memerlukan perhatian atau tindakan segera.
+
+2. AI Decision Copilot (EOD Analysis)
+AI Analysis After Close: AI menganalisis data historis harian (Close, OHLCV, MA20/50, RSI, Support/Resistance) setelah bursa tutup.
+
+Context-Aware Recommendation: AI mengevaluasi kondisi teknikal terkini dikomparasikan dengan Avg Price dan Trading Plan awal Anda.
+
+Saran Terstruktur & Naratif: Menghasilkan rekomendasi aksi konkrit (HOLD, SELL ALL, TRIM 50%, CUT LOSS, AVERAGE DOWN) disertai 1–2 kalimat alasan teknikal yang objektif dan bebas dari emosi jam bursa.
+
+3. Recovery Engine (Khusus Saham Terlanjur Beli / Floating Loss)
+Diagnosis Kerugian (Floating Loss Assessment): Menganalisis seberapa dalam persentase kerugian dan dampaknya terhadap total portofolio.
+
+Skenario Penyelamatan AI (Recovery Strategy Evaluator):
+
+Option A (Cut Loss / Trim): Menyarankan buang/pangkas posisi jika tren sudah downtrend parah dan merusak Support utama.
+
+Option B (Average Down Strategy): Memberikan area beli bawah (bottom fishing) jika saham berada di Major Support & Oversold.
+
+Option C (Hold for Rebound / Exit at BEP): Menentukan level harga realistis untuk keluar (exit) saat pemantulan harga (technical rebound) agar kerugian terminimalisir.
+
+Kalkulator Average Down Presisi: Menghitung jumlah lot dan modal tambahan yang dibutuhkan untuk menurunkan Avg Price ke level target secara aman.
+
+4. Buying & Portfolio Management Engine
+Trading Plan Input: Perekaman data kepemilikan (Ticker, Avg Price, Lot, Target Price, Stop Loss, dan alasan beli).
+
+Entry Zone & Buy-on-Weakness Detector: Deteksi otomatis area beli ideal berdasarkan Support kuat atau pemantulan dari garis MA20/50.
+
+Pyramiding & Average Up Calculator: Menghitung lot ideal saat menambah posisi pada saham uptrend agar Avg Price tetap aman.
+
+Money Management & Risk Calculator: Menghitung Risk-to-Reward Ratio serta menjaga proporsi alokasi dana antar sektor.
+
+5. Selling Engine & Profit Protection
+Dynamic Trailing Stop: Otomatis menaikkan batas Stop Loss saat harga naik tinggi untuk mengamankan floating profit.
+
+Scale-Out / Partial Take Profit Matrix: Panduan penjualan bertahap (misal: Jual 30% di TP1, Jual 30% di TP2, sisanya biarkan dengan Trailing Stop).
+
+6. EOD Stock Screener (Pemilih Saham Otomatis)
+Preset Strategy Screener: Filter pencarian saham harian berbasis algoritma preset:
+
+Technical Oversold (RSI < 30 & Rebound).
+
+Breakout / Golden Cross (Harga di atas MA20/MA50).
+
+Undervalued Growth / Value Stocks.
+
+Custom Filter: Kombinasi kriteria teknikal maupun fundamental kustom.
+
+7. Interactive Charting & Data Ingestion Engine
+Lightweight Candlestick Chart: Visualisasi pergerakan harga harian menggunakan TradingView Lightweight Charts.
+
+Auto-Overlay Indicators: Garis MA20 / MA50 / MA200, Support & Resistance, serta garis Avg Price Beli otomatis digambar di atas chart.
+
+Automated Data Fetcher (Cron Job): Scheduler otomatis setiap pukul 17:30 WIB untuk menarik data closing harian (via Yahoo Finance / yfinance) dan menyimpannya ke database lokal.
+
+8. Asisten Notifikasi & Evaluasi Trading
+Telegram / WhatsApp Smart Bot: Pengiriman ringkasan sore ke HP Anda pasca-closing bursa ("SIDO menyentuh Trailing Stop, BBRI masuk Entry Zone").
+
+AI Trading Journal & Post-Mortem: Evaluasi transaksi yang sudah ditutup (Realized PnL) untuk mendeteksi kebiasaan psikologis seperti Panic Sell atau FOMO.
