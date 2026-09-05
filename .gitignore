@@ -75,3 +75,4 @@ scripts/
 *.command
 start_app.sh
 stop_app.sh
+build_app.sh

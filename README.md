@@ -126,6 +126,9 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 
 # Menghentikan server secara manual
 ./stop_app.sh
+
+# Membangun ulang aset frontend statis jika ada perubahan kode UI
+./build_app.sh
 ```
 * Akses aplikasi: `http://localhost:8000`
 * Dokumentasi API Swagger: `http://localhost:8000/docs`
