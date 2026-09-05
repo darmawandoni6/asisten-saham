@@ -13,9 +13,10 @@ import {
 
 interface Props {
   summary: PortfolioSummary;
+  onEditCashBalance?: () => void;
 }
 
-export function PortfolioSummaryCards({ summary }: Props) {
+export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
   const isPnlPositive = summary.floatingPnl >= 0;
   const totalCapital = summary.totalEquity + (summary.cashBalance || 0);
   const stockPct = totalCapital > 0 ? Math.round((summary.totalEquity / totalCapital) * 100) : 0;
@@ -23,11 +24,11 @@ export function PortfolioSummaryCards({ summary }: Props) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Total Portfolio Equity */}
+      {/* Total Portfolio Value (Saham + Kas) */}
       <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
-            Total Portofolio
+            Total Portofolio (Saham + Kas)
           </span>
           <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
             <Wallet className="w-4 h-4" />
@@ -35,10 +36,10 @@ export function PortfolioSummaryCards({ summary }: Props) {
         </div>
         <div className="mt-2">
           <div className="text-xl font-bold font-mono text-slate-900">
-            {formatRupiah(summary.totalEquity)}
+            {formatRupiah(totalCapital)}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
-            Modal Beli: <span className="font-mono text-slate-700 font-semibold">{formatRupiah(summary.totalCost)}</span>
+            Saham: <span className="font-mono text-slate-700 font-semibold">{formatRupiah(summary.totalEquity)}</span>
           </p>
         </div>
       </div>
@@ -100,11 +101,22 @@ export function PortfolioSummaryCards({ summary }: Props) {
       <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
-            Cash Reserve (Buying Power)
+            Cash Reserve (Saldo Kas)
           </span>
-          <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
-            <Layers className="w-4 h-4" />
-          </div>
+          {onEditCashBalance ? (
+            <button
+              type="button"
+              onClick={onEditCashBalance}
+              className="text-[10px] text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+              title="Edit Saldo Kas RDN"
+            >
+              ✏️ Edit
+            </button>
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+              <Layers className="w-4 h-4" />
+            </div>
+          )}
         </div>
         <div className="mt-2">
           <div className="text-xl font-bold font-mono text-slate-900">

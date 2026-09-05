@@ -265,7 +265,9 @@ export default function JournalPage() {
                         <td className="py-3.5 px-3">
                           <span className={`text-[10px] px-2 py-0.5 rounded font-bold font-mono border ${
                             log.action === "SELL"
-                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : log.action === "BUY"
+                              ? "bg-sky-50 text-sky-700 border-sky-200"
                               : "bg-rose-50 text-rose-700 border-rose-200"
                           }`}>
                             {log.action}
@@ -281,12 +283,12 @@ export default function JournalPage() {
                           {formatRupiah(log.totalValue)}
                         </td>
                         <td className="py-3.5 px-3 font-mono font-bold">
-                          {log.realizedPnl !== undefined ? (
+                          {log.realizedPnl !== undefined && log.realizedPnl !== null && log.action !== "BUY" ? (
                             <div className={isProfit ? "text-emerald-700" : "text-rose-600"}>
-                              {formatRupiah(log.realizedPnl)} ({formatPercent(log.realizedPnlPct || 0)})
+                              {isProfit ? "+" : ""}{formatRupiah(log.realizedPnl)} ({isProfit ? "+" : ""}{formatPercent(log.realizedPnlPct || 0)})
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-slate-400 font-normal text-xs">-</span>
                           )}
                         </td>
                         <td className="py-3.5 px-3">

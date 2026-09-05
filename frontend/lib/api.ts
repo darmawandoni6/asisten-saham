@@ -34,6 +34,16 @@ export async function fetchApi<T>(
 export const api = {
   getDashboard: () =>
     fetchApi<{ summary: any; holdings: any[] }>("/api/v1/dashboard"),
+  getCashBalance: () =>
+    fetchApi<{ cash_balance: number }>("/api/v1/portfolio/balance"),
+  updateCashBalance: (cash_balance: number) =>
+    fetchApi<{ status: string; cash_balance: number }>(
+      "/api/v1/portfolio/balance",
+      {
+        method: "POST",
+        body: JSON.stringify({ cash_balance }),
+      },
+    ),
   getPortfolio: () => fetchApi<any[]>("/api/v1/portfolio"),
   createHolding: (data: {
     ticker: string;
@@ -51,6 +61,17 @@ export const api = {
     }),
   deleteHolding: (id: number) =>
     fetchApi<any>(`/api/v1/portfolio/${id}`, { method: "DELETE" }),
+  sellHolding: (data: {
+    holding_id: number;
+    sell_price: number;
+    sell_lot: number;
+    notes?: string;
+    psychology_flag?: string;
+  }) =>
+    fetchApi<any>(`/api/v1/portfolio/${data.holding_id}/sell`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
   importBatch: (
     stocks: Array<{
       ticker: string;

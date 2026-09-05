@@ -150,6 +150,20 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Desktop Launcher & Ignored Local Artifacts**:
   - `Asisten Saham.app` dan skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
 
+### L. Manual Trading Balance, Lot Management & Trading Journal Sync
+- **Pencatatan Saldo Kas RDN Manual**:
+  - Saldo kas RDN diinput dan diperbarui secara manual oleh pengguna sesuai kenyataan rekening sekuritas via modal `[ ✏️ Edit ]` (`EditBalanceModal.tsx`).
+  - Aplikasi bertindak sebagai asisten pencatatan personal dan tidak memotong/menambah saldo kas secara otomatis di belakang layar.
+- **Pangkas / Jual Lot Saham (`SellHoldingModal.tsx`)**:
+  - Tombol `[ 🏷️ Jual ]` pada kolom Aksi tabel portofolio digunakan untuk memangkas sebagian lot atau menutup seluruh posisi.
+  - Pilihan cepat preset lot: `25%`, `50%` (TP1 Kunci Profit), dan `100%` (Tutup Posisi Total).
+  - Kalkulasi *real-time*: Total Nilai Penjualan, Realized PnL nominal & persentase, serta sisa lot di portofolio.
+  - Jika `sell_lot < holding.lot`, jumlah lot holding diperbarui dengan sisa lot. Jika `sell_lot == holding.lot`, holding dihapus dari daftar aktif.
+- **Pencatatan ke AI Trading Journal (`/journal`)**:
+  - Transaksi penjualan otomatis dicatat ke tabel `trade_log` dengan aksi `SELL` (untung) atau `CUT_LOSS` (rugi).
+  - Menyimpan evaluasi psikologi (`DISCIPLINED`, `FOMO_BUY`, `PANIC_SELL`) & catatan refleksi trader.
+  - Metrik Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*) dihitung dari transaksi yang ditutup.
+
 ---
 
 

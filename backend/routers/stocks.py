@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Holding, PriceHistory
+from models import Holding, PriceHistory, get_cash_balance
 from services.data_fetcher import fetch_and_store_stock_data, normalize_ticker
 from services.technical import get_latest_indicators
 from services.portfolio_engine import evaluate_holding_status
@@ -12,6 +12,7 @@ router = APIRouter(prefix="/api/v1", tags=["Stocks & Dashboard"])
 @router.get("/dashboard")
 def get_dashboard_data(db: Session = Depends(get_db)):
     holdings = db.query(Holding).all()
+    cash_balance = get_cash_balance(db)
     
     if not holdings:
         return {
@@ -20,7 +21,8 @@ def get_dashboard_data(db: Session = Depends(get_db)):
                 "totalCost": 0,
                 "floatingPnl": 0,
                 "floatingPnlPct": 0.0,
-                "cashBalance": 0,
+                "cashBalance": round(cash_balance),
+                "totalPortfolioEquity": round(cash_balance),
                 "totalLots": 0,
                 "actionCounts": {"sellCutLoss": 0, "takeProfit": 0, "holdMonitor": 0, "trailingStopWarning": 0, "recoveryMode": 0}
             },
@@ -66,6 +68,7 @@ def get_dashboard_data(db: Session = Depends(get_db)):
 
     floating_pnl = total_equity - total_cost
     floating_pnl_pct = (floating_pnl / total_cost * 100) if total_cost > 0 else 0
+    total_portfolio_equity = total_equity + cash_balance
 
     return {
         "summary": {
@@ -73,7 +76,8 @@ def get_dashboard_data(db: Session = Depends(get_db)):
             "totalCost": round(total_cost),
             "floatingPnl": round(floating_pnl),
             "floatingPnlPct": round(floating_pnl_pct, 2),
-            "cashBalance": 168755,  # Trading balance dari data user (bisa diupdate manual)
+            "cashBalance": round(cash_balance),
+            "totalPortfolioEquity": round(total_portfolio_equity),
             "totalLots": total_lots,
             "actionCounts": counts
         },

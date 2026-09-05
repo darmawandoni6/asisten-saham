@@ -27,10 +27,14 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Jika kuota/rate limit habis (HTTP 429), sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** tanpa crash atau error layar kosong.
 
 ### 3. 💼 Portfolio & Trading Plan Management (`/portfolio`)
+* **Pencatatan Saldo Kas RDN Manual**: Saldo kas RDN dapat diinput dan diperbarui kapan saja secara manual sesuai saldo nyata rekening sekuritas via tombol `[ ✏️ Edit ]`.
 * **Diferensiasi Posisi**: Membedakan saham **Trading** (dengan proteksi Stop Loss ketat) dan **Investasi** (tanpa hard Stop Loss, fokus pada horizon panjang & dividen).
+* **Pangkas / Jual Lot Saham (`[ 🏷️ Jual ]`)**:
+  - Modal interaktif untuk memangkas sebagian lot atau menutup seluruh posisi saham dengan preset cepat: **25%**, **50% (TP1 Kunci Profit)**, dan **100% (Exit Total)**.
+  - Menghitung *real-time* total nilai transaksi, Realized PnL (nominal & %), dan sisa lot yang tersisa di portofolio.
+  - Otomatis mencatat transaksi yang ditutup ke Jurnal Trading lengkap dengan evaluasi psikologi (*Disiplin*, *FOMO*, *Panic Sell*).
 * **Auto-Fetch Sektor**: Otomatis menarik data sektor & industri resmi emiten langsung dari Yahoo Finance.
 * **Money Management**: Visualisasi alokasi modal per sektor industri untuk memantau diversifikasi risiko.
-* **Selling Engine**: Scale-Out Matrix (TP1 jual 50%, TP2 jual 25%, sisa 25% trailing stop).
 
 ### 4. 🛟 Recovery Engine & Floating Loss Assessment (`/recovery`)
 * **Diagnosis Kerugian Komprehensif**: Mengukur kedalaman persentase minus, bobot emiten, dan dampaknya terhadap total portofolio.
@@ -61,7 +65,8 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 2.0)**, dan arti tingkatan **AI Score (0–100)** secara instan.
 
 ### 6. 📔 AI Trading Journal & Post-Mortem (`/journal`)
-* Pencatatan riwayat transaksi realised (*Win Rate*, *Profit Factor*, *Total Realized PnL*).
+* **Pencatatan Otomatis dari Portofolio**: Setiap eksekusi jual (Take Profit maupun Cut Loss) dari tabel portofolio otomatis masuk ke riwayat jurnal transaksi tanpa perlu input manual ulang.
+* **Metrik Performa Realized**: Akumulasi *Total Realized PnL*, *Win Rate %*, dan *Profit Factor* dihitung otomatis secara akurat.
 * **Post-Mortem AI Diagnosis**: Deteksi bias kebiasaan psikologis trader (*FOMO Buy, Panic Sell, Disiplin Plan*).
 
 ### 7. 📈 Interactive Candlestick Chart

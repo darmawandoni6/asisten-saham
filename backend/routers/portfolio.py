@@ -3,11 +3,20 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List, Literal
 from database import get_db
-from models import Holding
+from models import Holding, PriceHistory, TradeLog, get_cash_balance, set_cash_balance
 from services.data_fetcher import normalize_ticker, fetch_and_store_stock_data, fetch_stock_profile
 from services.ai_tp_sl import recommend_tp_sl
 
 router = APIRouter(prefix="/api/v1/portfolio", tags=["Portfolio"])
+
+class BalanceUpdate(BaseModel):
+    cash_balance: float
+
+class SellHoldingRequest(BaseModel):
+    sell_price: float
+    sell_lot: int
+    notes: Optional[str] = None
+    psychology_flag: Optional[str] = "DISCIPLINED"
 
 class HoldingCreate(BaseModel):
     ticker: str
@@ -40,6 +49,18 @@ class BatchImportItem(BaseModel):
 def list_holdings(db: Session = Depends(get_db)):
     holdings = db.query(Holding).order_by(Holding.id.desc()).all()
     return holdings
+
+@router.get("/balance")
+def get_balance(db: Session = Depends(get_db)):
+    balance = get_cash_balance(db)
+    return {"cash_balance": round(balance)}
+
+@router.post("/balance")
+def update_balance(req: BalanceUpdate, db: Session = Depends(get_db)):
+    if req.cash_balance < 0:
+        raise HTTPException(status_code=400, detail="Saldo kas tidak boleh negatif")
+    new_balance = set_cash_balance(db, req.cash_balance)
+    return {"status": "success", "cash_balance": round(new_balance)}
 
 @router.get("/recommend-tpsl/{ticker}")
 def get_ai_tpsl_recommendation(
@@ -174,6 +195,18 @@ def create_holding(req: HoldingCreate, db: Session = Depends(get_db)):
     )
 
     db.add(holding)
+
+    # Catat riwayat pembelian di TradeLog (Jurnal)
+    trade = TradeLog(
+        ticker=ticker,
+        action="BUY",
+        price=req.avg_price,
+        lot=req.lot,
+        realized_pnl=0.0,
+        note=req.buy_reason or f"Pembelian posisi {jenis}"
+    )
+    db.add(trade)
+
     db.commit()
     db.refresh(holding)
     return holding
@@ -202,7 +235,65 @@ def delete_holding(holding_id: int, db: Session = Depends(get_db)):
     holding = db.query(Holding).filter(Holding.id == holding_id).first()
     if not holding:
         raise HTTPException(status_code=404, detail="Holding tidak ditemukan")
+
     db.delete(holding)
     db.commit()
     return {"status": "deleted", "id": holding_id}
+
+@router.post("/{holding_id}/sell")
+def sell_holding(holding_id: int, req: SellHoldingRequest, db: Session = Depends(get_db)):
+    holding = db.query(Holding).filter(Holding.id == holding_id).first()
+    if not holding:
+        raise HTTPException(status_code=404, detail="Holding tidak ditemukan")
+
+    if req.sell_lot <= 0 or req.sell_lot > holding.lot:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Jumlah lot jual ({req.sell_lot}) tidak valid. Maksimal {holding.lot} lot."
+        )
+
+    sell_price = float(req.sell_price)
+    sell_lot = int(req.sell_lot)
+    avg_price = float(holding.avg_price)
+
+    # 1. Hitung Nilai Penjualan & Realized PnL
+    sale_value = sell_price * sell_lot * 100
+    realized_pnl = (sell_price - avg_price) * sell_lot * 100
+    is_gain = realized_pnl >= 0
+    action_type = "SELL" if is_gain else "CUT_LOSS"
+
+    # 2. Catat di TradeLog (Jurnal Trading)
+    flag_prefix = f"[{req.psychology_flag}] " if req.psychology_flag and req.psychology_flag != "DISCIPLINED" else ""
+    user_note = req.notes.strip() if req.notes and req.notes.strip() else f"Penjualan {'sebagian' if sell_lot < holding.lot else 'total'} ({'Untung' if is_gain else 'Rugi'} Rp {abs(round(realized_pnl)):,d})"
+    full_note = f"{flag_prefix}{user_note}".strip()
+
+    trade = TradeLog(
+        ticker=holding.ticker,
+        action=action_type,
+        price=sell_price,
+        lot=sell_lot,
+        realized_pnl=round(realized_pnl),
+        note=full_note
+    )
+    db.add(trade)
+
+    # 3. Update atau Hapus Holding
+    remaining_lot = holding.lot - sell_lot
+    if remaining_lot <= 0:
+        db.delete(holding)
+    else:
+        holding.lot = remaining_lot
+
+    db.commit()
+
+    return {
+        "status": "success",
+        "ticker": holding.ticker,
+        "sell_price": sell_price,
+        "sell_lot": sell_lot,
+        "remaining_lot": remaining_lot,
+        "sale_value": round(sale_value),
+        "realized_pnl": round(realized_pnl),
+        "realized_pnl_pct": round(((sell_price - avg_price) / avg_price) * 100, 2) if avg_price > 0 else 0
+    }
 

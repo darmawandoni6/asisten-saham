@@ -86,3 +86,33 @@ class RecoveryChatLog(Base):
     source = Column(String, nullable=True) # 'gemini' or 'rule_based'
     session_date = Column(Date, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class UserSetting(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    key = Column(String, unique=True, nullable=False, index=True)
+    value = Column(Text, nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+def get_cash_balance(db) -> float:
+    """Retrieve the cash balance (RDN) from user_settings, default to 168755.0 if not set."""
+    try:
+        setting = db.query(UserSetting).filter(UserSetting.key == "cash_balance").first()
+        if setting and setting.value:
+            return float(setting.value)
+    except Exception:
+        pass
+    return 168755.0
+
+def set_cash_balance(db, amount: float) -> float:
+    """Save or update the cash balance in user_settings."""
+    setting = db.query(UserSetting).filter(UserSetting.key == "cash_balance").first()
+    if setting:
+        setting.value = str(round(float(amount)))
+    else:
+        setting = UserSetting(key="cash_balance", value=str(round(float(amount))))
+        db.add(setting)
+    db.commit()
+    db.refresh(setting)
+    return float(setting.value)

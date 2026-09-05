@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
-from models import Holding, PriceHistory, RecoveryChatLog
+from models import Holding, PriceHistory, RecoveryChatLog, get_cash_balance
 from services.data_fetcher import normalize_ticker
 from services.technical import get_latest_indicators
 from services.recovery_engine import diagnose_recovery, calculate_precision_avg_down
@@ -63,7 +63,7 @@ def get_recovery_diagnosis(ticker: str, db: Session = Depends(get_db)):
         total_portfolio_equity=total_portfolio_equity,
         latest_indicators=indicators,
         jenis=holding.jenis or "trading",
-        cash_balance=168755.0,
+        cash_balance=get_cash_balance(db),
         fundamental_info=fundamental_info
     )
     return diagnosis
@@ -198,7 +198,7 @@ def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Dep
         user_question=req.user_question,
         latest_indicators=indicators,
         fundamental_info=fundamental_info,
-        cash_balance=168755.0,
+        cash_balance=get_cash_balance(db),
         conversation_history=conversation_history,
         provider=req.provider
     )

@@ -15,13 +15,21 @@ import {
   Layers,
   Inbox,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Wallet,
+  Tag
 } from "lucide-react";
+import { EditBalanceModal } from "@/components/EditBalanceModal";
+import { SellHoldingModal } from "@/components/SellHoldingModal";
 import { api } from "@/lib/api";
 
 export default function PortfolioPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [cashBalance, setCashBalance] = useState<number>(168755);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
+  const [sellingHolding, setSellingHolding] = useState<Holding | null>(null);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [chartStock, setChartStock] = useState<Holding | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -69,6 +77,14 @@ export default function PortfolioPage() {
       const data = await api.getDashboard();
       if (data && data.holdings) {
         setHoldings(data.holdings);
+      }
+      if (data && data.summary && data.summary.cashBalance !== undefined) {
+        setCashBalance(data.summary.cashBalance);
+      } else {
+        const balRes = await api.getCashBalance();
+        if (balRes && balRes.cash_balance !== undefined) {
+          setCashBalance(balRes.cash_balance);
+        }
       }
     } catch (e) {
       console.warn("Portfolio API offline:", e);
@@ -179,14 +195,33 @@ export default function PortfolioPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-2xs transition-all self-start sm:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Saham Baru</span>
-          </button>
+          <div className="flex items-center gap-3 self-start sm:self-auto">
+            <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+              <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Wallet className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-semibold block leading-tight">Saldo Kas RDN</span>
+                <span className="text-xs font-mono font-bold text-slate-800 leading-tight">{formatRupiah(cashBalance)}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsBalanceModalOpen(true)}
+                className="ml-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+              >
+                ✏️ Edit
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-2xs transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Saham Baru</span>
+            </button>
+          </div>
         </div>
 
         {/* Portfolio Table */}
@@ -275,14 +310,28 @@ export default function PortfolioPage() {
                           </button>
                         </td>
                         <td className="py-3.5 px-3 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(h.id)}
-                            className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors ml-1"
-                            title="Hapus"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSellingHolding(h);
+                                setIsSellModalOpen(true);
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-colors cursor-pointer"
+                              title="Jual saham / Take Profit / Cut Loss"
+                            >
+                              <Tag className="w-3 h-3" />
+                              <span>Jual</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(h.id)}
+                              className="p-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-colors cursor-pointer"
+                              title="Hapus manual dari pencatatan"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -586,6 +635,30 @@ export default function PortfolioPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Edit Cash Balance */}
+      <EditBalanceModal
+        isOpen={isBalanceModalOpen}
+        currentBalance={cashBalance}
+        onClose={() => setIsBalanceModalOpen(false)}
+        onSuccess={(newBalance) => {
+          setCashBalance(newBalance);
+          loadPortfolio();
+        }}
+      />
+
+      {/* Modal Sell Holding */}
+      <SellHoldingModal
+        isOpen={isSellModalOpen}
+        holding={sellingHolding}
+        onClose={() => {
+          setIsSellModalOpen(false);
+          setSellingHolding(null);
+        }}
+        onSuccess={() => {
+          loadPortfolio();
+        }}
+      />
     </main>
   );
 }

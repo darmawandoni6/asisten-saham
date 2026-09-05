@@ -124,5 +124,20 @@
 - [x] 8.6 Pengabaian artifact lokal & launcher di `.gitignore`
 - [x] 8.7 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`
 
+---
+
+## 💰 TAHAP 9 — Manual Trading Balance, Lot Management & Trading Journal Sync [SELESAI ✅]
+> Pencatatan saldo kas RDN manual, manajemen pemangkasan lot saham di portofolio, dan pencatatan riwayat Realized PnL ke jurnal.
+
+- [x] 9.1 Saldo Kas RDN Manual: Diinput dan diedit mandiri oleh user via `EditBalanceModal.tsx` (`user_settings` key `cash_balance`).
+- [x] 9.2 Modal Jual / Pangkas Lot Saham (`SellHoldingModal.tsx`):
+  - Dukungan hapus total (100%) atau pangkas sebagian lot (preset 25%, 50% TP1, 100%).
+  - Kalkulasi *live* nilai transaksi, Realized PnL nominal & persentase, serta sisa lot di portofolio.
+  - Tagging evaluasi psikologi (*Disiplin Plan*, *FOMO Buy*, *Panic Sell*) & catatan refleksi trader.
+- [x] 9.3 Pencatatan Otomatis ke AI Trading Journal (`/journal`):
+  - Setiap eksekusi jual (Gain / Loss) otomatis masuk ke `TradeLog` (`trade_log`).
+  - Rekalkulasi metrik performa Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*).
+- [x] 9.4 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`.
+
 
 

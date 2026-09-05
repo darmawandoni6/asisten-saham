@@ -8,6 +8,7 @@ import { ActionCard } from "@/components/ActionCard";
 import { DailyActionSheet } from "@/components/DailyActionSheet";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { AICopilotPanel } from "@/components/AICopilotPanel";
+import { EditBalanceModal } from "@/components/EditBalanceModal";
 import { Holding, PortfolioSummary } from "@/types";
 import { api } from "@/lib/api";
 import { PlusCircle, TrendingUp, Layers } from "lucide-react";
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<PortfolioSummary>(INITIAL_SUMMARY);
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [activeModal, setActiveModal] = useState<"chart" | "ai" | null>(null);
+  const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadDashboard = async () => {
@@ -78,7 +80,10 @@ export default function DashboardPage() {
 
       <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top Summary Metrics */}
-        <PortfolioSummaryCards summary={summary} />
+        <PortfolioSummaryCards 
+          summary={summary} 
+          onEditCashBalance={() => setIsBalanceModalOpen(true)}
+        />
 
         {/* 1. Core Feature: Smart Action Cards */}
         <div>
@@ -162,10 +167,23 @@ export default function DashboardPage() {
               holding={selectedHolding}
               onClose={closeModal}
             />
-
           </div>
         </div>
       )}
+
+      {/* Modal Edit Cash Balance */}
+      <EditBalanceModal
+        isOpen={isBalanceModalOpen}
+        currentBalance={summary.cashBalance || 0}
+        onClose={() => setIsBalanceModalOpen(false)}
+        onSuccess={(newBalance) => {
+          setSummary((prev) => ({
+            ...prev,
+            cashBalance: newBalance,
+          }));
+          loadDashboard();
+        }}
+      />
     </main>
   );
 }

@@ -14,15 +14,11 @@ import {
   BookOpen, 
   Briefcase, 
   TrendingUp, 
-  Calculator, 
   Sparkles, 
   ArrowRight,
-  HelpCircle,
   CheckSquare,
   Square,
-  Layers,
-  AlertOctagon,
-  LineChart
+  AlertOctagon
 } from "lucide-react";
 
 export default function GuidePage() {
@@ -91,7 +87,7 @@ export default function GuidePage() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                   isActive
                     ? "bg-slate-900 text-white shadow-2xs"
@@ -249,7 +245,7 @@ export default function GuidePage() {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">2. Portofolio &amp; Trading Plan</h4>
-                      <p className="text-xs text-slate-500">Pencatatan posisi riil &amp; manajemen risiko</p>
+                      <p className="text-xs text-slate-500">Pencatatan posisi riil, kas RDN manual, &amp; eksekusi lot</p>
                     </div>
                   </div>
                   <Link
@@ -262,21 +258,21 @@ export default function GuidePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Form Tambah Saham</strong>
+                    <strong className="block text-slate-900 mb-1">Input Plan &amp; Saldo Kas Manual</strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Wajib tentukan Avg Beli, Target Profit (TP), dan batas Stop Loss (SL) sejak awal sebelum membeli.
+                      Tentukan Avg Beli, TP, dan SL. Saldo Kas RDN dapat diedit mandiri via tombol <em>[ ✏️ Edit ]</em> sesuai rekening sekuritas Anda.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong className="block text-slate-900 mb-1">Pangkas / Jual Lot Saham</strong>
+                    <p className="text-slate-600 leading-relaxed">
+                      Tombol <em>[ 🏷️ Jual ]</em> memungkinkan Anda melepas sebagian lot (preset 25%, 50% TP1) atau menutup total posisi dengan kalkulasi Realized PnL instan.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <strong className="block text-slate-900 mb-1">Money Management Sektor</strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Mencegah risiko kebangkrutan dengan membatasi alokasi dana maksimal 25-30% per sektor industri.
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Selling Scale-Out Matrix</strong>
-                    <p className="text-slate-600 leading-relaxed">
-                      Metode jual bertahap: TP1 jual 50%, TP2 jual 25%, dan sisa 25% diproteksi Trailing Stop 7%.
+                      Visualisasi alokasi modal per sektor industri untuk menjaga diversifikasi risiko portofolio tetap sehat (&le; 25–30% per sektor).
                     </p>
                   </div>
                 </div>
@@ -347,7 +343,7 @@ export default function GuidePage() {
                     </Link>
                   </div>
                   <p className="text-xs text-slate-600 mt-4 leading-relaxed">
-                    Filter otomatis saham likuid IDX berdasarkan 3 strategi unggulan: <strong>Oversold Rebound (RSI &lt; 35)</strong>, <strong>Breakout MA20</strong>, dan <strong>Value Stocks</strong>. Klik tombol <em>"Plan Beli"</em> untuk memasukkannya ke trading plan.
+                    Filter otomatis saham likuid IDX berdasarkan 3 strategi unggulan: <strong>Oversold Rebound (RSI &lt; 35)</strong>, <strong>Breakout MA20</strong>, dan <strong>Value Stocks</strong>. Klik tombol <em>&quot;Plan Beli&quot;</em> untuk memasukkannya ke trading plan.
                   </p>
                 </div>
 
@@ -360,7 +356,7 @@ export default function GuidePage() {
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900">5. AI Trading Journal</h4>
-                        <p className="text-xs text-slate-500">Evaluasi transaksi &amp; psikologi</p>
+                        <p className="text-xs text-slate-500">Evaluasi transaksi &amp; metrik realized PnL</p>
                       </div>
                     </div>
                     <Link
@@ -372,7 +368,7 @@ export default function GuidePage() {
                     </Link>
                   </div>
                   <p className="text-xs text-slate-600 mt-4 leading-relaxed">
-                    Catat setiap penjualan yang selesai (untung maupun rugi). Tandai apakah eksekusi Anda <strong>Disiplin Plan</strong>, <strong>FOMO Buy</strong>, atau <strong>Panic Sell</strong>. AI Post-Mortem akan menganalisis bias emosional Anda secara berkala.
+                    Setiap eksekusi jual (Take Profit maupun Cut Loss) dari tabel portofolio otomatis tercatat di sini. Sistem menghitung akumulasi <strong>Total Realized PnL</strong>, <strong>Win Rate %</strong>, dan <strong>Profit Factor</strong> secara otomatis.
                   </p>
                 </div>
               </div>
@@ -764,6 +760,27 @@ export default function GuidePage() {
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <strong className="block text-slate-900 font-bold text-sm">Realized PnL vs Floating PnL</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    <em>Floating PnL</em> adalah laba/rugi berjalan dari posisi saham yang masih aktif di Portofolio. <em>Realized PnL</em> adalah laba/rugi riil yang sudah terkunci saat posisi dipangkas/dijual dan tercatat di Jurnal Trading.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <strong className="block text-slate-900 font-bold text-sm">Scale-Out (Pangkas Lot Parsial)</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Strategi menjual sebagian lot (misal 50% di TP1) untuk mengamankan keuntungan nyata ke kas, sementara sisa posisi dibiarkan mengikuti potensi tren reli berikutnya dengan trailing stop.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <strong className="block text-slate-900 font-bold text-sm">Saldo Kas RDN (Manual)</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Pencatatan kas tunai mandiri yang diinput pengguna sesuai saldo rekening dana nasabah (RDN) di sekuritas untuk mengukur ketersediaan modal dan alokasi risiko portofolio.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                   <strong className="block text-slate-900 font-bold text-sm">Dividend Yield</strong>
                   <p className="text-slate-600 leading-relaxed">
                     Persentase dividen tunai tahunan yang dibagikan emiten terhadap harga saham saat ini. Arus kas pasif ini berfungsi sebagai benteng pemulihan modal bagi saham bertipe investasi.
@@ -842,8 +859,8 @@ export default function GuidePage() {
               {[
                 {
                   id: 1,
-                  title: "Catat Saham Pertama Anda di Portofolio & Plan",
-                  desc: "Klik menu Portofolio & Plan lalu masukkan ticker saham IDX yang Anda miliki beserta Avg Beli, TP, dan SL.",
+                  title: "Atur Saldo Kas RDN & Catat Saham Pertama di Portofolio",
+                  desc: "Klik menu Portofolio, sesuaikan Saldo Kas RDN Anda via tombol [ ✏️ Edit ], lalu masukkan ticker saham IDX yang Anda miliki beserta Avg Beli, TP, dan SL.",
                   linkText: "Buka Portofolio",
                   href: "/portfolio"
                 },
@@ -870,8 +887,8 @@ export default function GuidePage() {
                 },
                 {
                   id: 5,
-                  title: "Simulasikan Rencana Transaksi di Trading Journal",
-                  desc: "Buka menu Trading Journal dan coba fitur 'Catat Transaksi' untuk melihat evaluasi psikologis AI.",
+                  title: "Uji Coba Pangkas / Jual Lot Saham ke Trading Journal",
+                  desc: "Coba klik tombol [ 🏷️ Jual ] pada baris saham di Portofolio untuk melihat kalkulasi Realized PnL instan dan pencatatannya otomatis ke menu Trading Journal.",
                   linkText: "Buka Journal",
                   href: "/journal"
                 },
