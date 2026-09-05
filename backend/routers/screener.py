@@ -41,10 +41,20 @@ def get_screener_results(
             "strategy": r.strategy,
             "score": r.score,
             "catalyst": details.get("catalyst", ""),
+            "action_stance": details.get("action_stance", "MONITOR"),
+            "why_buy": details.get("why_buy", details.get("catalyst", "")),
+            "watch_trigger": details.get("watch_trigger", ""),
+            "buy_area": details.get("buy_area", ""),
+            "target_price": details.get("target_price", details.get("resistance", 0)),
+            "stop_loss": details.get("stop_loss", details.get("support", 0)),
+            "risk_reward_ratio": details.get("risk_reward_ratio", "1 : 2.0"),
+            "potential_gain_pct": details.get("potential_gain_pct", 0),
+            "potential_risk_pct": details.get("potential_risk_pct", 0),
             "support": details.get("support", 0),
             "resistance": details.get("resistance", 0)
         })
     return results
+
 
 @router.post("/scan")
 def run_screener_scan(db: Session = Depends(get_db)):

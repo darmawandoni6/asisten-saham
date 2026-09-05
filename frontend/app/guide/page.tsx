@@ -455,26 +455,67 @@ export default function GuidePage() {
                 </div>
               </div>
 
-              {/* AI Score Sub-Card */}
-              <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
-                    🔢 Tingkatan AI Score (0 – 100)
-                  </span>
+              {/* AI Score & Risk:Reward Deep Dive Sub-Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                {/* RRR Deep Dive */}
+                <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
+                      🎯 Risk : Reward Ratio (RRR)
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 text-[10px] font-bold font-mono">
+                      Fondasi Profit
+                    </span>
+                  </div>
+                  <strong className="block text-slate-900 text-xs font-bold">
+                    Matematika Peluang: Menang Walau Win-Rate Hanya 40%
+                  </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Mengukur tingkat kematangan peluang teknikal dan rasio potensi keuntungan berbanding risiko:
+                    RRR membandingkan batas risiko rugi Stop Loss terhadap target keuntungan TP:
+                  </p>
+                  <div className="p-2.5 rounded-lg bg-white border border-emerald-200 text-xs font-mono space-y-1">
+                    <div className="text-slate-800 font-bold">
+                      RRR = 1 : (TP - Entry) / (Entry - SL)
+                    </div>
+                    <div className="text-slate-600 text-[11px] font-sans">
+                      Contoh: Beli Rp 1.000, SL Rp 950 (-5%), TP Rp 1.100 (+10%) &rarr; <strong>RRR = 1 : 2.0</strong>
+                    </div>
+                  </div>
+                  <p className="text-emerald-950 text-xs leading-relaxed">
+                    💡 <strong>Simulasi 10 Trade:</strong> Jika 6 trade rugi (-Rp 300) dan 4 trade untung (+Rp 400), total modal tetap <strong>cuan bersih +Rp 100</strong>.
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 shrink-0 text-xs font-semibold">
-                  <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200">
-                    &ge; 85: Peluang Utama (Sangat Matang)
-                  </span>
-                  <span className="px-3 py-1.5 rounded-lg bg-blue-100 text-blue-800 border border-blue-200">
-                    75 – 84: Sinyal Baik (Tunggu Konfirmasi)
-                  </span>
-                  <span className="px-3 py-1.5 rounded-lg bg-slate-200 text-slate-700">
-                    &lt; 75: Moderat (Watchlist)
-                  </span>
+
+                {/* AI Score Deep Dive */}
+                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
+                      🤖 AI Technical Score (0 – 100)
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-bold font-mono">
+                      Filter Probabilitas
+                    </span>
+                  </div>
+                  <strong className="block text-slate-900 text-xs font-bold">
+                    Tingkat Kematangan Setup &amp; Konvergensi Indikator
+                  </strong>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Mengukur seberapa ideal titik masuk saat closing bursa (posisi MA, momentum RSI, dan jarak support/resist).
+                  </p>
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-emerald-200 text-[11px]">
+                      <strong className="text-emerald-800 font-bold">&ge; 85 (Hijau Zamrud)</strong>
+                      <span className="text-slate-600">Peluang Utama (Setup Sangat Matang)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-blue-200 text-[11px]">
+                      <strong className="text-blue-800 font-bold">75 – 84 (Biru / Amber)</strong>
+                      <span className="text-slate-600">Sinyal Baik (Tunggu Trigger Pagi)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-slate-200 text-[11px]">
+                      <strong className="text-slate-700 font-bold">&lt; 75 (Abu-abu)</strong>
+                      <span className="text-slate-600">Sinyal Moderat (Hanya Watchlist)</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -705,6 +746,20 @@ export default function GuidePage() {
                   <strong className="block text-slate-900 font-bold text-sm">Cash Feasibility (Kecukupan Kas)</strong>
                   <p className="text-slate-600 leading-relaxed">
                     Fitur validasi cerdas yang mengecek apakah saldo kas aktif di akun sekuritas Anda mencukupi untuk melakukan pembelian lot tambahan, mencegah Anda kekurangan dana di tengah jalan.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <strong className="block text-slate-900 font-bold text-sm">Risk : Reward Ratio (RRR)</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Perbandingan antara batas risiko kerugian (jarak harga entry ke Stop Loss) dengan potensi target keuntungan (jarak harga entry ke Take Profit). Nilai &ge; 1 : 2.0 memungkinkan portofolio tetap untung meski *win rate* hanya 40%.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <strong className="block text-slate-900 font-bold text-sm">AI Technical Score</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Skor kuantitatif (0–100) yang mengukur tingkat kematangan dan konvergensi indikator teknikal (MA, RSI, Support/Resist) pasca penutupan bursa sebagai saringan probabilitas statistik harian.
                   </p>
                 </div>
 

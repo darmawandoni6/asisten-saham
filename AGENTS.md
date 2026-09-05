@@ -115,7 +115,18 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 
 ### I. EOD Screener Top 10 & Analisis Saham Kustom On-Demand
 - **Top 10 Curated Picks**: Fungsi `scan_market_pool(db, top_n=10)` memindai universe LQ45 & saham likuid BEI pasca penutupan pasar, lalu membatasi hasil ke 10 saham dengan AI Score tertinggi untuk menjaga fokus trader.
-- **On-Demand Custom Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI di luar daftar rekomendasi (contoh: `BREN`, `AMMN`, `PGAS`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal (MA, RSI, Support, Resistance), menentukan strategi & AI Score, serta menyimpannya ke database `ScreenerResult`.
+- **On-Demand Custom Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI di luar daftar rekomendasi (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal (MA, RSI, Support, Resistance), menentukan strategi & AI Score, serta menyimpannya ke database `ScreenerResult`.
+
+### J. 3-Pilar Intelijen Rekomendasi, Client-Side Sorting & Edukasi RRR
+- **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
+  1. `Alasan Rekomendasi (Why Buy)`: Landasan teknikal objektif mengapa saham terpilih dari data historis (status MA, oversold RSI, breakout).
+  2. `Wajib Dipantau Besok (Watch Trigger 09:00 WIB)`: Syarat konfirmasi saat pembukaan market sebelum melakukan entry.
+  3. `Panduan Level & Risk/Reward Ratio (RRR)`: Area beli ideal, target resistance (TP), batas support/invalidasi (SL), dan rasio *Risk:Reward* (RRR) otomatis.
+- **Client-Side (FE-Only) Sorting**: Pengurutan tabel sepenuhnya diproses in-memory di React state (`sortedItems`) pada seluruh kolom (Ticker, Strategi, Harga, Perubahan %, RSI, TP, SL, RRR, AI Score) tanpa re-query backend.
+- **Edukasi Interaktif RRR & AI Score**:
+  - Rumus RRR: $1 : (\text{TP} - \text{Entry}) / (\text{Entry} - \text{SL})$. Standar transaksi ideal $\ge 1 : 2.0$.
+  - AI Score (0–100): Filter probabilitas statistik data historis (bukan ramalan masa depan).
+  - Terintegrasi di Quick Modal Kamus, Tooltips tabel/kartu, dan Glosarium `/guide` (Tab 3).
 
 ---
 

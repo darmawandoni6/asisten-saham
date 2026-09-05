@@ -81,24 +81,49 @@ def evaluate_screener_indicators(df, ticker: str, profile_name: str, profile_sec
     support = indicators.get("support", round(close * 0.95))
     resistance = indicators.get("resistance", round(close * 1.05))
 
-    # Strategy classification
+    target_price = resistance if resistance > close else round(close * 1.08)
+
+    # Strategy classification & in-depth 3 pillars
     if rsi < 35:
         strategy = "OVERSOLD"
         score = round(95 - rsi)
         ma_status = "Oversold Rebound Zone"
-        catalyst = f"RSI oversold level {rsi:.1f} di dekat area support Rp {int(support):,}"
+        action_stance = "BUY ON WEAKNESS (Area Support)"
+        stop_loss = round(support * 0.97)
+        why_buy = f"Indikator RSI {rsi:.1f} berada di zona jenuh jual ekstrem dekat lantai Support Mayor Rp {int(support):,}. Tekanan jual mereda dan potensi pantulan teknikal tinggi."
+        watch_trigger = f"Pantau antrean Bid di area Rp {int(support):,} pada jam 09:00 WIB. Tunggu konfirmasi pantulan candle hijau sebelum entry. Batal jika jebol ke bawah Rp {int(stop_loss):,}."
+        buy_area = f"Rp {int(support):,} – Rp {int(close):,}"
     elif close >= ma20 and rsi >= 55:
         strategy = "BREAKOUT"
         score = round(80 + (change_pct if change_pct > 0 else 5))
         ma_status = "Above MA20 Bullish Momentum"
-        catalyst = f"Breakout MA20 dengan momentum RSI {rsi:.1f} dan volume aktif"
+        action_stance = "BUY ON BREAKOUT (Momentum MA20)"
+        stop_loss = round(ma20 * 0.96)
+        why_buy = f"Harga berhasil bertahan di atas garis MA20 (Rp {int(ma20):,}) dengan momentum RSI {rsi:.1f}. Fase sideways selesai dan tren akselerasi bullish baru dimulai."
+        watch_trigger = f"Pastikan harga dibuka & bertahan stabil di atas Rp {int(ma20):,}. Konfirmasi volume beli aktif di 15 menit pertama (09:00–09:15 WIB). Disiplin SL di Rp {int(stop_loss):,}."
+        buy_area = f"Rp {int(close):,} – Rp {int(close * 1.02):,}"
     else:
         strategy = "VALUE"
         score = 85
         ma_status = "Akumulasi Support MA50"
-        catalyst = f"Konsolidasi di area support Rp {int(support):,} dengan valuasi wajar"
+        action_stance = "ACCUMULATE / DCA (Support MA50)"
+        stop_loss = round(support * 0.95)
+        why_buy = f"Emiten berfundamental kuat berkonsolidasi sehat di area support penopang MA50 (Rp {int(support):,}) dengan valuasi menarik."
+        watch_trigger = f"Pantau stabilitas konsolidasi harga di atas Rp {int(support):,}. Lakukan pembelian bertahap (DCA 2-3 tahap) untuk investasi jangka menengah-panjang."
+        buy_area = f"Rp {int(support):,} – Rp {int(close):,}"
 
     score = min(max(score, 70), 98)
+
+    # Risk / Reward calculations
+    potential_gain_nominal = max(target_price - close, 1)
+    potential_risk_nominal = max(close - stop_loss, 1)
+    potential_gain_pct = round((potential_gain_nominal / close) * 100, 1)
+    potential_risk_pct = round((potential_risk_nominal / close) * 100, 1)
+    
+    rrr_num = round(potential_gain_nominal / potential_risk_nominal, 1)
+    if rrr_num < 0.5:
+        rrr_num = 1.0
+    risk_reward_ratio = f"1 : {rrr_num}"
 
     return {
         "ticker": ticker,
@@ -111,10 +136,20 @@ def evaluate_screener_indicators(df, ticker: str, profile_name: str, profile_sec
         "ma_status": ma_status,
         "strategy": strategy,
         "score": score,
-        "catalyst": catalyst,
+        "catalyst": why_buy,
+        "action_stance": action_stance,
+        "why_buy": why_buy,
+        "watch_trigger": watch_trigger,
+        "buy_area": buy_area,
+        "target_price": target_price,
+        "stop_loss": stop_loss,
+        "risk_reward_ratio": risk_reward_ratio,
+        "potential_gain_pct": potential_gain_pct,
+        "potential_risk_pct": potential_risk_pct,
         "support": support,
         "resistance": resistance
     }
+
 
 
 def scan_market_pool(db: Session, top_n: int = 10) -> List[Dict[str, Any]]:

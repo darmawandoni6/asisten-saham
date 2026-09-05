@@ -170,13 +170,23 @@ export interface ScreenerItem {
   changePct: number;
   volume: number;
   rsi: number;
-  maStatus: string; // e.g. 'Golden Cross', 'Above MA20/50'
+  maStatus: string;
   strategy: 'OVERSOLD' | 'BREAKOUT' | 'VALUE' | 'CUSTOM';
   score: number; // 0 - 100
   catalyst: string;
   support: number;
   resistance: number;
+  actionStance?: string;
+  whyBuy?: string;
+  watchTrigger?: string;
+  buyArea?: string;
+  targetPrice?: number;
+  stopLoss?: number;
+  riskRewardRatio?: string;
+  potentialGainPct?: number;
+  potentialRiskPct?: number;
 }
+
 
 export interface TradeLogItem {
   id: number;

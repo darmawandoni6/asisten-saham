@@ -85,6 +85,7 @@
 - [x] 5.6 Pemutakhiran dokumentasi `README.md` & `AGENTS.md`
 - [x] 5.7 Pemasangan Kamus Lengkap Badge & Glosarium (Pusat `/guide` Tab 3 + Quick Modal `[ℹ️ Kamus Badge]` di Screener)
 - [x] 5.8 EOD Screener Top 10 Rekomendasi Terkurasi & Analisis Saham Kustom On-Demand (`/screener`)
+- [x] 5.9 3-Pilar Watchlist Intelijen Screener, Client-Side (FE-Only) Sorting & Edukasi Interaktif RRR / AI Score
 
 ---
 

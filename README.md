@@ -47,11 +47,15 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Tanya jawab interaktif lanjutan (Q&A) dengan Gemini 2.0 Flash / Rule-Based Expert Engine.
 * **🔎 Skala Tipografi Nyaman (+1x Scale-Up)**: Teks penjelasan, metrik, dan checklist aksi disesuaikan agar sangat ergonomis dan mudah dibaca di layar desktop/laptop.
 
-### 5. 🔍 EOD Stock Screener & Custom Analyzer (`/screener`)
+### 5. 🔍 EOD Stock Screener & 3-Pilar Watchlist Intelijen (`/screener`)
+* **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
+  - 💡 **Pilar 1 (Alasan Rekomendasi / Why Buy)**: Ulasan teknikal objektif berbasis data historis (status MA20/50, RSI oversold, momentum breakout).
+  - 👁️ **Pilar 2 (Hal Wajib Dipantau Besok / Watch Trigger 09:00 WIB)**: Syarat objektif saat market buka pagi hari sebelum melakukan entry.
+  - 🎯 **Pilar 3 (Panduan Level & Risk:Reward Ratio)**: Area beli ideal, Target TP, Stop Loss, dan rasio *Risk:Reward* (RRR) otomatis.
+* **Client-Side (FE-Only) Sorting**: Pengurutan tabel super cepat tanpa beban query database pada seluruh kolom (Ticker, Strategi, Harga Close, Perubahan %, RSI, TP, SL, RRR, AI Score).
 * **Top 10 Rekomendasi Terkurasi**: Pemindaian universe likuid BEI (LQ45 & saham aktif) pasca-closing market yang otomatis disortir dan dibatasi ke **Top 10 saham terbaik** berdasarkan AI Score tertinggi.
 * **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung dianalisis kondisi teknikalnya dan dimasukkan ke daftar screener.
-* Preset strategi otomatis: **Technical Oversold (RSI < 35)**, **Breakout / Golden Cross (Close >= MA20 & RSI >= 55)**, dan **Undervalued Growth / Value (Support MA50)**.
-* **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`)**: Pop-up ringkas di samping tombol scan untuk melihat formula strategi dan arti tingkatan **AI Score (0–100)** secara instan.
+* **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 2.0)**, dan arti tingkatan **AI Score (0–100)** secara instan.
 
 ### 6. 📔 AI Trading Journal & Post-Mortem (`/journal`)
 * Pencatatan riwayat transaksi realised (*Win Rate*, *Profit Factor*, *Total Realized PnL*).
