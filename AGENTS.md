@@ -109,10 +109,12 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   2. `invalidationRisk`: Batas risiko dan level harga invalidasi (Plan B) bila tren breakdown.
   3. `cashflowAndTimeline`: Estimasi arus kas dividen riil per tahun & estimasi rentang waktu rebound.
   4. `tomorrowActionPlan`: Checklist 3 langkah aksi konkret sebelum market buka pukul 09:00 WIB.
-- **1-Day Ephemeral Chat History**:
+- **Active Trading Cycle Chat Retention**:
   - Model: `RecoveryChatLog` (`recovery_chat_logs`).
-  - Menyimpan riwayat percakapan interaktif khusus untuk sesi hari perdagangan berjalan.
-  - Otomatis dibersihkan (*purged*) saat penutupan bursa (17:30 WIB) via `APScheduler` di `backend/scheduler.py` atau saat pergantian tanggal bursa.
+  - Menyimpan riwayat percakapan interaktif khusus untuk sesi siklus hari bursa berjalan (*Trading Cycle Session*).
+  - **TIDAK DIHAPUS oleh pergantian tanggal kalender biasa**.
+  - Chat bertahan sepanjang akhir pekan (Jumat sore s/d Senin 17:30 WIB) dan sepanjang hari libur nasional/cuti bersama BEI.
+  - Otomatis dibersihkan (*purged*) **HANYA saat penutupan bursa hari bursa aktif (17:30 WIB)** via `APScheduler` di `backend/scheduler.py` atau tombol manual *Bersihkan Riwayat*.
   - Dilengkapi endpoint `GET /api/v1/recovery/{ticker}/chat-history` dan `DELETE /api/v1/recovery/{ticker}/chat-history` (tombol *Bersihkan Riwayat* di UI).
 
 ### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
@@ -164,7 +166,16 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Menyimpan evaluasi psikologi (`DISCIPLINED`, `FOMO_BUY`, `PANIC_SELL`) & catatan refleksi trader.
   - Metrik Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*) dihitung dari transaksi yang ditutup.
 
+### M. IDX Market Calendar, Holiday Engine & Live Session Status (`backend/services/market_calendar.py`)
+- **Kalender Resmi BEI & Libur Nasional**:
+  - Memetakan akhir pekan (Sabtu & Minggu) dan seluruh Hari Libur Nasional & Cuti Bersama BEI resmi 2025–2026.
+  - Fungsi `is_active_trading_day(target_date)` menentukan apakah tanggal tertentu adalah hari perdagangan aktif.
+  - Endpoint `GET /api/v1/system/market-status` menyediakan status sesi live (`OPEN_SESSION_1`, `MARKET_BREAK`, `OPEN_SESSION_2`, `POST_CLOSING`, `CLOSED_EOD`, `CLOSED_WEEKEND`, `CLOSED_HOLIDAY`).
+- **Live Status Indicator di Topbar**:
+  - Komponen `Topbar.tsx` secara dinamis menampilkan pill status pasar BEI dengan warna indikator Stockbit Clean (Emerald untuk sesi buka, Amber untuk jeda istirahat, Slate untuk market closed/libur) beserta tooltip deskriptif.
+
 ---
+
 
 
 ## 🛠️ 5. Perintah Pengujian & Operasional

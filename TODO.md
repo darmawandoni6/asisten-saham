@@ -137,7 +137,20 @@
 - [x] 9.3 Pencatatan Otomatis ke AI Trading Journal (`/journal`):
   - Setiap eksekusi jual (Gain / Loss) otomatis masuk ke `TradeLog` (`trade_log`).
   - Rekalkulasi metrik performa Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*).
-- [x] 9.4 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`.
+## 📅 TAHAP 10 — IDX Market Calendar & Active Trading Cycle Chat Retention [SELESAI ✅]
+> Deteksi hari bursa aktif & libur nasional/cuti bersama BEI, serta retensi chat recovery berbasis siklus bursa (bukan hari kalender).
+
+- [x] 10.1 Modul Kalender Bursa BEI (`backend/services/market_calendar.py`):
+  - Deteksi akhir pekan (Sabtu-Minggu), daftar lengkap Libur Nasional & Cuti Bersama BEI resmi 2025–2026.
+  - Helper penentu hari bursa aktif (`is_active_trading_day`), hari bursa berikutnya, dan status sesi pasar.
+- [x] 10.2 Retensi Chat Berbasis Siklus Bursa (`backend/routers/recovery.py`):
+  - Penghapusan pembersihan kaku kalender harian (`session_date < today`).
+  - Chat diskusi recovery dipertahankan sepanjang akhir pekan (Jumat sore s/d Senin 17:30) dan hari libur nasional sampai EOD market close aktif berikutnya.
+- [x] 10.3 Scheduler EOD Holiday-Aware (`backend/scheduler.py`):
+  - Pengecekan hari bursa aktif sebelum menjalankan penarikan data EOD dan reset chat.
+- [x] 10.4 Live Market Status Indicator di Topbar (`frontend/components/Topbar.tsx` & API `/api/v1/system/market-status`).
+- [x] 10.5 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`.
+
 
 
 

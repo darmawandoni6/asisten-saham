@@ -90,6 +90,16 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * **Auto-Shutdown Heartbeat Engine**: Tab browser mengirim sinyal detak jantung berkala (`/api/v1/system/heartbeat`). Ketika seluruh tab browser ditutup selama $\ge 75$ detik, server otomatis mati secara bersih sehingga memori RAM kembali **0 MB (0% CPU)**.
 * **macOS Desktop App Launcher (`Asisten Saham.app`)**: Aplikasi desktop 1-klik dengan ikon grafik candlestick Stockbit, siap disematkan di Dock atau Desktop untuk membuka aplikasi secara instan.
 
+### 11. 📅 Kalender Bursa BEI & Retensi Chat Berbasis Siklus Trading
+* **3-Layer Dynamic Holiday Engine**:
+  - *Layer 1 (Empirical Ground Truth)*: Mengecek transaksi riil IHSG (`^JKSE`) via Yahoo Finance pada 17:30 WIB. Jika 0 transaksi, bursa otomatis terdeteksi libur walau ada revisi SKB 3 Menteri dadakan.
+  - *Layer 2 (Dynamic Online Sync)*: Menyinkronkan kalender libur nasional terbaru dari feed API publik secara background.
+  - *Layer 3 (Built-in Calendar)*: Memetakan kalender resmi BEI 2025–2026 secara offline.
+* **Retensi Chat Siklus Trading (*Trading Cycle Retention*)**:
+  - Riwayat chat recovery **tidak dihapus oleh pergantian hari kalender biasa**, melainkan bertahan sepanjang akhir pekan (Jumat sore s/d Senin 17:30 WIB) dan hari libur nasional.
+  - Chat otomatis di-reset **hanya saat penutupan sesi pasar bursa aktif (17:30 WIB)**.
+* **Live Market Status di Topbar**: Menampilkan badge status pasar BEI secara *real-time* (`🟢 Market Open (Sesi 1/2)`, `🟡 Istirahat Siang`, `⚪ Weekend (Pasar Tutup)`, atau `⚪ Libur: [Nama Libur]`).
+
 ---
 
 ## 🎨 Filosofi Desain UI
@@ -108,8 +118,10 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | **Data Market** | Yahoo Finance (`yfinance`) dengan format ticker `.JK` |
 | **Technical Analysis** | Native Pandas (kompatibel penuh dengan Python 3.14 macOS) |
 | **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`, `deepseek`, `claude`) |
-| **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB) |
+| **Market Calendar** | 3-Layer Holiday Engine (BEI Calendar, Online API Sync & Empirical IHSG Check) |
+| **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB holiday-aware) |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon (0 MB RAM idle footprint) |
+
 
 ---
 

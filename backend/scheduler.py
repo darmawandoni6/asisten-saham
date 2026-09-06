@@ -1,15 +1,26 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from database import SessionLocal
-from models import Holding
+from models import Holding, RecoveryChatLog
 from services.data_fetcher import fetch_and_store_stock_data
 from services.portfolio_engine import evaluate_holding_status
 from services.telegram_bot import send_telegram_notification
+from services.market_calendar import is_active_trading_day, get_holiday_name
 from datetime import datetime
 
 scheduler = BackgroundScheduler()
 
 def run_eod_market_pipeline():
-    print(f"[{datetime.now()}] Menjalankan pipeline EOD otomatis...")
+    now = datetime.now()
+    today = now.date()
+
+    # Periksa apakah hari ini adalah Hari Bursa Aktif BEI (Kalender + Bukti Empiris Transaksi IHSG)
+    if not is_active_trading_day(today, verify_empirical=True):
+        holiday_reason = get_holiday_name(today) or "Akhir Pekan / Libur Pasar (0 Transaksi IHSG)"
+        print(f"[{now}] [Scheduler] Hari ini ({today} - {holiday_reason}) adalah hari libur bursa. Pipeline EOD & reset chat dilewati (chat dipertahankan).")
+        return
+
+
+    print(f"[{now}] Menjalankan pipeline EOD otomatis (Hari Bursa Aktif)...")
     db = SessionLocal()
     try:
         holdings = db.query(Holding).all()
@@ -35,11 +46,10 @@ def run_eod_market_pipeline():
             send_telegram_notification(msg)
             print("[Scheduler] Telegram notification terkirim.")
 
-        # Purge temporary 1-day recovery discussion chat history on market close
-        from models import RecoveryChatLog
+        # Purge temporary recovery discussion chat history HANYA pada market close hari bursa aktif
         deleted_chats = db.query(RecoveryChatLog).delete()
         db.commit()
-        print(f"[Scheduler] EOD Market Close: {deleted_chats} riwayat chat diskusi recovery berhasil dibersihkan.")
+        print(f"[Scheduler] EOD Market Close: {deleted_chats} riwayat chat diskusi recovery berhasil dibersihkan untuk siklus bursa baru.")
     except Exception as e:
         print(f"[Scheduler] Error pipeline: {e}")
     finally:
@@ -56,4 +66,5 @@ def start_scheduler():
         id="eod_fetcher"
     )
     scheduler.start()
-    print("[Scheduler] APScheduler aktif berjalan (Senin-Jumat 17:30 WIB).")
+    print("[Scheduler] APScheduler aktif berjalan (Senin-Jumat 17:30 WIB dengan deteksi hari libur bursa BEI).")
+

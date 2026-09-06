@@ -1,15 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { 
-  RefreshCw, 
-  Bell, 
-  Send, 
-  Clock,
-  HelpCircle
-} from "lucide-react";
 import { api } from "@/lib/api";
+import { Bell, Clock, HelpCircle, RefreshCw, Send } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
 
 interface TopbarProps {
   title?: string;
@@ -17,22 +12,38 @@ interface TopbarProps {
   onRefresh?: () => void;
 }
 
-export function Topbar({ 
-  title = "Smart Decision Dashboard", 
+export function Topbar({
+  title = "Smart Decision Dashboard",
   subtitle = "Analisis pasca-closing market & rekomendasi aksi portofolio Anda",
-  onRefresh
+  onRefresh,
 }: TopbarProps) {
   const [isSyncing, setIsSyncing] = useState(false);
+  const [marketStatus, setMarketStatus] = useState<any>(null);
+
+  React.useEffect(() => {
+    api
+      .getMarketStatus()
+      .then(setMarketStatus)
+      .catch(() => {});
+  }, []);
 
   const handleSyncEOD = async () => {
     setIsSyncing(true);
     try {
       await api.fetchAllEOD();
-      alert("Sinkronisasi EOD via Yahoo Finance berhasil! Seluruh data harga & MA telah diperbarui.");
+      alert(
+        "Sinkronisasi EOD via Yahoo Finance berhasil! Seluruh data harga & MA telah diperbarui.",
+      );
       onRefresh?.();
+      api
+        .getMarketStatus()
+        .then(setMarketStatus)
+        .catch(() => {});
     } catch (e) {
       console.warn("Sync EOD fallback:", e);
-      alert("Data EOD disinkronkan dari database lokal (yfinance siap terkoneksi).");
+      alert(
+        "Data EOD disinkronkan dari database lokal (yfinance siap terkoneksi).",
+      );
       onRefresh?.();
     } finally {
       setIsSyncing(false);
@@ -49,13 +60,37 @@ export function Topbar({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Market Status Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-xs">
-          <Clock className="w-3.5 h-3.5 text-emerald-600" />
-          <span className="text-slate-500 text-[11px]">Sesi EOD:</span>
-          <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-600" />
-            Closing 17:30 WIB Sinkron
+        {/* Dynamic Market Status Pill */}
+        <div
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs shadow-2xs cursor-default"
+          title={
+            marketStatus?.description ||
+            "Jadwal Sinkronisasi EOD Penutupan Pasar BEI"
+          }
+        >
+          <Clock
+            className={`w-3.5 h-3.5 ${marketStatus?.isOpen ? "text-emerald-600" : "text-slate-500"}`}
+          />
+          <span className="text-slate-500 text-[11px]">Status BEI:</span>
+          <span
+            className={`font-semibold text-[11px] flex items-center gap-1.5 ${
+              marketStatus?.isOpen
+                ? "text-emerald-700"
+                : marketStatus?.status === "MARKET_BREAK"
+                  ? "text-amber-700"
+                  : "text-slate-700"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                marketStatus?.isOpen
+                  ? "bg-emerald-600 animate-pulse"
+                  : marketStatus?.status === "MARKET_BREAK"
+                    ? "bg-amber-500"
+                    : "bg-slate-400"
+              }`}
+            />
+            {marketStatus?.badgeText || "EOD 17:30 WIB"}
           </span>
         </div>
 
@@ -66,14 +101,20 @@ export function Topbar({
           disabled={isSyncing}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors border border-slate-300 shadow-2xs"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isSyncing ? "animate-spin text-emerald-600" : ""}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 text-slate-500 ${isSyncing ? "animate-spin text-emerald-600" : ""}`}
+          />
           <span>{isSyncing ? "Menarik Data..." : "Tarik EOD"}</span>
         </button>
 
         {/* Action: Test Telegram alert */}
         <button
           type="button"
-          onClick={() => alert("Daily Action Sheet berhasil dikirimkan ke Bot Telegram Anda!")}
+          onClick={() =>
+            alert(
+              "Daily Action Sheet berhasil dikirimkan ke Bot Telegram Anda!",
+            )
+          }
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-2xs"
           title="Kirim Ringkasan Sore ke Telegram"
         >
@@ -93,7 +134,7 @@ export function Topbar({
 
         {/* Notification Bell */}
         <div className="relative">
-          <button 
+          <button
             type="button"
             className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors shadow-2xs"
           >

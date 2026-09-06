@@ -175,4 +175,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
   getPostMortem: () => fetchApi<any>("/api/v1/journal/post-mortem"),
+
+  // System & Market Calendar
+  getMarketStatus: () => fetchApi<any>("/api/v1/system/market-status"),
 };
+

@@ -62,3 +62,9 @@ def get_system_status():
         "auto_shutdown_enabled": AUTO_SHUTDOWN_ENABLED,
         "idle_timeout_seconds": IDLE_TIMEOUT_SECONDS
     }
+
+@router.get("/market-status")
+def get_idx_market_status():
+    from services.market_calendar import get_market_status
+    return get_market_status()
+

@@ -92,15 +92,10 @@ def get_recovery_chat_history(
     db: Session = Depends(get_db)
 ):
     ticker = normalize_ticker(ticker)
-    today = date.today()
 
-    # Auto-purge expired chat logs from previous days
-    db.query(RecoveryChatLog).filter(RecoveryChatLog.session_date < today).delete()
-    db.commit()
-
+    # Ambil seluruh riwayat chat dalam siklus trading berjalan
     query = db.query(RecoveryChatLog).filter(
-        RecoveryChatLog.ticker == ticker,
-        RecoveryChatLog.session_date == today
+        RecoveryChatLog.ticker == ticker
     )
     if scenario_id:
         query = query.filter(RecoveryChatLog.scenario_id == scenario_id)
@@ -128,11 +123,9 @@ def clear_recovery_chat_history(
     db: Session = Depends(get_db)
 ):
     ticker = normalize_ticker(ticker)
-    today = date.today()
 
     query = db.query(RecoveryChatLog).filter(
-        RecoveryChatLog.ticker == ticker,
-        RecoveryChatLog.session_date == today
+        RecoveryChatLog.ticker == ticker
     )
     if scenario_id:
         query = query.filter(RecoveryChatLog.scenario_id == scenario_id)
@@ -174,17 +167,12 @@ def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Dep
     except Exception as e:
         print(f"[recovery] Error fetching fundamentals for {ticker}: {e}")
 
-    # Fetch today's conversation history for multi-turn context
+    # Fetch conversation history for multi-turn context (siklus berjalan)
     conversation_history = []
     if req.user_question and req.user_question.strip():
-        # Auto-purge expired history
-        db.query(RecoveryChatLog).filter(RecoveryChatLog.session_date < today).delete()
-        db.commit()
-
         past_logs = db.query(RecoveryChatLog).filter(
             RecoveryChatLog.ticker == ticker,
-            RecoveryChatLog.scenario_id == req.scenario_id,
-            RecoveryChatLog.session_date == today
+            RecoveryChatLog.scenario_id == req.scenario_id
         ).order_by(RecoveryChatLog.created_at.asc()).all()
 
         conversation_history = [
