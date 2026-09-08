@@ -16,15 +16,15 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - 🔵 **AVERAGING DOWN REVIEW**: Saham investasi yang mengalami koreksi dalam (> 30%) untuk evaluasi cicil beli.
 * **Daily Action Sheet**: Rangkuman urutan aksi prioritas pasca penutupan bursa untuk persiapan order esok pagi.
 
-### 2. 🧠 9Router AI Decision Copilot Panel
+### 2. 🧠 AI Decision Copilot Panel (Custom OpenAI-Compatible Gateway)
 * Evaluasi kondisi teknikal terkini (Close, MA20, MA50, RSI, Support/Resistance) terhadap **Avg Beli** dan **Trading Plan**.
-* **Integrasi 9Router Local AI Gateway**:
-  - Menggunakan endpoint local proxy 9Router (`http://localhost:20128/v1`) via OpenAI-compatible REST API.
-  - Model default: `9router` dengan dukungan auto-routing ke 100+ model dan token saver compression.
-  - Hot-reload konfigurasi environment `.env` tanpa perlu me-restart server.
+* **Integrasi OpenAI-Compatible LLM Gateway Bebas Provider**:
+  - Mendukung provider apa saja (OpenAI, 9Router, Ollama, Groq, OpenCode, LiteLLM, vLLM, Local LLM) via endpoint standar `/chat/completions`.
+  - Pengguna bebas mengonfigurasi `AI_API_KEY`, `AI_MODEL`, dan `AI_BASE_URL` sesuai kebutuhan.
+  - *Hot-reload* konfigurasi environment `.env` secara instan tanpa perlu me-restart server.
 * **Prinsip Transparansi & Graceful Fallback AI**:
-  - Menampilkan alert informatif jika service 9Router belum aktif atau API Key belum dikonfigurasi.
-  - Jika kuota/rate limit habis (HTTP 429) atau 9Router offline, sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`) tanpa crash atau error layar kosong.
+  - Menampilkan alert informatif jika API Key atau service AI belum aktif.
+  - Jika kuota/rate limit habis (HTTP 429) atau endpoint offline, sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`) tanpa crash atau error layar kosong.
 
 ### 3. 💼 Portfolio & Trading Plan Management (`/portfolio`)
 * **Pencatatan Saldo Kas RDN Manual**: Saldo kas RDN dapat diinput dan diperbarui kapan saja secara manual sesuai saldo nyata rekening sekuritas via tombol `[ ✏️ Edit ]`.
@@ -118,7 +118,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM |
 | **Data Market** | Yahoo Finance (`yfinance`) dengan format ticker `.JK` |
 | **Technical Analysis** | Native Pandas (kompatibel penuh dengan Python 3.14 macOS) |
-| **AI LLM Engine** | **9Router Local AI Gateway** (`9router`) & Rule-Based Expert Engine |
+| **AI LLM Engine** | **Custom OpenAI-Compatible AI Gateway** (Configurable Model & Endpoint) & Rule-Based Expert Engine |
 | **Market Calendar** | 3-Layer Holiday Engine (BEI Calendar, Online API Sync & Empirical IHSG Check) |
 | **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB holiday-aware) |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon (0 MB RAM idle footprint) |
@@ -168,18 +168,18 @@ Data pasar BEI otomatis ditarik setiap Senin–Jumat pukul 17:30 WIB. Namun Anda
 
 ---
 
-## 🔒 Konfigurasi 9Router AI Gateway (`backend/.env`)
+## 🔒 Konfigurasi AI Gateway (`backend/.env`)
 
-Edit file `backend/.env` untuk mengonfigurasi AI Copilot (9Router Local AI Gateway) dan Notifikasi Telegram:
+Edit file `backend/.env` untuk mengonfigurasi AI Copilot (OpenAI-compatible provider pilihan Anda) dan Notifikasi Telegram:
 
 ```env
-# 1. 9Router Local AI Gateway (OpenAI-compatible)
-NINEROUTER_API_KEY=your_9router_api_key_here
-NINEROUTER_MODEL=9router
-NINEROUTER_BASE_URL=http://localhost:20128/v1
+# 1. Custom OpenAI-Compatible AI Gateway (Bebas pilih: OpenAI, 9Router, Ollama, Groq, OpenCode, LiteLLM, vLLM, dll)
+AI_API_KEY=your_api_key_here
+AI_MODEL=gpt-4o-mini
+AI_BASE_URL=https://api.openai.com/v1
 
-# 2. Default Active AI Provider ("9router")
-AI_PROVIDER=9router
+# 2. Default Active AI Provider ("custom_llm")
+AI_PROVIDER=custom_llm
 
 # 3. AI Latency & Performance Settings (Configurable)
 AI_CACHE_TTL_SECONDS=300
@@ -191,7 +191,7 @@ TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 ```
 
-*(Catatan: Tanpa memasukkan API Key atau jika 9Router belum berjalan, seluruh analisis teknikal, chart, portofolio, dan kalkulator recovery tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
+*(Catatan: Tanpa memasukkan API Key atau jika service AI belum berjalan, seluruh analisis teknikal, chart, portofolio, dan kalkulator recovery tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
 
 
 ---

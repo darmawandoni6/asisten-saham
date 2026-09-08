@@ -20,16 +20,30 @@ def reload_env():
 
 reload_env()
 
-# Runtime in-memory provider selection
-_RUNNING_PROVIDER: Optional[str] = "9router"
+# Runtime in-memory provider selection (Custom OpenAI-Compatible LLM Gateway)
+_RUNNING_PROVIDER: Optional[str] = "custom_llm"
 
-def get_ninerouter_api_key() -> Optional[str]:
+def get_ai_api_key() -> Optional[str]:
+    """Mengambil API Key dari .env (mendukung AI_API_KEY, NINEROUTER_API_KEY, OPENAI_API_KEY)."""
     reload_env()
-    key = os.getenv("NINEROUTER_API_KEY")
-    if key and key.strip() and key != "your_9router_api_key_here":
+    key = os.getenv("AI_API_KEY") or os.getenv("NINEROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if key and key.strip() and not key.strip().startswith("your_"):
         return key.strip()
     return None
 
+def get_ninerouter_api_key() -> Optional[str]:
+    """Alias kompatibilitas mundur."""
+    return get_ai_api_key()
+
+def get_ai_model() -> str:
+    """Mengambil nama model AI dari .env (Default: gpt-4o-mini)."""
+    reload_env()
+    return os.getenv("AI_MODEL") or os.getenv("NINEROUTER_MODEL") or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
+
+def get_ai_base_url() -> str:
+    """Mengambil Base URL / Endpoint dari .env (Default: https://api.openai.com/v1)."""
+    reload_env()
+    return os.getenv("AI_BASE_URL") or os.getenv("NINEROUTER_BASE_URL") or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1"
 
 def get_active_provider() -> str:
     global _RUNNING_PROVIDER
@@ -37,15 +51,12 @@ def get_active_provider() -> str:
         return _RUNNING_PROVIDER
     
     reload_env()
-    env_provider = os.getenv("AI_PROVIDER", "").strip().lower()
-    if env_provider in ("9router", "ninerouter"):
-        return "9router"
-    return "9router"
+    return os.getenv("AI_PROVIDER", "custom_llm").strip().lower() or "custom_llm"
 
 def set_active_provider(provider: str) -> str:
     global _RUNNING_PROVIDER
-    _RUNNING_PROVIDER = "9router"
-    return "9router"
+    _RUNNING_PROVIDER = provider or "custom_llm"
+    return _RUNNING_PROVIDER
 
 def get_ai_cache_ttl() -> int:
     """Durasi cache AI dalam detik (Default: 300 detik / 5 menit, configurable via .env)."""
@@ -77,18 +88,20 @@ _RECOVERY_DISCUSS_CACHE: Dict[str, Tuple[Dict[str, Any], float]] = {}
 
 def get_ai_providers_status() -> Dict[str, Any]:
     reload_env()
-    ninerouter_key = get_ninerouter_api_key()
+    api_key = get_ai_api_key()
+    model = get_ai_model()
+    base_url = get_ai_base_url()
     
     return {
-        "active_provider": "9router",
+        "active_provider": "custom_llm",
         "providers": [
             {
-                "id": "9router",
-                "name": "9Router AI",
-                "model": os.getenv("NINEROUTER_MODEL", "9router"),
-                "base_url": os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1"),
-                "is_configured": bool(ninerouter_key),
-                "badge_label": "9Router AI"
+                "id": "custom_llm",
+                "name": "Custom OpenAI-Compatible LLM",
+                "model": model,
+                "base_url": base_url,
+                "is_configured": bool(api_key),
+                "badge_label": f"AI ({model})"
             }
         ]
     }
@@ -236,19 +249,19 @@ def call_llm(
     json_mode: bool = False
 ) -> Tuple[str, str]:
     """
-    Calls the 9Router local AI gateway.
-    Returns (response_text, "9router").
+    Calls the configured OpenAI-compatible LLM Gateway / Provider.
+    Returns (response_text, provider_id).
     """
-    api_key = get_ninerouter_api_key()
+    api_key = get_ai_api_key()
     if not api_key:
-        raise ValueError("API Key 9Router belum dikonfigurasi di backend/.env (NINEROUTER_API_KEY)")
+        raise ValueError("API Key AI belum dikonfigurasi di backend/.env (AI_API_KEY)")
     
-    raw_url = os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1").strip().rstrip("/")
+    raw_url = get_ai_base_url().strip().rstrip("/")
     if raw_url.endswith("/chat/completions"):
         endpoint_url = raw_url
     else:
         endpoint_url = f"{raw_url}/chat/completions"
-    model_name = os.getenv("NINEROUTER_MODEL", "9router")
+    model_name = get_ai_model()
 
     messages = []
     if system_prompt:
@@ -276,7 +289,7 @@ def call_llm(
         resp = requests.post(endpoint_url, headers=headers, json=payload, timeout=get_ai_timeout())
 
     if resp.status_code != 200:
-        raise RuntimeError(f"9Router API Error ({resp.status_code}): {resp.text}")
+        raise RuntimeError(f"AI Provider API Error ({resp.status_code}): {resp.text}")
         
     data = resp.json()
     choice = data.get("choices", [{}])[0]
@@ -289,7 +302,7 @@ def call_llm(
     if not json_mode:
         final_text = _clean_chat_response(final_text)
         
-    return final_text, "9router"
+    return final_text, "custom_llm"
 
 
 
@@ -314,18 +327,17 @@ def analyze_holding_with_ai(
     resistance = float(latest_indicators.get("resistance", close * 1.05))
     jenis = getattr(holding, "jenis", "trading") or "trading"
 
-    active_provider = "9router"
-    has_key = bool(get_ninerouter_api_key())
-    provider_name = "9Router AI"
-    key_name = "NINEROUTER_API_KEY"
+    active_provider = "custom_llm"
+    has_key = bool(get_ai_api_key())
+    model_name = get_ai_model()
 
     if not has_key:
         return {
             "status": "unavailable",
             "error_type": "NO_API_KEY",
             "provider": active_provider,
-            "message": f"Fitur AI Copilot belum tersedia karena API Key {provider_name} belum dikonfigurasi.",
-            "detail": f"Tambahkan {key_name} di file backend/.env untuk mengaktifkan analisis AI.",
+            "message": "Fitur AI Copilot belum tersedia karena API Key belum dikonfigurasi.",
+            "detail": "Tambahkan AI_API_KEY, AI_MODEL, dan AI_BASE_URL di file backend/.env untuk mengaktifkan analisis AI.",
             "ticker": ticker,
             "name": f"{ticker.replace('.JK', '')} Tbk",
             "date": str(today),
@@ -532,8 +544,8 @@ def discuss_copilot_recommendation(
     tp_text = f"Rp {round(holding.target_price):,d}" if holding.target_price else "Belum ditentukan"
     sl_text = "Tidak ada hard stop loss (Saham Investasi)" if jenis == "investasi" else (f"Rp {round(holding.stop_loss):,d}" if holding.stop_loss else "Belum ditentukan")
 
-    active_provider = "9router"
-    has_valid_api = bool(get_ninerouter_api_key())
+    active_provider = "custom_llm"
+    has_valid_api = bool(get_ai_api_key())
 
     if has_valid_api:
         try:
@@ -723,8 +735,8 @@ def discuss_recovery_scenario(
     }
     scenario_title = scenario_names.get(scenario_id, "Skenario Penyelamatan")
 
-    active_provider = "9router"
-    has_valid_api = bool(get_ninerouter_api_key())
+    active_provider = "custom_llm"
+    has_valid_api = bool(get_ai_api_key())
     ttl_seconds = get_ai_cache_ttl()
     today = date.today()
 
