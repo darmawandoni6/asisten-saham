@@ -19,7 +19,7 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 5. **SUFFIX EMITEN BURSA EFEK INDONESIA**:
    - Semua ticker IDX di Yahoo Finance wajib memiliki suffix `.JK` (contoh: `BBRI.JK`, `SIDO.JK`, `DEWA.JK`). Gunakan helper `normalize_ticker(ticker)`.
 6. **TRANSPARANSI AI**:
-   - Jika API Key Google Gemini belum dikonfigurasi atau limit kuota habis, **berikan alert transparan** bahwa AI belum tersedia/limit habis. **DILARANG** memalsukan analisis rule-based sebagai hasil generate AI.
+   - Jika service 9Router belum aktif atau API Key belum dikonfigurasi, **berikan alert transparan** bahwa AI belum tersedia/offline. **DILARANG** memalsukan analisis rule-based sebagai hasil generate AI.
 7. **DILARANG AUTO-COMMIT / AUTO-PUSH (NO AUTO-COMMIT)**:
    - AI **DILARANG KERAS** menjalankan perintah `git commit` maupun `git push` secara otomatis setelah membuat fitur/perubahan.
    - Seluruh perubahan kode dan pengujian hanya boleh dilakukan di file lokal.
@@ -36,7 +36,7 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 | **Backend & Web Server** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `trade_log`, `ai_analysis`, `screener_results`, `recovery_chat_logs` |
 | **Data Pasar** | Yahoo Finance (`yfinance`) | EOD update pasca-closing market BEI (17:30 WIB) |
-| **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`) | Toggle via UI `[ ✨ Gemini ] [ ⚡ Zen ]`, API `/api/v1/analysis/providers` |
+| **AI LLM Engine** | **9Router Local AI Gateway** (`9router`) & Rule-Based Expert Engine | Local proxy `http://localhost:20128/v1`, auto-routing, failover transparan |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon | 0 MB RAM idle footprint (auto-shutdown 75s saat browser ditutup) |
 
 ---
@@ -252,7 +252,7 @@ assiten-saham/
 │   └── services/
 │       ├── data_fetcher.py    # Yahoo Finance puller & auto-profile
 │       ├── technical.py       # Indikator teknikal (native pandas)
-│       ├── ai_copilot.py      # Integrasi Gemini & status transparansi
+│       ├── ai_copilot.py      # Integrasi 9Router & status transparansi
 │       ├── ai_tp_sl.py        # Algoritma hitung TP/SL 200 hari
 │       ├── portfolio_engine.py# Decision matrix status kartu
 │       ├── recovery_engine.py # Diagnosis & kalkulator avg down

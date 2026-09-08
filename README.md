@@ -16,15 +16,15 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - 🔵 **AVERAGING DOWN REVIEW**: Saham investasi yang mengalami koreksi dalam (> 30%) untuk evaluasi cicil beli.
 * **Daily Action Sheet**: Rangkuman urutan aksi prioritas pasca penutupan bursa untuk persiapan order esok pagi.
 
-### 2. 🧠 Multi-Provider AI Decision Copilot Panel
+### 2. 🧠 9Router AI Decision Copilot Panel
 * Evaluasi kondisi teknikal terkini (Close, MA20, MA50, RSI, Support/Resistance) terhadap **Avg Beli** dan **Trading Plan**.
-* **Dukungan Multi-Provider LLM (Google Gemini & OpenCode Zen)**:
-  - Pengguna dapat memilih model AI yang digunakan melalui **Provider Switcher Toggle** `[ ✨ Gemini ] [ ⚡ Zen ]` secara instan langsung di UI.
-  - Mendukung **Google Gemini** (`gemini-3.5-flash-lite`) via Google AI Studio.
-  - Mendukung **OpenCode Zen** (`nemotron-3.5-lightning-free`, `claude`, `deepseek`, dll.) via OpenAI-compatible endpoint (`https://opencode.ai/zen/v1`).
+* **Integrasi 9Router Local AI Gateway**:
+  - Menggunakan endpoint local proxy 9Router (`http://localhost:20128/v1`) via OpenAI-compatible REST API.
+  - Model default: `9router` dengan dukungan auto-routing ke 100+ model dan token saver compression.
+  - Hot-reload konfigurasi environment `.env` tanpa perlu me-restart server.
 * **Prinsip Transparansi & Graceful Fallback AI**:
-  - Menampilkan alert informatif jika API Key belum dipasang (lengkap dengan panduan setup).
-  - Jika kuota/rate limit habis (HTTP 429), sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** tanpa crash atau error layar kosong.
+  - Menampilkan alert informatif jika service 9Router belum aktif atau API Key belum dikonfigurasi.
+  - Jika kuota/rate limit habis (HTTP 429) atau 9Router offline, sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`) tanpa crash atau error layar kosong.
 
 ### 3. 💼 Portfolio & Trading Plan Management (`/portfolio`)
 * **Pencatatan Saldo Kas RDN Manual**: Saldo kas RDN dapat diinput dan diperbarui kapan saja secara manual sesuai saldo nyata rekening sekuritas via tombol `[ ✏️ Edit ]`.
@@ -118,7 +118,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM |
 | **Data Market** | Yahoo Finance (`yfinance`) dengan format ticker `.JK` |
 | **Technical Analysis** | Native Pandas (kompatibel penuh dengan Python 3.14 macOS) |
-| **AI LLM Engine** | Multi-Provider: **Google Gemini** (`gemini-3.5-flash-lite`) & **OpenCode Zen** (`nemotron-3.5-lightning-free`, `deepseek`, `claude`) |
+| **AI LLM Engine** | **9Router Local AI Gateway** (`9router`) & Rule-Based Expert Engine |
 | **Market Calendar** | 3-Layer Holiday Engine (BEI Calendar, Online API Sync & Empirical IHSG Check) |
 | **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB holiday-aware) |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon (0 MB RAM idle footprint) |
@@ -168,29 +168,30 @@ Data pasar BEI otomatis ditarik setiap Senin–Jumat pukul 17:30 WIB. Namun Anda
 
 ---
 
-## 🔒 Konfigurasi API Key Multi-Provider (`backend/.env`)
+## 🔒 Konfigurasi 9Router AI Gateway (`backend/.env`)
 
-Edit file `backend/.env` untuk mengaktifkan fitur AI Copilot (Google Gemini & OpenCode Zen) dan Notifikasi Telegram:
+Edit file `backend/.env` untuk mengonfigurasi AI Copilot (9Router Local AI Gateway) dan Notifikasi Telegram:
 
 ```env
-# 1. Google Gemini API (Dapatkan gratis di https://aistudio.google.com)
-GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-3.5-flash-lite
+# 1. 9Router Local AI Gateway (OpenAI-compatible)
+NINEROUTER_API_KEY=your_9router_api_key_here
+NINEROUTER_MODEL=9router
+NINEROUTER_BASE_URL=http://localhost:20128/v1
 
-# 2. OpenCode Zen API (Dapatkan di https://opencode.ai)
-OPENCODE_API_KEY=sk-your_opencode_api_key_here
-OPENCODE_MODEL=nemotron-3.5-lightning-free
-OPENCODE_BASE_URL=https://opencode.ai/zen/v1
+# 2. Default Active AI Provider ("9router")
+AI_PROVIDER=9router
 
-# 3. Default Active Provider ("gemini" | "opencode_zen")
-AI_PROVIDER=gemini
+# 3. AI Latency & Performance Settings (Configurable)
+AI_CACHE_TTL_SECONDS=300
+AI_MAX_TOKENS=2000
+AI_TIMEOUT_SECONDS=45
 
 # 4. Telegram Bot (Opsional — untuk notifikasi EOD ke smartphone)
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 ```
 
-*(Catatan: Tanpa memasukkan API Key, seluruh kalkulasi teknikal, chart, portofolio, dan kalkulator average down tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
+*(Catatan: Tanpa memasukkan API Key atau jika 9Router belum berjalan, seluruh analisis teknikal, chart, portofolio, dan kalkulator recovery tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
 
 
 ---
