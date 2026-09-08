@@ -129,15 +129,23 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Pusat Kamus (`/guide` Tab 3)**: Memetakan 4 kategori (Badge Screener `OVERSOLD`/`BREAKOUT`/`VALUE` + AI Score scale, Badge Kelayakan Recovery, 5 Warna Status Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
 - **Quick Modal Bantuan (`/screener`)**: Komponen modal pop-up `[ℹ️ Kamus Badge]` di samping tombol scan untuk referensi instan tanpa meninggalkan halaman.
 
-### I. EOD Screener Top 10 & Analisis Saham Kustom On-Demand
-- **Top 10 Curated Picks**: Fungsi `scan_market_pool(db, top_n=10)` memindai universe LQ45 & saham likuid BEI pasca penutupan pasar, lalu membatasi hasil ke 10 saham dengan AI Score tertinggi untuk menjaga fokus trader.
+### I. EOD Screener Top Picks, Budget Filter & Analisis Kustom On-Demand
+- **Expanded Universe Saham Likuid Terjangkau**: Pool emiten pada `STOCK_PROFILES` di `backend/services/screener_engine.py` diperluas mencakup saham likuid dan fundamental stabil dengan harga $\le$ Rp 2.000 (seperti `MBMA`, `ENRG`, `IATA`, `BRIS`, `AKRA`, `SIDO`, `DEWA`, `BUMI`, `ELSA`, `ERAA`, `MAPA`, `BBTN`, dll) dengan kuota screening Top 25 picks (`scan_market_pool(db, top_n=25)`).
+- **Budget Filter Bar & Estimasi Modal per Lot (`frontend/app/screener/page.tsx`)**:
+  - Filter anggaran cepat khusus modal terukur: `≤ Rp 2.000 (Default)`, `≤ Rp 1.000`, `≤ Rp 500`, dan `Semua Harga`.
+  - Tampilan Kartu & Tabel menampilkan label estimasi modal riil per lot (`Rp {price * 100}/lot`) untuk mempermudah alokasi kas RDN tanpa over-sizing.
 - **On-Demand Custom Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI di luar daftar rekomendasi (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal (MA, RSI, Support, Resistance), menentukan strategi & AI Score, serta menyimpannya ke database `ScreenerResult`.
 
-### J. 3-Pilar Intelijen Rekomendasi, Client-Side Sorting & Edukasi RRR
+### J. 3-Pilar Intelijen Rekomendasi, SOP 4 Langkah & Edukasi RRR
 - **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
   1. `Alasan Rekomendasi (Why Buy)`: Landasan teknikal objektif mengapa saham terpilih dari data historis (status MA, oversold RSI, breakout).
   2. `Wajib Dipantau Besok (Watch Trigger 09:00 WIB)`: Syarat konfirmasi saat pembukaan market sebelum melakukan entry.
   3. `Panduan Level & Risk/Reward Ratio (RRR)`: Area beli ideal, target resistance (TP), batas support/invalidasi (SL), dan rasio *Risk:Reward* (RRR) otomatis.
+- **SOP 4 Langkah Cara Memilih Saham di Screener (Tertanam di `/guide` Tab 2)**:
+  1. *Langkah 1 (Filter Anggaran)*: Sesuaikan dengan Saldo Kas RDN, patuhi aturan alokasi $\le$ 20–25% modal per saham (anti *all-in*).
+  2. *Langkah 2 (Pilih Strategi)*: Selaraskan karakter trader (Oversold = *Buy on Weakness*, Breakout = *Trend Following*, Value = *Medium-term Swing*).
+  3. *Langkah 3 (Validasi 3 Pilar)*: Wajib periksa AI Score $\ge 80-85$, RRR $\ge 1 : 2.0$, dan baca trigger pembukaan jam 09:00 WIB.
+  4. *Langkah 4 (Order Disiplin di Sekuritas)*: Antre di area beli ideal, pasang Stop Order (GTC) otomatis, dan pasang TP1 untuk kunci laba 50% lot.
 - **Client-Side (FE-Only) Sorting**: Pengurutan tabel sepenuhnya diproses in-memory di React state (`sortedItems`) pada seluruh kolom (Ticker, Strategi, Harga, Perubahan %, RSI, TP, SL, RRR, AI Score) tanpa re-query backend.
 - **Edukasi Interaktif RRR & AI Score**:
   - Rumus RRR: $1 : (\text{TP} - \text{Entry}) / (\text{Entry} - \text{SL})$. Standar transaksi ideal $\ge 1 : 2.0$.

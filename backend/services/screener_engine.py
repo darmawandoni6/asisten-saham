@@ -59,10 +59,29 @@ STOCK_PROFILES = {
     "SMGR.JK": {"name": "Semen Indonesia Tbk", "sector": "Basic Materials"},
     "INTP.JK": {"name": "Indocement Tunggal Prakarsa Tbk", "sector": "Basic Materials"},
 
-    # Properti
+    # Properti & Konstruksi
     "BSDE.JK": {"name": "Bumi Serpong Damai Tbk", "sector": "Real Estate"},
     "CTRA.JK": {"name": "Ciputra Development Tbk", "sector": "Real Estate"},
     "PWON.JK": {"name": "Pakuwon Jati Tbk", "sector": "Real Estate"},
+    "SMRA.JK": {"name": "Summarecon Agung Tbk", "sector": "Real Estate"},
+
+    # Saham Likuid Terjangkau (Harga <= Rp 2.000 / Modal <= Rp 200rb per lot)
+    "SIDO.JK": {"name": "Industri Jamu dan Farmasi Sido Muncul Tbk", "sector": "Healthcare"},
+    "DEWA.JK": {"name": "Darma Henwa Tbk", "sector": "Energy"},
+    "BUMI.JK": {"name": "Bumi Resources Tbk", "sector": "Energy"},
+    "ENRG.JK": {"name": "Energi Mega Persada Tbk", "sector": "Energy"},
+    "ELSA.JK": {"name": "Elnusa Tbk", "sector": "Energy"},
+    "ERAA.JK": {"name": "Erajaya Swasembada Tbk", "sector": "Consumer Cyclicals"},
+    "MAPA.JK": {"name": "MAP Aktif Adiperkasa Tbk", "sector": "Consumer Cyclicals"},
+    "BBTN.JK": {"name": "Bank Tabungan Negara (Persero) Tbk", "sector": "Financials"},
+    "BJBR.JK": {"name": "Bank Pembangunan Daerah Jawa Barat Tbk", "sector": "Financials"},
+    "BJTM.JK": {"name": "Bank Pembangunan Daerah Jawa Timur Tbk", "sector": "Financials"},
+    "MBMA.JK": {"name": "Merdeka Battery Materials Tbk", "sector": "Basic Materials"},
+    "NCKL.JK": {"name": "Trimegah Bangun Persada Tbk", "sector": "Basic Materials"},
+    "TINS.JK": {"name": "Timah Tbk", "sector": "Basic Materials"},
+    "IATA.JK": {"name": "MNC Energy Investments Tbk", "sector": "Energy"},
+    "GTSI.JK": {"name": "GTS Internasional Tbk", "sector": "Energy"},
+    "INET.JK": {"name": "Sinergi Inti Andalan Prima Tbk", "sector": "Telecommunication"},
 }
 
 
@@ -152,10 +171,10 @@ def evaluate_screener_indicators(df, ticker: str, profile_name: str, profile_sec
 
 
 
-def scan_market_pool(db: Session, top_n: int = 10) -> List[Dict[str, Any]]:
+def scan_market_pool(db: Session, top_n: int = 25) -> List[Dict[str, Any]]:
     """
-    Memindai seluruh kumpulan saham likuid di BEI (LQ45 universe),
-    lalu memilih dan mengembalikan Top N (default 10) saham dengan AI Score tertinggi.
+    Memindai seluruh kumpulan saham likuid di BEI (LQ45 universe & emiten terjangkau),
+    lalu memilih dan mengembalikan saham-saham dengan AI Score tertinggi.
     """
     today = date.today()
     all_evaluated = []
@@ -177,10 +196,10 @@ def scan_market_pool(db: Session, top_n: int = 10) -> List[Dict[str, Any]]:
     # Sort by AI Score descending
     all_evaluated.sort(key=lambda x: x["score"], reverse=True)
 
-    # Filter to Top N (Top 10 rekomendasi terbaik)
+    # Filter to Top N (Menyimpan rekomendasi terbaik ke database)
     top_picks = all_evaluated[:top_n]
 
-    # Save Top 10 to DB
+    # Save to DB
     for item in top_picks:
         screener_row = ScreenerResult(
             date=today,

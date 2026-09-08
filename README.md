@@ -55,12 +55,13 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * **🔎 Skala Tipografi Nyaman (+1x Scale-Up)**: Teks penjelasan, metrik, dan checklist aksi disesuaikan agar sangat ergonomis dan mudah dibaca di layar desktop/laptop.
 
 ### 5. 🔍 EOD Stock Screener & 3-Pilar Watchlist Intelijen (`/screener`)
+* **Filter Anggaran Terjangkau (Budget Filter Bar)**: Pilihan filter cepat khusus modal terukur (**`≤ Rp 2.000 (Default)`**, **`≤ Rp 1.000`**, **`≤ Rp 500`**, dan **`Semua Harga`**), lengkap dengan label estimasi modal riil per lot (**`Rp {price * 100}/lot`**) pada tampilan Kartu maupun Tabel.
 * **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
   - 💡 **Pilar 1 (Alasan Rekomendasi / Why Buy)**: Ulasan teknikal objektif berbasis data historis (status MA20/50, RSI oversold, momentum breakout).
   - 👁️ **Pilar 2 (Hal Wajib Dipantau Besok / Watch Trigger 09:00 WIB)**: Syarat objektif saat market buka pagi hari sebelum melakukan entry.
   - 🎯 **Pilar 3 (Panduan Level & Risk:Reward Ratio)**: Area beli ideal, Target TP, Stop Loss, dan rasio *Risk:Reward* (RRR) otomatis.
 * **Client-Side (FE-Only) Sorting**: Pengurutan tabel super cepat tanpa beban query database pada seluruh kolom (Ticker, Strategi, Harga Close, Perubahan %, RSI, TP, SL, RRR, AI Score).
-* **Top 10 Rekomendasi Terkurasi**: Pemindaian universe likuid BEI (LQ45 & saham aktif) pasca-closing market yang otomatis disortir dan dibatasi ke **Top 10 saham terbaik** berdasarkan AI Score tertinggi.
+* **Top 25 Rekomendasi Terkurasi & Universe Likuid Terjangkau**: Pemindaian universe saham likuid BEI (termasuk emiten berfundamental sehat di bawah Rp 2.000 seperti `MBMA`, `ENRG`, `IATA`, `BRIS`, `AKRA`, `SIDO`, `DEWA`, `BUMI`, `ELSA`, `ERAA`, `MAPA`, `BBTN`) pasca-closing market yang otomatis disortir berdasarkan AI Score tertinggi.
 * **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung dianalisis kondisi teknikalnya dan dimasukkan ke daftar screener.
 * **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 2.0)**, dan arti tingkatan **AI Score (0–100)** secara instan.
 
@@ -76,7 +77,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 ### 8. 🧭 Panduan Cara Pakai & SOP Trading (`/guide`)
 * Halaman panduan terintegrasi dengan 5 tab interaktif:
   - *Tab 1*: Siklus Rutinitas 17:30 WIB (Alur sore hingga jam buka bursa).
-  - *Tab 2*: Panduan 5 Fitur Utama.
+  - *Tab 2*: **Panduan 5 Fitur Utama & SOP 4 Langkah Memilih Saham di Screener** (Filter Anggaran, Pilih Strategi, 3 Pilar Intelijen, Order Disiplin di Sekuritas).
   - *Tab 3*: **Kamus Lengkap Badge & Glosarium** (Badge Screener, Kelayakan Recovery, 5 Warna Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
   - *Tab 4*: SOP Anti-Nyangkut (4 Aturan Emas Manajemen Risiko).
   - *Tab 5*: Checklist Interaktif Pemula.

@@ -1,32 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
 import { Topbar } from "@/components/Topbar";
-import { 
-  Compass, 
-  Clock, 
-  ShieldAlert, 
-  CheckCircle2, 
-  AlertTriangle, 
-  LifeBuoy, 
-  Search, 
-  BookOpen, 
-  Briefcase, 
-  TrendingUp, 
-  Sparkles, 
+import {
+  AlertOctagon,
+  AlertTriangle,
   ArrowRight,
+  BookOpen,
+  Briefcase,
+  CheckCircle2,
   CheckSquare,
+  Clock,
+  Compass,
+  LifeBuoy,
+  Search,
+  ShieldAlert,
+  Sparkles,
   Square,
-  AlertOctagon
+  TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function GuidePage() {
-  const [activeTab, setActiveTab] = useState<"FLOW" | "FEATURES" | "STATUS" | "RULES" | "CHECKLIST">("FLOW");
+  const [activeTab, setActiveTab] = useState<
+    "FLOW" | "FEATURES" | "STATUS" | "RULES" | "CHECKLIST"
+  >("FLOW");
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
 
   const toggleCheck = (id: number) => {
-    setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
+    setCheckedItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
@@ -49,7 +51,12 @@ export default function GuidePage() {
                 Trading Disiplin Tanpa Emosi Jam Bursa
               </h2>
               <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
-                Mayoritas trader merugi karena membuat keputusan saat pasar sedang bergejolak (FOMO, panik, dan ragu cut loss). Asisten Saham didesain untuk menganalisis pasar <strong>pasca-penutupan bursa (17:30 WIB)</strong> saat pikiran tenang dan data harian sudah valid, sehingga esok pagi Anda cukup mengeksekusi rencana tanpa ragu.
+                Mayoritas trader merugi karena membuat keputusan saat pasar
+                sedang bergejolak (FOMO, panik, dan ragu cut loss). Asisten
+                Saham didesain untuk menganalisis pasar{" "}
+                <strong>pasca-penutupan bursa (17:30 WIB)</strong> saat pikiran
+                tenang dan data harian sudah valid, sehingga esok pagi Anda
+                cukup mengeksekusi rencana tanpa ragu.
               </p>
             </div>
 
@@ -77,9 +84,17 @@ export default function GuidePage() {
           {[
             { id: "FLOW", label: "1. Siklus Rutinitas 17:30", icon: Clock },
             { id: "FEATURES", label: "2. Panduan 5 Fitur", icon: Compass },
-            { id: "STATUS", label: "3. Kamus Lengkap & Glosarium", icon: BookOpen },
+            {
+              id: "STATUS",
+              label: "3. Kamus Lengkap & Glosarium",
+              icon: BookOpen,
+            },
             { id: "RULES", label: "4. SOP Anti-Nyangkut", icon: ShieldAlert },
-            { id: "CHECKLIST", label: "5. Checklist Pemula", icon: CheckSquare },
+            {
+              id: "CHECKLIST",
+              label: "5. Checklist Pemula",
+              icon: CheckSquare,
+            },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -94,7 +109,9 @@ export default function GuidePage() {
                     : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-emerald-400" : "text-slate-400"}`} />
+                <Icon
+                  className={`w-3.5 h-3.5 ${isActive ? "text-emerald-400" : "text-slate-400"}`}
+                />
                 <span>{tab.label}</span>
               </button>
             );
@@ -105,9 +122,12 @@ export default function GuidePage() {
         {activeTab === "FLOW" && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Alur Kerja Harian Trader Disiplin</h3>
+              <h3 className="text-base font-bold text-slate-900">
+                Alur Kerja Harian Trader Disiplin
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Ikuti 4 langkah terstruktur setiap sore hari bursa (Senin s.d. Jumat)
+                Ikuti 4 langkah terstruktur setiap sore hari bursa (Senin s.d.
+                Jumat)
               </p>
             </div>
 
@@ -118,9 +138,13 @@ export default function GuidePage() {
                   <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-800 font-mono font-bold text-sm flex items-center justify-center mb-3">
                     01
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-1">Bursa Tutup (17:30 WIB)</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">
+                    Bursa Tutup (17:30 WIB)
+                  </h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Data closing harian BEI/IDX selesai dibentuk. Harga closing menjadi data paling valid karena mencerminkan konsensus akhir seluruh pelaku pasar.
+                    Data closing harian BEI/IDX selesai dibentuk. Harga closing
+                    menjadi data paling valid karena mencerminkan konsensus
+                    akhir seluruh pelaku pasar.
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold">
@@ -135,9 +159,14 @@ export default function GuidePage() {
                   <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-3">
                     02
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-1">Cek Smart Dashboard</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">
+                    Cek Smart Dashboard
+                  </h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Buka Dashboard untuk melihat kartu aksi harian: Apakah ada saham berlabel <strong>Cut Loss (Merah)</strong>, <strong>Take Profit (Hijau)</strong>, atau <strong>Trailing Stop (Oranye)</strong>?
+                    Buka Dashboard untuk melihat kartu aksi harian: Apakah ada
+                    saham berlabel <strong>Cut Loss (Merah)</strong>,{" "}
+                    <strong>Take Profit (Hijau)</strong>, atau{" "}
+                    <strong>Trailing Stop (Oranye)</strong>?
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold">
@@ -152,9 +181,14 @@ export default function GuidePage() {
                   <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 font-mono font-bold text-sm flex items-center justify-center mb-3">
                     03
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-1">Evaluasi AI Copilot & Chart</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">
+                    Evaluasi AI Copilot & Chart
+                  </h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Klik <strong>AI Copilot</strong> untuk membaca ulasan teknikal berbasis MA20/50 & RSI. Buka <strong>Chart</strong> untuk melihat letak candle terhadap garis Target Price dan Stop Loss Anda.
+                    Klik <strong>AI Copilot</strong> untuk membaca ulasan
+                    teknikal berbasis MA20/50 & RSI. Buka <strong>Chart</strong>{" "}
+                    untuk melihat letak candle terhadap garis Target Price dan
+                    Stop Loss Anda.
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-blue-700 font-semibold">
@@ -169,9 +203,13 @@ export default function GuidePage() {
                   <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 font-mono font-bold text-sm flex items-center justify-center mb-3">
                     04
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-1">Pasang Order di Sekuritas</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1">
+                    Pasang Order di Sekuritas
+                  </h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Pasang antrean order jual/beli (Automatic Order / GTC) di aplikasi sekuritas Anda malam hari atau sebelum jam 09:00 WIB. Jam bursa cukup dipantau tanpa stres.
+                    Pasang antrean order jual/beli (Automatic Order / GTC) di
+                    aplikasi sekuritas Anda malam hari atau sebelum jam 09:00
+                    WIB. Jam bursa cukup dipantau tanpa stres.
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-purple-700 font-semibold">
@@ -187,9 +225,12 @@ export default function GuidePage() {
         {activeTab === "FEATURES" && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Panduan Lengkap 5 Fitur Utama</h3>
+              <h3 className="text-base font-bold text-slate-900">
+                Panduan Lengkap 5 Fitur Utama
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Ketahui fungsi spesifik setiap menu dan kapan saat tepat menggunakannya
+                Ketahui fungsi spesifik setiap menu dan kapan saat tepat
+                menggunakannya
               </p>
             </div>
 
@@ -202,8 +243,12 @@ export default function GuidePage() {
                       <TrendingUp className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">1. Smart Decision Dashboard</h4>
-                      <p className="text-xs text-slate-500">Pusat komando EOD harian Anda</p>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        1. Smart Decision Dashboard
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Pusat komando EOD harian Anda
+                      </p>
                     </div>
                   </div>
                   <Link
@@ -216,21 +261,30 @@ export default function GuidePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Portfolio Summary Cards</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Portfolio Summary Cards
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Memantau total equity pasar, floating PnL (Rp & %), serta rasio alokasi saham vs cash cadangan.
+                      Memantau total equity pasar, floating PnL (Rp & %), serta
+                      rasio alokasi saham vs cash cadangan.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Smart Action Cards</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Smart Action Cards
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Kartu status harian saham Anda dengan warna tegas (Cut Loss, TP, Hold, Trailing Stop, Recovery).
+                      Kartu status harian saham Anda dengan warna tegas (Cut
+                      Loss, TP, Hold, Trailing Stop, Recovery).
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Daily Action Sheet</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Daily Action Sheet
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Daftar aksi yang diurutkan dari yang paling darurat (Cut Loss) hingga rekomendasi santai (Hold).
+                      Daftar aksi yang diurutkan dari yang paling darurat (Cut
+                      Loss) hingga rekomendasi santai (Hold).
                     </p>
                   </div>
                 </div>
@@ -244,8 +298,13 @@ export default function GuidePage() {
                       <Briefcase className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">2. Portofolio &amp; Trading Plan</h4>
-                      <p className="text-xs text-slate-500">Pencatatan posisi riil, kas RDN manual, &amp; eksekusi lot</p>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        2. Portofolio &amp; Trading Plan
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Pencatatan posisi riil, kas RDN manual, &amp; eksekusi
+                        lot
+                      </p>
                     </div>
                   </div>
                   <Link
@@ -258,21 +317,33 @@ export default function GuidePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Input Plan &amp; Saldo Kas Manual</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Input Plan &amp; Saldo Kas Manual
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Tentukan Avg Beli, TP, dan SL. Saldo Kas RDN dapat diedit mandiri via tombol <em>[ ✏️ Edit ]</em> sesuai rekening sekuritas Anda.
+                      Tentukan Avg Beli, TP, dan SL. Saldo Kas RDN dapat diedit
+                      mandiri via tombol <em>[ ✏️ Edit ]</em> sesuai rekening
+                      sekuritas Anda.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Pangkas / Jual Lot Saham</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Pangkas / Jual Lot Saham
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Tombol <em>[ 🏷️ Jual ]</em> memungkinkan Anda melepas sebagian lot (preset 25%, 50% TP1) atau menutup total posisi dengan kalkulasi Realized PnL instan.
+                      Tombol <em>[ 🏷️ Jual ]</em> memungkinkan Anda melepas
+                      sebagian lot (preset 25%, 50% TP1) atau menutup total
+                      posisi dengan kalkulasi Realized PnL instan.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Money Management Sektor</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Money Management Sektor
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Visualisasi alokasi modal per sektor industri untuk menjaga diversifikasi risiko portofolio tetap sehat (&le; 25–30% per sektor).
+                      Visualisasi alokasi modal per sektor industri untuk
+                      menjaga diversifikasi risiko portofolio tetap sehat (&le;
+                      25–30% per sektor).
                     </p>
                   </div>
                 </div>
@@ -286,8 +357,12 @@ export default function GuidePage() {
                       <LifeBuoy className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">3. Recovery Engine</h4>
-                      <p className="text-xs text-slate-500">Penyelamat modal saham floating loss &gt; 10%</p>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        3. Recovery Engine
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Penyelamat modal saham floating loss &gt; 10%
+                      </p>
                     </div>
                   </div>
                   <Link
@@ -300,76 +375,344 @@ export default function GuidePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Diagnosa Kerugian AI</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Diagnosa Kerugian AI
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Menganalisis apakah penurunan harga masih wajar atau sudah merusak struktur tren jangka panjang.
+                      Menganalisis apakah penurunan harga masih wajar atau sudah
+                      merusak struktur tren jangka panjang.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">Kalkulator Precision Avg Down</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      Kalkulator Precision Avg Down
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Menghitung persis berapa lot &amp; rupiah modal tambahan yang dibutuhkan untuk menurunkan harga BEP.
+                      Menghitung persis berapa lot &amp; rupiah modal tambahan
+                      yang dibutuhkan untuk menurunkan harga BEP.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <strong className="block text-slate-900 mb-1">3 Skenario Penyelamatan</strong>
+                    <strong className="block text-slate-900 mb-1">
+                      3 Skenario Penyelamatan
+                    </strong>
                     <p className="text-slate-600 leading-relaxed">
-                      Pilihan solusi konkrit: Cut Loss langsung, Average Down di Support Mayor, atau Exit saat pantulan BEP.
+                      Pilihan solusi konkrit: Cut Loss langsung, Average Down di
+                      Support Mayor, atau Exit saat pantulan BEP.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Feature 4 & 5 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Feature 4 */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-                  <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-                        <Search className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-900">4. EOD Stock Screener</h4>
-                        <p className="text-xs text-slate-500">Cari peluang baru pasca-closing</p>
-                      </div>
+              {/* Feature 4 */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-6">
+                <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                      <Search className="w-5 h-5" />
                     </div>
-                    <Link
-                      href="/screener"
-                      className="flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-800"
-                    >
-                      <span>Buka Screener</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        4. EOD Stock Screener &amp; Intelijen Saham
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Peluang baru pasca-closing (17:30 WIB), filter anggaran,
+                        &amp; kalkulasi modal per lot
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-600 mt-4 leading-relaxed">
-                    Filter otomatis saham likuid IDX berdasarkan 3 strategi unggulan: <strong>Oversold Rebound (RSI &lt; 35)</strong>, <strong>Breakout MA20</strong>, dan <strong>Value Stocks</strong>. Klik tombol <em>&quot;Plan Beli&quot;</em> untuk memasukkannya ke trading plan.
-                  </p>
+                  <Link
+                    href="/screener"
+                    className="flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-800 shrink-0"
+                  >
+                    <span>Buka Screener</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
 
-                {/* Feature 5 */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-                  <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-                        <BookOpen className="w-5 h-5" />
+                {/* 3 Strategi Screening Otomatis */}
+                <div>
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                    3 Strategi Screening Otomatis
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-mono font-bold text-[10px]">
+                          OVERSOLD
+                        </span>
+                        <strong className="text-slate-900">
+                          Oversold Rebound
+                        </strong>
                       </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        Mendeteksi saham yang tertekan jenuh jual (RSI &lt; 35)
+                        di area Major Support. Karakter:{" "}
+                        <em>Buy on Weakness</em>, risiko penurunan terbatas,
+                        potensi pantulan teknikal cepat.
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-bold text-[10px]">
+                          BREAKOUT
+                        </span>
+                        <strong className="text-slate-900">
+                          Breakout MA20
+                        </strong>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        Harga menembus garis Moving Average 20 hari dari bawah
+                        ke atas. Karakter: <em>Trend Following</em>, momentum
+                        bullish baru dimulai dengan konfirmasi volume sehat.
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px]">
+                          VALUE
+                        </span>
+                        <strong className="text-slate-900">Value Stocks</strong>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        Saham di atas MA50 dengan RSI netral (35–60). Karakter:
+                        Akumulasi bertahap, tren jangka menengah stabil, cocok
+                        untuk swing santai atau investasi bertahap.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SOP 4 Langkah Cara Memilih Saham di Screener */}
+                <div className="rounded-xl border border-amber-200/80 bg-amber-50/40 p-5 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold tracking-wider uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-amber-700" />
+                        SOP PRAKTIK HARIAN
+                      </span>
+                      <h5 className="text-sm font-bold text-slate-900 mt-1">
+                        SOP 4 Langkah Cara Memilih Saham di Screener (Khusus
+                        Modal Terukur)
+                      </h5>
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium">
+                      Proses Seleksi Disiplin &le; 5 Menit
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    {/* Langkah 1 */}
+                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900">5. AI Trading Journal</h4>
-                        <p className="text-xs text-slate-500">Evaluasi transaksi &amp; metrik realized PnL</p>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                            1
+                          </div>
+                          <strong className="text-slate-900 text-xs">
+                            Sesuaikan dengan Saldo Kas RDN (Filter Anggaran)
+                          </strong>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          Gunakan tombol <strong>Filter Anggaran</strong> di
+                          Screener (misal: <em>&le; Rp 2.000</em> atau{" "}
+                          <em>&le; Rp 1.000</em>). Perhatikan label estimasi
+                          modal per lot (contoh: <em>Rp 60.000/lot</em> atau{" "}
+                          <em>Rp 150.000/lot</em>).
+                        </p>
+                        <div className="mt-2.5 p-2 rounded-lg bg-slate-50 border border-slate-100 text-slate-600">
+                          💡 <strong>Aturan Anti All-In:</strong> Jangan
+                          habiskan seluruh saldo kas untuk 1 emiten. Alokasikan
+                          maksimal 20% – 25% modal per posisi agar portofolio
+                          tetap fleksibel dan tidak panik saat pasar fluktuatif.
+                        </div>
                       </div>
                     </div>
-                    <Link
-                      href="/journal"
-                      className="flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-800"
-                    >
-                      <span>Buka Journal</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+
+                    {/* Langkah 2 */}
+                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                            2
+                          </div>
+                          <strong className="text-slate-900 text-xs">
+                            Tentukan Strategi Sesuai Karakter Trader
+                          </strong>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          Pilih gaya trading yang paling selaras dengan kesiapan
+                          mental dan waktu Anda:
+                        </p>
+                        <ul className="mt-2 space-y-1.5 text-slate-600">
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-purple-600 font-bold">•</span>
+                            <span>
+                              <strong>Oversold (RSI &lt; 35):</strong> Cocok
+                              jika suka berburu diskon di support kuat dan sabar
+                              menanti pantulan teknikal.
+                            </span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-blue-600 font-bold">•</span>
+                            <span>
+                              <strong>Breakout MA20:</strong> Cocok jika
+                              menyukai saham yang sedang aktif bergerak naik
+                              mengikuti konfirmasi momentum baru.
+                            </span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-emerald-600 font-bold">
+                              •
+                            </span>
+                            <span>
+                              <strong>Value Stocks:</strong> Cocok jika ingin
+                              swing santai atau akumulasi bertahap di atas MA50
+                              dengan tren medium solid.
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Langkah 3 */}
+                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                            3
+                          </div>
+                          <strong className="text-slate-900 text-xs">
+                            Periksa 3 Pilar Intelijen di Kartu Saham
+                          </strong>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          Jangan membeli hanya karena harganya murah. Validasi
+                          metrik objektif pada kartu saham:
+                        </p>
+                        <div className="mt-2 space-y-1.5">
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                            <strong>
+                              1. AI Technical Score (&ge; 80 – 85):
+                            </strong>{" "}
+                            Semakin tinggi skor, semakin kuat konvergensi
+                            indikator teknikalnya.
+                          </div>
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                            <strong>
+                              2. Risk/Reward Ratio (RRR &ge; 1 : 2.0):
+                            </strong>{" "}
+                            Pastikan potensi keuntungan minimal 2x lipat lebih
+                            besar dibanding risiko kerugian cut loss.
+                          </div>
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                            <strong>3. Watch Trigger 09:00 WIB:</strong> Baca
+                            catatan syarat konfirmasi sebelum beli (misal:
+                            antrean bid tebal atau candle pembukaan hijau).
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Langkah 4 */}
+                    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                            4
+                          </div>
+                          <strong className="text-slate-900 text-xs">
+                            Pasang Order Disiplin di Aplikasi Sekuritas
+                          </strong>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">
+                          Setelah yakin dengan pilihan Anda, klik tombol{" "}
+                          <em>&quot;+ Plan Beli&quot;</em> untuk menyimpannya ke
+                          portofolio, lalu pasang order di sekuritas:
+                        </p>
+                        <div className="mt-2 space-y-1.5 text-slate-600">
+                          <div className="p-2 rounded-lg bg-emerald-50/60 border border-emerald-100 text-emerald-900">
+                            <strong>Antrean Beli:</strong> Pasang bid di{" "}
+                            <em>Area Beli Ideal</em> (jangan kejar harga di
+                            resisten).
+                          </div>
+                          <div className="p-2 rounded-lg bg-rose-50/60 border border-rose-100 text-rose-900">
+                            <strong>Automatic Stop Loss:</strong> Pasang fitur{" "}
+                            <em>Stop Order / GTC</em> di sekuritas persis di
+                            harga SL untuk mengunci risiko.
+                          </div>
+                          <div className="p-2 rounded-lg bg-blue-50/60 border border-blue-100 text-blue-900">
+                            <strong>Take Profit 1:</strong> Pasang antrean jual
+                            untuk 50% lot saat harga menyentuh TP1, sisanya
+                            kawal dengan trailing stop.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-600 mt-4 leading-relaxed">
-                    Setiap eksekusi jual (Take Profit maupun Cut Loss) dari tabel portofolio otomatis tercatat di sini. Sistem menghitung akumulasi <strong>Total Realized PnL</strong>, <strong>Win Rate %</strong>, dan <strong>Profit Factor</strong> secara otomatis.
-                  </p>
+                </div>
+              </div>
+
+              {/* Feature 5 */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+                <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        5. AI Trading Journal &amp; Post-Mortem
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Evaluasi transaksi, psikologi trader, &amp; metrik
+                        realized PnL otomatis
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/journal"
+                    className="flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-800 shrink-0"
+                  >
+                    <span>Buka Journal</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong className="block text-slate-900 mb-1">
+                      Pencatatan Otomatis dari Portofolio
+                    </strong>
+                    <p className="text-slate-600 leading-relaxed">
+                      Setiap penjualan via tombol <em>[ 🏷️ Jual ]</em> (baik
+                      Take Profit maupun Cut Loss) langsung tercatat di jurnal
+                      tanpa perlu input manual yang merepotkan.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong className="block text-slate-900 mb-1">
+                      Evaluasi Psikologi Trading
+                    </strong>
+                    <p className="text-slate-600 leading-relaxed">
+                      Labeli status mental saat eksekusi: <em>DISCIPLINED</em>{" "}
+                      (taat trading plan), <em>FOMO_BUY</em> (beli karena
+                      tergiur candle hijau), atau <em>PANIC_SELL</em> (jual
+                      panik di dasar).
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong className="block text-slate-900 mb-1">
+                      Metrik Performa &amp; Post-Mortem
+                    </strong>
+                    <p className="text-slate-600 leading-relaxed">
+                      Sistem menghitung <strong>Win Rate %</strong>,{" "}
+                      <strong>Total Realized PnL</strong>, dan{" "}
+                      <strong>Profit Factor</strong> untuk melihat apakah sistem
+                      trading Anda menghasilkan profit konsisten.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -380,9 +723,12 @@ export default function GuidePage() {
         {activeTab === "STATUS" && (
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Kamus Lengkap Badge, Status &amp; Glosarium Bursa</h3>
+              <h3 className="text-lg font-bold text-slate-900">
+                Kamus Lengkap Badge, Status &amp; Glosarium Bursa
+              </h3>
               <p className="text-sm text-slate-500 mt-1">
-                Panduan komprehensif arti setiap badge warna di Screener, Recovery Engine, Dashboard, serta istilah kunci pasar modal
+                Panduan komprehensif arti setiap badge warna di Screener,
+                Recovery Engine, Dashboard, serta istilah kunci pasar modal
               </p>
             </div>
 
@@ -393,8 +739,12 @@ export default function GuidePage() {
                   🔍
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">A. Badge Strategi EOD Screener</h4>
-                  <p className="text-xs text-slate-500">Formula teknikal yang mendasari pemilihan saham otomatis</p>
+                  <h4 className="text-base font-bold text-slate-900">
+                    A. Badge Strategi EOD Screener
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Formula teknikal yang mendasari pemilihan saham otomatis
+                  </p>
                 </div>
               </div>
 
@@ -405,14 +755,20 @@ export default function GuidePage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold font-mono border border-purple-200">
                       OVERSOLD
                     </span>
-                    <span className="text-xs text-purple-700 font-semibold">RSI &lt; 35</span>
+                    <span className="text-xs text-purple-700 font-semibold">
+                      RSI &lt; 35
+                    </span>
                   </div>
-                  <strong className="block text-sm text-slate-900">Jenuh Jual Ekstrem di Major Support</strong>
+                  <strong className="block text-sm text-slate-900">
+                    Jenuh Jual Ekstrem di Major Support
+                  </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Harga sudah turun sangat dalam dan menyentuh lantai support kuat. Tekanan jual habis, ruang penurunan terbatas.
+                    Harga sudah turun sangat dalam dan menyentuh lantai support
+                    kuat. Tekanan jual habis, ruang penurunan terbatas.
                   </p>
                   <div className="p-2.5 rounded-lg bg-white border border-purple-100 text-xs text-purple-900 font-medium">
-                    👉 <strong>Aksi:</strong> <em>Buy on Weakness</em> saat muncul konfirmasi pantulan (candle hijau).
+                    👉 <strong>Aksi:</strong> <em>Buy on Weakness</em> saat
+                    muncul konfirmasi pantulan (candle hijau).
                   </div>
                 </div>
 
@@ -422,14 +778,20 @@ export default function GuidePage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold font-mono border border-blue-200">
                       BREAKOUT
                     </span>
-                    <span className="text-xs text-blue-700 font-semibold">Close &ge; MA20</span>
+                    <span className="text-xs text-blue-700 font-semibold">
+                      Close &ge; MA20
+                    </span>
                   </div>
-                  <strong className="block text-sm text-slate-900">Momentum Tren Kenaikan Baru</strong>
+                  <strong className="block text-sm text-slate-900">
+                    Momentum Tren Kenaikan Baru
+                  </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Harga menembus dan bertahan di atas MA20 dengan RSI &ge; 55 dan volume aktif. Fase sideways selesai.
+                    Harga menembus dan bertahan di atas MA20 dengan RSI &ge; 55
+                    dan volume aktif. Fase sideways selesai.
                   </p>
                   <div className="p-2.5 rounded-lg bg-white border border-blue-100 text-xs text-blue-900 font-medium">
-                    👉 <strong>Aksi:</strong> <em>Buy on Momentum</em> untuk menunggangi tren akselerasi jangka pendek.
+                    👉 <strong>Aksi:</strong> <em>Buy on Momentum</em> untuk
+                    menunggangi tren akselerasi jangka pendek.
                   </div>
                 </div>
 
@@ -439,14 +801,20 @@ export default function GuidePage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold font-mono border border-amber-200">
                       VALUE
                     </span>
-                    <span className="text-xs text-amber-800 font-semibold">Support MA50</span>
+                    <span className="text-xs text-amber-800 font-semibold">
+                      Support MA50
+                    </span>
                   </div>
-                  <strong className="block text-sm text-slate-900">Akumulasi Sehat &amp; Valuasi Wajar</strong>
+                  <strong className="block text-sm text-slate-900">
+                    Akumulasi Sehat &amp; Valuasi Wajar
+                  </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Saham berfundamental kokoh (Blue Chip) yang sedang berkonsolidasi stabil di atas garis penopang MA50.
+                    Saham berfundamental kokoh (Blue Chip) yang sedang
+                    berkonsolidasi stabil di atas garis penopang MA50.
                   </p>
                   <div className="p-2.5 rounded-lg bg-white border border-amber-100 text-xs text-amber-900 font-medium">
-                    👉 <strong>Aksi:</strong> Cicil beli bertahap (*DCA*) untuk tabungan investasi jangka panjang.
+                    👉 <strong>Aksi:</strong> Cicil beli bertahap (*DCA*) untuk
+                    tabungan investasi jangka panjang.
                   </div>
                 </div>
               </div>
@@ -467,18 +835,22 @@ export default function GuidePage() {
                     Matematika Peluang: Menang Walau Win-Rate Hanya 40%
                   </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    RRR membandingkan batas risiko rugi Stop Loss terhadap target keuntungan TP:
+                    RRR membandingkan batas risiko rugi Stop Loss terhadap
+                    target keuntungan TP:
                   </p>
                   <div className="p-2.5 rounded-lg bg-white border border-emerald-200 text-xs font-mono space-y-1">
                     <div className="text-slate-800 font-bold">
                       RRR = 1 : (TP - Entry) / (Entry - SL)
                     </div>
                     <div className="text-slate-600 text-[11px] font-sans">
-                      Contoh: Beli Rp 1.000, SL Rp 950 (-5%), TP Rp 1.100 (+10%) &rarr; <strong>RRR = 1 : 2.0</strong>
+                      Contoh: Beli Rp 1.000, SL Rp 950 (-5%), TP Rp 1.100 (+10%)
+                      &rarr; <strong>RRR = 1 : 2.0</strong>
                     </div>
                   </div>
                   <p className="text-emerald-950 text-xs leading-relaxed">
-                    💡 <strong>Simulasi 10 Trade:</strong> Jika 6 trade rugi (-Rp 300) dan 4 trade untung (+Rp 400), total modal tetap <strong>cuan bersih +Rp 100</strong>.
+                    💡 <strong>Simulasi 10 Trade:</strong> Jika 6 trade rugi
+                    (-Rp 300) dan 4 trade untung (+Rp 400), total modal tetap{" "}
+                    <strong>cuan bersih +Rp 100</strong>.
                   </p>
                 </div>
 
@@ -496,20 +868,33 @@ export default function GuidePage() {
                     Tingkat Kematangan Setup &amp; Konvergensi Indikator
                   </strong>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Mengukur seberapa ideal titik masuk saat closing bursa (posisi MA, momentum RSI, dan jarak support/resist).
+                    Mengukur seberapa ideal titik masuk saat closing bursa
+                    (posisi MA, momentum RSI, dan jarak support/resist).
                   </p>
                   <div className="space-y-1.5 pt-0.5">
                     <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-emerald-200 text-[11px]">
-                      <strong className="text-emerald-800 font-bold">&ge; 85 (Hijau Zamrud)</strong>
-                      <span className="text-slate-600">Peluang Utama (Setup Sangat Matang)</span>
+                      <strong className="text-emerald-800 font-bold">
+                        &ge; 85 (Hijau Zamrud)
+                      </strong>
+                      <span className="text-slate-600">
+                        Peluang Utama (Setup Sangat Matang)
+                      </span>
                     </div>
                     <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-blue-200 text-[11px]">
-                      <strong className="text-blue-800 font-bold">75 – 84 (Biru / Amber)</strong>
-                      <span className="text-slate-600">Sinyal Baik (Tunggu Trigger Pagi)</span>
+                      <strong className="text-blue-800 font-bold">
+                        75 – 84 (Biru / Amber)
+                      </strong>
+                      <span className="text-slate-600">
+                        Sinyal Baik (Tunggu Trigger Pagi)
+                      </span>
                     </div>
                     <div className="flex items-center justify-between p-1.5 px-2.5 rounded-lg bg-white border border-slate-200 text-[11px]">
-                      <strong className="text-slate-700 font-bold">&lt; 75 (Abu-abu)</strong>
-                      <span className="text-slate-600">Sinyal Moderat (Hanya Watchlist)</span>
+                      <strong className="text-slate-700 font-bold">
+                        &lt; 75 (Abu-abu)
+                      </strong>
+                      <span className="text-slate-600">
+                        Sinyal Moderat (Hanya Watchlist)
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -523,8 +908,13 @@ export default function GuidePage() {
                   🛟
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">B. Badge Kelayakan di Recovery Engine</h4>
-                  <p className="text-xs text-slate-500">Label kesesuaian skenario penyelamatan modal berdasarkan profil saham &amp; kas</p>
+                  <h4 className="text-base font-bold text-slate-900">
+                    B. Badge Kelayakan di Recovery Engine
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Label kesesuaian skenario penyelamatan modal berdasarkan
+                    profil saham &amp; kas
+                  </p>
                 </div>
               </div>
 
@@ -534,7 +924,9 @@ export default function GuidePage() {
                     STRATEGI UTAMA INVESTASI
                   </span>
                   <p className="text-slate-700 leading-relaxed">
-                    Khusus saham investasi berfundamental kuat dan berdividen tunai. Menghindari cut loss di dasar harga dan mengandalkan pemulihan pasif dividen.
+                    Khusus saham investasi berfundamental kuat dan berdividen
+                    tunai. Menghindari cut loss di dasar harga dan mengandalkan
+                    pemulihan pasif dividen.
                   </p>
                 </div>
 
@@ -543,7 +935,9 @@ export default function GuidePage() {
                     PILIHAN TERBAIK JIKA KAS TERBATAS
                   </span>
                   <p className="text-slate-700 leading-relaxed">
-                    Skenario menahan posisi untuk menunggu pantulan (*Hold for Rebound*) menuju Resistance MA20 tanpa menuntut suntikan modal sepeser pun.
+                    Skenario menahan posisi untuk menunggu pantulan (*Hold for
+                    Rebound*) menuju Resistance MA20 tanpa menuntut suntikan
+                    modal sepeser pun.
                   </p>
                 </div>
 
@@ -552,7 +946,9 @@ export default function GuidePage() {
                     STRATEGI AGRESIF TRADING
                   </span>
                   <p className="text-slate-700 leading-relaxed">
-                    Untuk saham trading dengan likuiditas tinggi. Menuntut kecepatan eksekusi cicil di Major Support dan langsung exit cepat di area BEP baru.
+                    Untuk saham trading dengan likuiditas tinggi. Menuntut
+                    kecepatan eksekusi cicil di Major Support dan langsung exit
+                    cepat di area BEP baru.
                   </p>
                 </div>
 
@@ -561,7 +957,9 @@ export default function GuidePage() {
                     KURANG DIREKOMENDASIKAN UNTUK INVESTASI
                   </span>
                   <p className="text-slate-700 leading-relaxed">
-                    Peringatan darurat bahwa melakukan cut loss panik pada saham investasi berdividen tinggi adalah tindakan yang merugikan modal jangka panjang.
+                    Peringatan darurat bahwa melakukan cut loss panik pada saham
+                    investasi berdividen tinggi adalah tindakan yang merugikan
+                    modal jangka panjang.
                   </p>
                 </div>
               </div>
@@ -574,8 +972,12 @@ export default function GuidePage() {
                   📊
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">C. Kamus 5 Warna Smart Action Cards (Dashboard)</h4>
-                  <p className="text-xs text-slate-500">Panduan instruksi aksi sebelum market buka pukul 09:00 WIB</p>
+                  <h4 className="text-base font-bold text-slate-900">
+                    C. Kamus 5 Warna Smart Action Cards (Dashboard)
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Panduan instruksi aksi sebelum market buka pukul 09:00 WIB
+                  </p>
                 </div>
               </div>
 
@@ -594,7 +996,9 @@ export default function GuidePage() {
                         Kondisi: Harga Closing menembus batas Stop Loss (SL)
                       </h4>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                        <strong>Aksi Wajib:</strong> Segera pasang order jual besok pagi. Jangan pernah berharap atau menunda, karena proteksi modal Anda adalah prioritas nomor satu.
+                        <strong>Aksi Wajib:</strong> Segera pasang order jual
+                        besok pagi. Jangan pernah berharap atau menunda, karena
+                        proteksi modal Anda adalah prioritas nomor satu.
                       </p>
                     </div>
                   </div>
@@ -614,10 +1018,13 @@ export default function GuidePage() {
                         TAKE PROFIT / TRIM
                       </span>
                       <h4 className="text-sm font-bold text-slate-900 mt-1">
-                        Kondisi: Harga Closing menyentuh atau melampaui Target Price (TP)
+                        Kondisi: Harga Closing menyentuh atau melampaui Target
+                        Price (TP)
                       </h4>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                        <strong>Aksi Wajib:</strong> Realisasikan keuntungan bertahap (jual 50% posisi). Jangan biarkan floating profit yang sudah didapat kembali menjadi floating loss.
+                        <strong>Aksi Wajib:</strong> Realisasikan keuntungan
+                        bertahap (jual 50% posisi). Jangan biarkan floating
+                        profit yang sudah didapat kembali menjadi floating loss.
                       </p>
                     </div>
                   </div>
@@ -637,10 +1044,13 @@ export default function GuidePage() {
                         TRAILING STOP WARNING
                       </span>
                       <h4 className="text-sm font-bold text-slate-900 mt-1">
-                        Kondisi: Saham yang sedang profit turun &gt; 7% dari harga tertingginya
+                        Kondisi: Saham yang sedang profit turun &gt; 7% dari
+                        harga tertingginya
                       </h4>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                        <strong>Aksi Wajib:</strong> Jual sisa posisi Anda untuk mengunci keuntungan sebelum tren bullish benar-benar berbalik menjadi tren turun tajam.
+                        <strong>Aksi Wajib:</strong> Jual sisa posisi Anda untuk
+                        mengunci keuntungan sebelum tren bullish benar-benar
+                        berbalik menjadi tren turun tajam.
                       </p>
                     </div>
                   </div>
@@ -660,10 +1070,13 @@ export default function GuidePage() {
                         RECOVERY MODE / AVERAGING REVIEW
                       </span>
                       <h4 className="text-sm font-bold text-slate-900 mt-1">
-                        Kondisi: Saham mengalami floating loss dalam (&gt; 10% trading atau &gt; 30% investasi)
+                        Kondisi: Saham mengalami floating loss dalam (&gt; 10%
+                        trading atau &gt; 30% investasi)
                       </h4>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                        <strong>Aksi Wajib:</strong> Buka menu Recovery Engine. Jangan averaging down tanpa kalkulator presisi dan konfirmasi sinyal Rebound di Support Mayor.
+                        <strong>Aksi Wajib:</strong> Buka menu Recovery Engine.
+                        Jangan averaging down tanpa kalkulator presisi dan
+                        konfirmasi sinyal Rebound di Support Mayor.
                       </p>
                     </div>
                   </div>
@@ -683,10 +1096,13 @@ export default function GuidePage() {
                         HOLD / MONITOR
                       </span>
                       <h4 className="text-sm font-bold text-slate-900 mt-1">
-                        Kondisi: Harga berada di antara batas SL dan TP dengan tren sehat
+                        Kondisi: Harga berada di antara batas SL dan TP dengan
+                        tren sehat
                       </h4>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                        <strong>Aksi Wajib:</strong> Pertahankan posisi (*do nothing*). Biarkan saham bekerja sesuai rencana tanpa tergoda untuk gonta-ganti posisi tanpa alasan teknikal.
+                        <strong>Aksi Wajib:</strong> Pertahankan posisi (*do
+                        nothing*). Biarkan saham bekerja sesuai rencana tanpa
+                        tergoda untuk gonta-ganti posisi tanpa alasan teknikal.
                       </p>
                     </div>
                   </div>
@@ -704,86 +1120,143 @@ export default function GuidePage() {
                   📖
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">D. Glosarium Istilah Kunci Pasar Modal</h4>
-                  <p className="text-xs text-slate-500">Istilah teknis yang digunakan di seluruh antarmuka aplikasi</p>
+                  <h4 className="text-base font-bold text-slate-900">
+                    D. Glosarium Istilah Kunci Pasar Modal
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Istilah teknis yang digunakan di seluruh antarmuka aplikasi
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">RSI (Relative Strength Index)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    RSI (Relative Strength Index)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Indikator momentum dengan skala 0–100. Angka di bawah 30 menandakan harga sudah jenuh jual (*oversold* / sangat murah), sedangkan di atas 70 menandakan jenuh beli (*overbought* / rentan koreksi).
+                    Indikator momentum dengan skala 0–100. Angka di bawah 30
+                    menandakan harga sudah jenuh jual (*oversold* / sangat
+                    murah), sedangkan di atas 70 menandakan jenuh beli
+                    (*overbought* / rentan koreksi).
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">MA20 &amp; MA50 (Moving Average)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    MA20 &amp; MA50 (Moving Average)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Rata-rata harga penutupan selama 20 hari (tren jangka pendek) dan 50 hari (tren jangka menengah). Harga di atas MA20 menandakan fase *bullish*, sedangkan di bawah MA50 menandakan fase *bearish*.
+                    Rata-rata harga penutupan selama 20 hari (tren jangka
+                    pendek) dan 50 hari (tren jangka menengah). Harga di atas
+                    MA20 menandakan fase *bullish*, sedangkan di bawah MA50
+                    menandakan fase *bearish*.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">High Watermark &amp; Trailing Stop</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    High Watermark &amp; Trailing Stop
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    <em>High Watermark</em> adalah rekor harga tertinggi yang pernah disentuh saham sejak Anda beli. <em>Trailing Stop</em> adalah batas pengaman otomatis (7% di bawah High Watermark) untuk mengunci cuan maksimal.
+                    <em>High Watermark</em> adalah rekor harga tertinggi yang
+                    pernah disentuh saham sejak Anda beli.{" "}
+                    <em>Trailing Stop</em> adalah batas pengaman otomatis (7% di
+                    bawah High Watermark) untuk mengunci cuan maksimal.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Break-even Price (BEP)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Break-even Price (BEP)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Titik harga rata-rata impas di mana posisi Anda tidak untung dan tidak rugi (0%). Tujuan kalkulator average down adalah menurunkan level BEP ini agar modal lebih cepat terselamatkan.
+                    Titik harga rata-rata impas di mana posisi Anda tidak untung
+                    dan tidak rugi (0%). Tujuan kalkulator average down adalah
+                    menurunkan level BEP ini agar modal lebih cepat
+                    terselamatkan.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Cash Feasibility (Kecukupan Kas)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Cash Feasibility (Kecukupan Kas)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Fitur validasi cerdas yang mengecek apakah saldo kas aktif di akun sekuritas Anda mencukupi untuk melakukan pembelian lot tambahan, mencegah Anda kekurangan dana di tengah jalan.
+                    Fitur validasi cerdas yang mengecek apakah saldo kas aktif
+                    di akun sekuritas Anda mencukupi untuk melakukan pembelian
+                    lot tambahan, mencegah Anda kekurangan dana di tengah jalan.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Risk : Reward Ratio (RRR)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Risk : Reward Ratio (RRR)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Perbandingan antara batas risiko kerugian (jarak harga entry ke Stop Loss) dengan potensi target keuntungan (jarak harga entry ke Take Profit). Nilai &ge; 1 : 2.0 memungkinkan portofolio tetap untung meski *win rate* hanya 40%.
+                    Perbandingan antara batas risiko kerugian (jarak harga entry
+                    ke Stop Loss) dengan potensi target keuntungan (jarak harga
+                    entry ke Take Profit). Nilai &ge; 1 : 2.0 memungkinkan
+                    portofolio tetap untung meski *win rate* hanya 40%.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">AI Technical Score</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    AI Technical Score
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Skor kuantitatif (0–100) yang mengukur tingkat kematangan dan konvergensi indikator teknikal (MA, RSI, Support/Resist) pasca penutupan bursa sebagai saringan probabilitas statistik harian.
+                    Skor kuantitatif (0–100) yang mengukur tingkat kematangan
+                    dan konvergensi indikator teknikal (MA, RSI, Support/Resist)
+                    pasca penutupan bursa sebagai saringan probabilitas
+                    statistik harian.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Realized PnL vs Floating PnL</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Realized PnL vs Floating PnL
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    <em>Floating PnL</em> adalah laba/rugi berjalan dari posisi saham yang masih aktif di Portofolio. <em>Realized PnL</em> adalah laba/rugi riil yang sudah terkunci saat posisi dipangkas/dijual dan tercatat di Jurnal Trading.
+                    <em>Floating PnL</em> adalah laba/rugi berjalan dari posisi
+                    saham yang masih aktif di Portofolio. <em>Realized PnL</em>{" "}
+                    adalah laba/rugi riil yang sudah terkunci saat posisi
+                    dipangkas/dijual dan tercatat di Jurnal Trading.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Scale-Out (Pangkas Lot Parsial)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Scale-Out (Pangkas Lot Parsial)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Strategi menjual sebagian lot (misal 50% di TP1) untuk mengamankan keuntungan nyata ke kas, sementara sisa posisi dibiarkan mengikuti potensi tren reli berikutnya dengan trailing stop.
+                    Strategi menjual sebagian lot (misal 50% di TP1) untuk
+                    mengamankan keuntungan nyata ke kas, sementara sisa posisi
+                    dibiarkan mengikuti potensi tren reli berikutnya dengan
+                    trailing stop.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Saldo Kas RDN (Manual)</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Saldo Kas RDN (Manual)
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Pencatatan kas tunai mandiri yang diinput pengguna sesuai saldo rekening dana nasabah (RDN) di sekuritas untuk mengukur ketersediaan modal dan alokasi risiko portofolio.
+                    Pencatatan kas tunai mandiri yang diinput pengguna sesuai
+                    saldo rekening dana nasabah (RDN) di sekuritas untuk
+                    mengukur ketersediaan modal dan alokasi risiko portofolio.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <strong className="block text-slate-900 font-bold text-sm">Dividend Yield</strong>
+                  <strong className="block text-slate-900 font-bold text-sm">
+                    Dividend Yield
+                  </strong>
                   <p className="text-slate-600 leading-relaxed">
-                    Persentase dividen tunai tahunan yang dibagikan emiten terhadap harga saham saat ini. Arus kas pasif ini berfungsi sebagai benteng pemulihan modal bagi saham bertipe investasi.
+                    Persentase dividen tunai tahunan yang dibagikan emiten
+                    terhadap harga saham saat ini. Arus kas pasif ini berfungsi
+                    sebagai benteng pemulihan modal bagi saham bertipe
+                    investasi.
                   </p>
                 </div>
               </div>
@@ -795,9 +1268,12 @@ export default function GuidePage() {
         {activeTab === "RULES" && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900">4 Aturan Emas Trading Disiplin (Anti-Nyangkut)</h3>
+              <h3 className="text-base font-bold text-slate-900">
+                4 Aturan Emas Trading Disiplin (Anti-Nyangkut)
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Prinsip manajemen risiko yang diterapkan oleh trader profesional di seluruh dunia
+                Prinsip manajemen risiko yang diterapkan oleh trader profesional
+                di seluruh dunia
               </p>
             </div>
 
@@ -806,9 +1282,14 @@ export default function GuidePage() {
                 <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-xs flex items-center justify-center">
                   #1
                 </span>
-                <h4 className="text-sm font-bold text-slate-900">No Plan, No Trade</h4>
+                <h4 className="text-sm font-bold text-slate-900">
+                  No Plan, No Trade
+                </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Jangan pernah membeli satu lot saham pun sebelum menentukan level <strong>Target Price</strong> dan batas <strong>Stop Loss</strong> yang terukur. Beli berdasarkan analisa teknikal atau valuasi, bukan rumor grup chat.
+                  Jangan pernah membeli satu lot saham pun sebelum menentukan
+                  level <strong>Target Price</strong> dan batas{" "}
+                  <strong>Stop Loss</strong> yang terukur. Beli berdasarkan
+                  analisa teknikal atau valuasi, bukan rumor grup chat.
                 </p>
               </div>
 
@@ -816,9 +1297,14 @@ export default function GuidePage() {
                 <span className="w-7 h-7 rounded-lg bg-rose-100 text-rose-800 font-mono font-bold text-xs flex items-center justify-center">
                   #2
                 </span>
-                <h4 className="text-sm font-bold text-slate-900">Patuhi Stop Loss Tanpa Kompromi</h4>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Patuhi Stop Loss Tanpa Kompromi
+                </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Cut loss 5%–7% sangat mudah dikembalikan oleh satu kali transaksi profit berikutnya. Namun floating loss 50% membutuhkan kenaikan 100% hanya untuk balik modal (*Break-Even*).
+                  Cut loss 5%–7% sangat mudah dikembalikan oleh satu kali
+                  transaksi profit berikutnya. Namun floating loss 50%
+                  membutuhkan kenaikan 100% hanya untuk balik modal
+                  (*Break-Even*).
                 </p>
               </div>
 
@@ -826,9 +1312,14 @@ export default function GuidePage() {
                 <span className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 font-mono font-bold text-xs flex items-center justify-center">
                   #3
                 </span>
-                <h4 className="text-sm font-bold text-slate-900">Kunci Profit Bertahap (Scale-Out)</h4>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Kunci Profit Bertahap (Scale-Out)
+                </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Saat saham naik menyentuh target, segera jual 50% posisi Anda. Hal ini menjamin bahwa apapun yang terjadi di masa depan, transaksi tersebut berakhir sebagai transaksi yang menghasilkan uang.
+                  Saat saham naik menyentuh target, segera jual 50% posisi Anda.
+                  Hal ini menjamin bahwa apapun yang terjadi di masa depan,
+                  transaksi tersebut berakhir sebagai transaksi yang
+                  menghasilkan uang.
                 </p>
               </div>
 
@@ -836,9 +1327,14 @@ export default function GuidePage() {
                 <span className="w-7 h-7 rounded-lg bg-purple-100 text-purple-800 font-mono font-bold text-xs flex items-center justify-center">
                   #4
                 </span>
-                <h4 className="text-sm font-bold text-slate-900">Jangan Average Down Membabi Buta</h4>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Jangan Average Down Membabi Buta
+                </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Menambah lot pada saham yang sedang terjun bebas hanya mempercepat kehabisan modal (*catching a falling knife*). Hanya lakukan average down jika dihitung dengan kalkulator presisi di area Support Mayor.
+                  Menambah lot pada saham yang sedang terjun bebas hanya
+                  mempercepat kehabisan modal (*catching a falling knife*).
+                  Hanya lakukan average down jika dihitung dengan kalkulator
+                  presisi di area Support Mayor.
                 </p>
               </div>
             </div>
@@ -849,9 +1345,12 @@ export default function GuidePage() {
         {activeTab === "CHECKLIST" && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Checklist Memulai Aplikasi Asisten Saham</h3>
+              <h3 className="text-base font-bold text-slate-900">
+                Checklist Memulai Aplikasi Asisten Saham
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Centang setiap langkah setelah Anda mencobanya untuk memastikan Anda menguasai seluruh alur aplikasi
+                Centang setiap langkah setelah Anda mencobanya untuk memastikan
+                Anda menguasai seluruh alur aplikasi
               </p>
             </div>
 
@@ -859,38 +1358,39 @@ export default function GuidePage() {
               {[
                 {
                   id: 1,
-                  title: "Atur Saldo Kas RDN & Catat Saham Pertama di Portofolio",
+                  title:
+                    "Atur Saldo Kas RDN & Catat Saham Pertama di Portofolio",
                   desc: "Klik menu Portofolio, sesuaikan Saldo Kas RDN Anda via tombol [ ✏️ Edit ], lalu masukkan ticker saham IDX yang Anda miliki beserta Avg Beli, TP, dan SL.",
                   linkText: "Buka Portofolio",
-                  href: "/portfolio"
+                  href: "/portfolio",
                 },
                 {
                   id: 2,
                   title: "Buka Smart Dashboard dan Periksa Kartu Aksi",
                   desc: "Lihat ringkasan total portofolio Anda dan periksa status warna saham yang baru saja Anda masukkan.",
                   linkText: "Buka Dashboard",
-                  href: "/"
+                  href: "/",
                 },
                 {
                   id: 3,
                   title: "Buka Candlestick Chart Interaktif",
                   desc: "Di Dashboard atau Portofolio, klik tombol chart untuk melihat candlestick dan garis MA20/MA50.",
                   linkText: "Lihat di Dashboard",
-                  href: "/"
+                  href: "/",
                 },
                 {
                   id: 4,
                   title: "Jalankan Scan Peluang Pasar di EOD Screener",
-                  desc: "Buka menu EOD Screener lalu klik tombol 'Scan EOD' untuk memindai bursa pasca-penutupan market.",
+                  desc: "Buka menu EOD Screener lalu klik tombol 'Scan EOD'. Terapkan Filter Anggaran (misal: ≤ Rp 2.000) dan ikuti SOP 4 Langkah untuk memilih saham dengan RRR ≥ 1:2.0.",
                   linkText: "Buka Screener",
-                  href: "/screener"
+                  href: "/screener",
                 },
                 {
                   id: 5,
                   title: "Uji Coba Pangkas / Jual Lot Saham ke Trading Journal",
                   desc: "Coba klik tombol [ 🏷️ Jual ] pada baris saham di Portofolio untuk melihat kalkulasi Realized PnL instan dan pencatatannya otomatis ke menu Trading Journal.",
                   linkText: "Buka Journal",
-                  href: "/journal"
+                  href: "/journal",
                 },
               ].map((item) => {
                 const isDone = !!checkedItems[item.id];
@@ -916,7 +1416,9 @@ export default function GuidePage() {
                         )}
                       </button>
                       <div>
-                        <h4 className={`text-xs font-bold ${isDone ? "line-through text-slate-500" : "text-slate-900"}`}>
+                        <h4
+                          className={`text-xs font-bold ${isDone ? "line-through text-slate-500" : "text-slate-900"}`}
+                        >
                           {item.title}
                         </h4>
                         <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
