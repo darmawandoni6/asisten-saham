@@ -175,16 +175,7 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Live Status Indicator di Topbar**:
   - Komponen `Topbar.tsx` secara dinamis menampilkan pill status pasar BEI dengan warna indikator Stockbit Clean (Emerald untuk sesi buka, Amber untuk jeda istirahat, Slate untuk market closed/libur) beserta tooltip deskriptif.
 
-### N. Framework Keputusan Ritel Mikro (Budget Rp 250.000 / Bulan)
-- **Karakteristik & Alokasi Modal**:
-  - *Investasi (70–80% / ~Rp 200rb)*: Cicil beli (DCA) bertahap 1–3 lot per bulan pada saham lapis 1 / lapis 2 berfundamental sehat dan rutin dividen saat harga di area *Major Support* atau *RSI Oversold (< 35)*.
-  - *Trading Swing (20–30% / ~Rp 50rb–100rb)*: Hanya entry jika rasio $Risk : Reward \ge 1 : 2.0$ dengan proteksi Stop Loss ketat (-5%).
-- **3 Pertanyaan Diagnostik Penyelamatan Saham Nyangkut**:
-  1. *Perusahaan Sehat & Dividen Rutin?* $\rightarrow$ **HOLD & CICIL AVERAGE DOWN** di support kuat (gunakan Kalkulator Recovery).
-  2. *Saham Siklikal di Siklus Bawah?* $\rightarrow$ **HOLD & TUNGGU REBOUND** ke area MA20.
-  3. *Saham Gorengan/Rugi Prospek Suram?* $\rightarrow$ **CUT LOSS DISIPLIN** dan alihkan sisa modal ke saham investasi berdividen.
-
-### O. Kebijakan Integritas Data & Kepatuhan Hukum (Zero-Risk Compliance)
+### N. Kebijakan Integritas Data & Kepatuhan Hukum (Zero-Risk Compliance)
 - **Kepatuhan Regulasi & Anti-Scraping**:
   - Sistem **TIDAK MENGGUNAKAN** reverse-engineering scraping yang melanggar Terms of Service (ToS) sekuritas / UU ITE.
   - Seluruh data harga EOD ditarik secara legal via Yahoo Finance (`yfinance`).
