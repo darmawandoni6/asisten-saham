@@ -1,4 +1,4 @@
-.PHONY: help dev dev-be dev-fe be fe start stop build install sync-eod clean test
+.PHONY: help dev dev-be dev-fe be fe start stop build install sync-eod clean test 9router
 
 # Default target
 all: help
@@ -10,6 +10,12 @@ all: help
 ## Menjalankan 9Router, Frontend & Backend secara bersamaan dalam mode Development
 dev:
 	@./start_app.sh --dev
+
+## Menjalankan hanya 9Router AI Gateway di latar belakang (Port 20128)
+9router:
+	@echo "🔀 Memulai 9Router AI Gateway di port 20128..."
+	@bash -c 'source ~/.zshrc 2>/dev/null || true; which 9router >/dev/null && 9router -t --host 127.0.0.1 || "$$HOME/.nvm/versions/node/$$(ls -1 "$$HOME/.nvm/versions/node" 2>/dev/null | tail -n 1)/bin/9router" -t --host 127.0.0.1'
+	@echo "✅ 9Router siap di http://localhost:20128"
 
 ## Menjalankan hanya Backend FastAPI dalam mode Hot-Reload
 dev-be be:
@@ -29,12 +35,13 @@ dev-fe fe:
 start prod:
 	@./start_app.sh
 
-## Menghentikan seluruh proses server yang sedang berjalan (Port 8000 & 3000)
+## Menghentikan seluruh proses server yang sedang berjalan (Port 8000, 3000 & 20128)
 stop:
 	@echo "🛑 Menghentikan server..."
 	@./stop_app.sh 2>/dev/null || true
 	@kill -9 $$(lsof -ti :8000) 2>/dev/null || true
 	@kill -9 $$(lsof -ti :3000) 2>/dev/null || true
+	@kill -9 $$(lsof -ti :20128) 2>/dev/null || true
 	@echo "✅ Seluruh proses Asisten Saham berhasil dihentikan."
 
 ## ---------------------------------------------------------
@@ -91,13 +98,14 @@ help:
 	@echo "=================================================================="
 	@echo ""
 	@echo "  🛠️  DEVELOPMENT:"
-	@echo "    make dev        - Jalankan Backend (:8000) & Frontend (:3000) bersamaan"
+	@echo "    make dev        - Jalankan 9Router (:20128), Backend (:8000) & Frontend (:3000)"
+	@echo "    make 9router    - Jalankan hanya 9Router AI Gateway (:20128)"
 	@echo "    make dev-be     - Jalankan hanya Backend FastAPI (Hot Reload)"
 	@echo "    make dev-fe     - Jalankan hanya Frontend Next.js (Hot Reload)"
 	@echo ""
 	@echo "  ⚡ SINGLE-PROCESS & PRODUCTION:"
-	@echo "    make start      - Jalankan Ultra-Light Single Process di :8000"
-	@echo "    make stop       - Hentikan seluruh proses (:8000 & :3000)"
+	@echo "    make start      - Jalankan Ultra-Light Single Process di :8000 & 9Router di :20128"
+	@echo "    make stop       - Hentikan seluruh proses (:8000, :3000 & :20128)"
 	@echo "    make build      - Build Frontend Static Export (Next.js)"
 	@echo ""
 	@echo "  📦 SETUP & DATA:"

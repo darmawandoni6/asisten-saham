@@ -773,16 +773,16 @@ export function AICopilotPanel({
                               <div className="flex items-center gap-1.5">
                                 <Badge
                                   variant={
-                                    msg.source === "9router"
+                                    msg.source && msg.source !== "rule_based"
                                       ? "emerald"
                                       : "secondary"
                                   }
                                   className="text-[10px] py-0 px-1.5 gap-1"
                                 >
-                                  {msg.source === "9router" ? (
+                                  {msg.source && msg.source !== "rule_based" ? (
                                     <>
                                       <Sparkles className="w-3 h-3 text-emerald-600" />
-                                      <span>9Router AI</span>
+                                      <span>{msg.source === "9router" ? "9Router AI" : "AI Copilot"}</span>
                                     </>
                                   ) : (
                                     <span>⚡ Rule-Based</span>

@@ -21,7 +21,7 @@ def reload_env():
 reload_env()
 
 # Runtime in-memory provider selection (Custom OpenAI-Compatible LLM Gateway)
-_RUNNING_PROVIDER: Optional[str] = "custom_llm"
+_RUNNING_PROVIDER: Optional[str] = None
 
 def get_ai_api_key() -> Optional[str]:
     """Mengambil API Key dari .env (mendukung AI_API_KEY, NINEROUTER_API_KEY, OPENAI_API_KEY)."""
@@ -51,11 +51,14 @@ def get_active_provider() -> str:
         return _RUNNING_PROVIDER
     
     reload_env()
-    return os.getenv("AI_PROVIDER", "custom_llm").strip().lower() or "custom_llm"
+    provider = os.getenv("AI_PROVIDER", "").strip().lower()
+    if provider:
+        return provider
+    return "9router"
 
 def set_active_provider(provider: str) -> str:
     global _RUNNING_PROVIDER
-    _RUNNING_PROVIDER = provider or "custom_llm"
+    _RUNNING_PROVIDER = provider or "9router"
     return _RUNNING_PROVIDER
 
 def get_ai_cache_ttl() -> int:
@@ -91,17 +94,19 @@ def get_ai_providers_status() -> Dict[str, Any]:
     api_key = get_ai_api_key()
     model = get_ai_model()
     base_url = get_ai_base_url()
+    active_prov = get_active_provider()
+    prov_name = "9Router AI Gateway" if active_prov == "9router" else "Custom OpenAI-Compatible LLM"
     
     return {
-        "active_provider": "custom_llm",
+        "active_provider": active_prov,
         "providers": [
             {
-                "id": "custom_llm",
-                "name": "Custom OpenAI-Compatible LLM",
+                "id": active_prov,
+                "name": prov_name,
                 "model": model,
                 "base_url": base_url,
                 "is_configured": bool(api_key),
-                "badge_label": f"AI ({model})"
+                "badge_label": f"{prov_name} ({model})"
             }
         ]
     }
@@ -302,7 +307,8 @@ def call_llm(
     if not json_mode:
         final_text = _clean_chat_response(final_text)
         
-    return final_text, "custom_llm"
+    used_provider = preferred_provider or get_active_provider() or "9router"
+    return final_text, used_provider
 
 
 
@@ -327,7 +333,7 @@ def analyze_holding_with_ai(
     resistance = float(latest_indicators.get("resistance", close * 1.05))
     jenis = getattr(holding, "jenis", "trading") or "trading"
 
-    active_provider = "custom_llm"
+    active_provider = provider or get_active_provider()
     has_key = bool(get_ai_api_key())
     model_name = get_ai_model()
 
@@ -544,7 +550,7 @@ def discuss_copilot_recommendation(
     tp_text = f"Rp {round(holding.target_price):,d}" if holding.target_price else "Belum ditentukan"
     sl_text = "Tidak ada hard stop loss (Saham Investasi)" if jenis == "investasi" else (f"Rp {round(holding.stop_loss):,d}" if holding.stop_loss else "Belum ditentukan")
 
-    active_provider = "custom_llm"
+    active_provider = provider or get_active_provider()
     has_valid_api = bool(get_ai_api_key())
 
     if has_valid_api:
@@ -735,7 +741,7 @@ def discuss_recovery_scenario(
     }
     scenario_title = scenario_names.get(scenario_id, "Skenario Penyelamatan")
 
-    active_provider = "custom_llm"
+    active_provider = provider or get_active_provider()
     has_valid_api = bool(get_ai_api_key())
     ttl_seconds = get_ai_cache_ttl()
     today = date.today()

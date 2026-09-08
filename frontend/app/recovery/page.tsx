@@ -903,9 +903,9 @@ export default function RecoveryPage() {
                     </h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                    {discussionData?.source === "9router" ? (
+                    {discussionData?.source && discussionData.source !== "rule_based" ? (
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 shadow-2xs">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> 9Router AI
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> {discussionData.source === "9router" ? "9Router AI" : "AI Copilot"}
                       </span>
                     ) : (
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 shadow-2xs">
@@ -1071,14 +1071,14 @@ export default function RecoveryPage() {
                               {item.role === "assistant" && (
                                 <div className="flex items-center gap-1.5">
                                   <span className={`text-[10px] px-2 py-0.5 rounded-md font-sans font-bold flex items-center gap-1 border shadow-2xs ${
-                                    item.source === "9router"
+                                    item.source && item.source !== "rule_based"
                                       ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                       : "bg-slate-200/80 text-slate-700 border-slate-300"
                                   }`}>
-                                    {item.source === "9router" ? (
+                                    {item.source && item.source !== "rule_based" ? (
                                       <>
                                         <Sparkles className="w-3 h-3 text-emerald-600" />
-                                        <span>Dibalas oleh 9Router AI</span>
+                                        <span>{item.source === "9router" ? "Dibalas oleh 9Router AI" : "Dibalas oleh AI Copilot"}</span>
                                       </>
                                     ) : (
                                       <>

@@ -8,7 +8,11 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "assiten_saham.db")
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
+env_db_url = os.getenv("DATABASE_URL")
+if not env_db_url or "sqlite:///." in env_db_url:
+    DATABASE_URL = f"sqlite:///{DEFAULT_DB_PATH}"
+else:
+    DATABASE_URL = env_db_url
 
 engine = create_engine(
     DATABASE_URL,

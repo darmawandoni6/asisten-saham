@@ -96,12 +96,15 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Telegram Bot Notification**: Status saat ini adalah **Under Development** (diarahkan ke log sistem internal, belum dikaitkan ke API live).
 
 ### F. AI Copilot & Bedah Logika Skenario (`backend/services/ai_copilot.py`)
-- **Custom OpenAI-Compatible AI Gateway**:
+- **Custom OpenAI-Compatible AI Gateway & 9Router**:
   - Menggunakan standar OpenAI-compatible REST API (`/chat/completions`) yang dapat diarahkan ke provider apa saja (OpenAI, 9Router, Ollama, Groq, LiteLLM, vLLM, OpenCode, dll).
   - Variabel konfigurasi di `backend/.env`:
+    - `AI_PROVIDER`: Identifier provider aktif (misal: `9router`, `custom_llm`).
     - `AI_API_KEY`: API key dari provider pilihan pengguna.
-    - `AI_MODEL`: Nama model (misal: `gpt-4o-mini`, `deepseek-chat`, `llama3`, dll).
-    - `AI_BASE_URL`: Base URL / endpoint proxy (misal: `https://api.openai.com/v1`, `http://localhost:20128/v1`, `http://localhost:11434/v1`).
+    - `AI_MODEL`: Nama model (misal: `gpt-4o-mini`, `9router`, `deepseek-chat`).
+    - `AI_BASE_URL`: Base URL / endpoint proxy (misal: `http://localhost:20128/v1`, `https://api.openai.com/v1`).
+  - **9Router Background Execution**: Dijalankan secara otomatis di port `20128` dengan flag `-t --host 127.0.0.1` (tray mode) agar tidak meminta input terminal TUI interaktif saat berjalan di latar belakang.
+  - **Konsistensi Identifier Source**: Fungsi `call_llm` mengembalikan nama provider aktif secara dinamis (`9router`), dan Frontend mengecek `source !== "rule_based"` untuk menampilkan badge hijau **✨ Dibalas oleh 9Router AI** secara akurat.
   - **Hot-Reload Environment**: Menggunakan `load_dotenv(override=True)` sehingga perubahan key/model di `.env` langsung aktif tanpa perlu me-restart server.
 - **Failover Transparan (Graceful Fallback)**:
   - Jika service AI belum aktif, endpoint offline, atau kuota/rate limit habis (HTTP 429), sistem otomatis beralih ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`).
@@ -120,7 +123,7 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 
 ### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
 - Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
-- Database SQLite di `backend/database.py` dipatok absolut ke `backend/assiten_saham.db` agar script skill dapat dipanggil dari folder mana saja tanpa error `no such table`.
+- Database SQLite di `backend/database.py` dan `.env` dipatok absolut ke `/Users/donidarmawan/Documents/me/assiten-saham/backend/assiten_saham.db` sehingga eksekusi dari CLI / skill Antigravity dari folder kerja mana pun selalu merujuk ke database yang sama persis tanpa duplikasi file kosong di root folder.
 
 ### H. Kamus Lengkap Badge & Glosarium Terintegrasi
 - **Pusat Kamus (`/guide` Tab 3)**: Memetakan 4 kategori (Badge Screener `OVERSOLD`/`BREAKOUT`/`VALUE` + AI Score scale, Badge Kelayakan Recovery, 5 Warna Status Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
@@ -150,8 +153,10 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Komponen frontend `<HeartbeatSender />` (`frontend/components/HeartbeatSender.tsx`) mengirim sinyal detak jantung berkala (`POST /api/v1/system/heartbeat`) setiap 15 detik selama tab browser aktif.
   - Background daemon thread di `backend/routers/system.py` memantau sinyal heartbeat. Jika seluruh tab browser ditutup selama $\ge 75$ detik (setelah grace period 90 detik pasca boot), server FastAPI otomatis menghentikan prosesnya sendiri secara bersih (`os._exit(0)`).
   - Menghasilkan **0 MB RAM (0% CPU)** saat aplikasi tidak digunakan.
-- **Desktop Launcher & Ignored Local Artifacts**:
-  - `Asisten Saham.app` dan skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
+- **Desktop Launcher & Native macOS Applet**:
+  - `Asisten Saham.app` dikompilasi sebagai **Native macOS Applet** (`osacompile`) dengan aset icon resmi `Contents/Resources/app.icns`.
+  - Disinkronkan ke `~/Desktop/Asisten Saham.app` dan `/Applications/Asisten Saham.app` (Dock) dengan detached process (`nohup`) sehingga dapat langsung diklik ganda dari Desktop maupun Dock tanpa terminal window.
+  - Skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
 
 ### L. Manual Trading Balance, Lot Management & Trading Journal Sync
 - **Pencatatan Saldo Kas RDN Manual**:
@@ -177,37 +182,32 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 
 ---
 
-
-
 ## 🛠️ 5. Perintah Pengujian & Operasional
 
 ```bash
-# 1. Jalankan Backend
-cd backend
-source venv/bin/activate
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# 1. Operasional Cepat via Makefile
+make start      # Jalankan Ultra-Light Single Process (:8000) & 9Router (:20128)
+make dev        # Mode Development: 9Router (:20128) + FastAPI (:8000) + Next.js (:3000)
+make 9router    # Jalankan hanya 9Router AI Gateway (:20128)
+make stop       # Hentikan seluruh proses (:8000, :3000, :20128)
+make sync-eod   # Sinkronisasi data closing EOD Yahoo Finance
 
-# 2. Jalankan Frontend
-cd frontend
-npm run dev
+# 2. Build Verification (Harus 0 TypeScript error)
+make build      # atau: cd frontend && npm run build
 
-# 3. Build Verification (Harus 0 TypeScript error)
-cd frontend
-npm run build
-
-# 4. Sinkronisasi Data EOD via Workspace Skill
+# 3. Sinkronisasi Data EOD via Workspace Skill
 ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py
 ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py --ticker SIDO.JK
 
-# 5. Tes Endpoint Sinkronisasi EOD via API
+# 4. Tes Endpoint Sinkronisasi EOD via API
 curl -s -X POST http://localhost:8000/api/v1/stocks/fetch-all
 
-# 6. Tes Endpoint Bedah Logika Skenario AI
+# 5. Tes Endpoint Bedah Logika Skenario AI
 curl -s -X POST http://localhost:8000/api/v1/recovery/SIDO.JK/discuss \
   -H "Content-Type: application/json" \
-  -d '{"scenario_id": "holdForBep"}'
+  -d '{"scenario_id": "holdForBep", "user_question": "apakah dividen aman?"}'
 
-# 7. Tes Endpoint Analisis AI & Dashboard
+# 6. Tes Endpoint Analisis AI & Dashboard
 curl -s -X POST http://localhost:8000/api/v1/analysis/SIDO.JK
 curl -s http://localhost:8000/api/v1/dashboard
 ```

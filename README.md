@@ -129,26 +129,38 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 ## 🚀 Panduan Menjalankan Aplikasi
 
 ### 1. Cara Cepat (Desktop App 1-Klik)
-* **Double-click** `Asisten Saham.app` di Desktop atau folder proyek.
-* Server akan otomatis menyala dan browser langsung terbuka ke `http://localhost:8000`.
-* Saat selesai, cukup **tutup tab browser**, server akan otomatis mati dalam 75 detik.
+* **Double-click** `Asisten Saham.app` di Desktop, Dock macOS, atau folder proyek.
+* Aplikasi dikompilasi sebagai **Native macOS Applet** (`osacompile`) yang otomatis menyalakan **9Router AI Gateway** (:20128) dan server **FastAPI** (:8000), lalu membuka browser ke `http://localhost:8000`.
+* Saat selesai, cukup **tutup tab browser**, server akan otomatis mati dalam 75 detik (0 MB RAM).
 
-### 2. Cara Terminal / CLI (Mode Ultra-Light Single Process)
+### 2. Cara Terminal / CLI (Makefile & Skrip Otomatis)
 
 ```bash
-# Menjalankan server tunggal (FastAPI melayani API + Frontend)
+# Menjalankan seluruh stack (9Router :20128 + FastAPI Web/API :8000)
+make start
+# atau
 ./start_app.sh
 
 # Mode Development dengan Hot-Reloading Next.js di :3000
+make dev
+# atau
 ./start_app.sh --dev
 
-# Menghentikan server secara manual
+# Menjalankan hanya 9Router AI Gateway di latar belakang (:20128)
+make 9router
+
+# Menghentikan seluruh server yang berjalan (:8000, :3000, :20128)
+make stop
+# atau
 ./stop_app.sh
 
-# Membangun ulang aset frontend statis jika ada perubahan kode UI
+# Membangun ulang aset frontend statis & memperbarui Native Launcher
+make build
+# atau
 ./build_app.sh
 ```
 * Akses aplikasi: `http://localhost:8000`
+* 9Router Gateway: `http://localhost:20128`
 * Dokumentasi API Swagger: `http://localhost:8000/docs`
 
 ### 3. Pemutakhiran Data Pasar EOD (3 Cara Fleksibel)
@@ -156,10 +168,12 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 Data pasar BEI otomatis ditarik setiap Senin–Jumat pukul 17:30 WIB. Namun Anda dapat melakukan update manual kapan saja:
 
 * **Cara 1 — Web Browser**: Klik tombol **`[🔄 Tarik EOD]`** di header kanan atas halaman mana saja.
-* **Cara 2 — Antigravity Chat Skill**: Cukup ketik di chat: *"Tolong update EOD hari ini"*.
-* **Cara 3 — Terminal / CLI**:
+* **Cara 2 — Antigravity Chat Skill**: Cukup ketik di chat: `/idx-eod-sync` atau *"Tolong update EOD hari ini"*.
+* **Cara 3 — Terminal / Makefile**:
   ```bash
-  # Update seluruh portofolio
+  # Update seluruh portofolio via skill script
+  make sync-eod
+  # atau
   ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py
 
   # Atau via cURL (saat server backend aktif)
