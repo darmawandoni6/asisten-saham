@@ -175,15 +175,6 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Live Status Indicator di Topbar**:
   - Komponen `Topbar.tsx` secara dinamis menampilkan pill status pasar BEI dengan warna indikator Stockbit Clean (Emerald untuk sesi buka, Amber untuk jeda istirahat, Slate untuk market closed/libur) beserta tooltip deskriptif.
 
-### N. Kebijakan Integritas Data & Kepatuhan Hukum (Zero-Risk Compliance)
-- **Kepatuhan Regulasi & Anti-Scraping**:
-  - Sistem **TIDAK MENGGUNAKAN** reverse-engineering scraping yang melanggar Terms of Service (ToS) sekuritas / UU ITE.
-  - Seluruh data harga EOD ditarik secara legal via Yahoo Finance (`yfinance`).
-- **Alternatif Pendeteksian Akumulasi / Distribusi**:
-  - Menggunakan proxy matematis legal (Chaikin Money Flow / CMF, On-Balance Volume / OBV, Money Flow Index / MFI) berbasis native Pandas tanpa ketergantungan kredensial akun sekuritas eksternal.
-- **Prinsip Evaluasi MCP Eksternal**:
-  - MCP pihak ketiga (seperti Stockbit MCP komunitas) diposisikan sebagai plugin riset terpisah (decoupled / on-demand), bukan ketergantungan inti (*core dependency*) dari database dan scheduler aplikasi.
-
 ---
 
 
