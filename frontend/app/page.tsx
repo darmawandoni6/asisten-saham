@@ -159,16 +159,13 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Modal / Dialog for AI Copilot */}
-      {activeModal === "ai" && selectedHolding && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="max-w-3xl w-full my-8">
-            <AICopilotPanel
-              holding={selectedHolding}
-              onClose={closeModal}
-            />
-          </div>
-        </div>
+      {/* Modal / Dialog for AI Copilot (shadcn/ui Dialog) */}
+      {selectedHolding && (
+        <AICopilotPanel
+          isOpen={activeModal === "ai"}
+          holding={selectedHolding}
+          onClose={closeModal}
+        />
       )}
 
       {/* Modal Edit Cash Balance */}

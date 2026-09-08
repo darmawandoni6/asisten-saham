@@ -39,12 +39,14 @@ thread = threading.Thread(target=monitor_idle_heartbeat, daemon=True)
 thread.start()
 
 @router.post("/heartbeat")
+@router.post("/heartbeat/")
 def receive_heartbeat():
     global LAST_HEARTBEAT_TIME
     LAST_HEARTBEAT_TIME = time.time()
     return {"status": "ok", "timestamp": LAST_HEARTBEAT_TIME}
 
 @router.post("/shutdown")
+@router.post("/shutdown/")
 def trigger_shutdown():
     def delayed_exit():
         time.sleep(0.5)
@@ -53,6 +55,7 @@ def trigger_shutdown():
     return {"status": "shutting_down"}
 
 @router.get("/status")
+@router.get("/status/")
 def get_system_status():
     global LAST_HEARTBEAT_TIME, STARTUP_TIME
     now = time.time()
@@ -64,6 +67,7 @@ def get_system_status():
     }
 
 @router.get("/market-status")
+@router.get("/market-status/")
 def get_idx_market_status():
     from services.market_calendar import get_market_status
     return get_market_status()

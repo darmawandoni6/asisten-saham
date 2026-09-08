@@ -6,18 +6,7 @@ import { api } from "@/lib/api";
 export function HeartbeatSender() {
   useEffect(() => {
     const sendHeartbeat = () => {
-      fetch("/api/v1/system/heartbeat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        keepalive: true,
-      }).catch(() => {
-        // Fallback to absolute URL if needed
-        fetch("http://localhost:8000/api/v1/system/heartbeat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          keepalive: true,
-        }).catch(() => {});
-      });
+      api.sendHeartbeat().catch(() => {});
     };
 
     // Initial heartbeat

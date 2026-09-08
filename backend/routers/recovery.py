@@ -82,7 +82,8 @@ def calculate_avg_down(req: AvgDownRequest):
 class RecoveryDiscussRequest(BaseModel):
     scenario_id: str
     user_question: Optional[str] = None
-    provider: Optional[str] = None  # 'gemini' | 'opencode_zen'
+    provider: Optional[str] = None  # 'gemini' | 'opencode_zen' | 'openrouter'
+    force_refresh: Optional[bool] = False
 
 
 @router.get("/{ticker}/chat-history")
@@ -188,7 +189,9 @@ def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Dep
         fundamental_info=fundamental_info,
         cash_balance=get_cash_balance(db),
         conversation_history=conversation_history,
-        provider=req.provider
+        provider=req.provider,
+        db=db,
+        force_refresh=bool(req.force_refresh)
     )
 
     # If this was a user Q&A interaction, persist to today's chat history
@@ -197,25 +200,56 @@ def discuss_recovery(ticker: str, req: RecoveryDiscussRequest, db: Session = Dep
         ai_answer = result.get("answer", "")
         source = result.get("source", "gemini")
 
-        # Save user message
-        db.add(RecoveryChatLog(
-            ticker=ticker,
-            scenario_id=req.scenario_id,
-            role="user",
-            message=user_text,
-            source=None,
-            session_date=today
-        ))
-        # Save assistant message
-        db.add(RecoveryChatLog(
-            ticker=ticker,
-            scenario_id=req.scenario_id,
-            role="assistant",
-            message=ai_answer,
-            source=source,
-            session_date=today
-        ))
-        db.commit()
+        if req.force_refresh:
+            # Check if there is an existing assistant log for this scenario to update
+            last_assistant_log = db.query(RecoveryChatLog).filter(
+                RecoveryChatLog.ticker == ticker,
+                RecoveryChatLog.scenario_id == req.scenario_id,
+                RecoveryChatLog.role == "assistant"
+            ).order_by(RecoveryChatLog.created_at.desc()).first()
+
+            if last_assistant_log and (last_assistant_log.source == "rule_based" or last_assistant_log.source is None):
+                last_assistant_log.message = ai_answer
+                last_assistant_log.source = source
+                db.commit()
+            else:
+                db.add(RecoveryChatLog(
+                    ticker=ticker,
+                    scenario_id=req.scenario_id,
+                    role="user",
+                    message=user_text,
+                    source=None,
+                    session_date=today
+                ))
+                db.add(RecoveryChatLog(
+                    ticker=ticker,
+                    scenario_id=req.scenario_id,
+                    role="assistant",
+                    message=ai_answer,
+                    source=source,
+                    session_date=today
+                ))
+                db.commit()
+        else:
+            # Save user message
+            db.add(RecoveryChatLog(
+                ticker=ticker,
+                scenario_id=req.scenario_id,
+                role="user",
+                message=user_text,
+                source=None,
+                session_date=today
+            ))
+            # Save assistant message
+            db.add(RecoveryChatLog(
+                ticker=ticker,
+                scenario_id=req.scenario_id,
+                role="assistant",
+                message=ai_answer,
+                source=source,
+                session_date=today
+            ))
+            db.commit()
 
     return result
 

@@ -95,15 +95,14 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 ### E. Status Fitur Eksternal
 - **Telegram Bot Notification**: Status saat ini adalah **Under Development** (diarahkan ke log sistem internal, belum dikaitkan ke API live).
 
-### F. Multi-Provider AI Copilot & Bedah Logika Skenario (`backend/services/ai_copilot.py`)
-- **Dukungan Multi-Provider**:
-  - **Google Gemini**: Menggunakan `gemini-3.5-flash-lite` via `google-generativeai`.
-  - **OpenCode Zen**: Menggunakan OpenAI-compatible client via endpoint `https://opencode.ai/zen/v1` (`nemotron-3.5-lightning-free`, `deepseek`, `claude`).
-  - **Provider Switcher UI**: Pengguna dapat beralih provider secara instan via pill `[ ✨ Gemini ] [ ⚡ Zen ]` di modal recovery dan dashboard.
-  - **API Endpoints**: `GET /api/v1/analysis/providers` (status konfigurasi), `POST /api/v1/analysis/provider` (ganti provider aktif).
+### F. 9Router AI Copilot & Bedah Logika Skenario (`backend/services/ai_copilot.py`)
+- **9Router Local AI Gateway**:
+  - Menggunakan endpoint local proxy 9Router (`http://localhost:20128/v1`) via OpenAI-compatible REST API.
+  - Model default: `9router` (dengan dukungan auto-routing ke 100+ model dan token saver compression).
+  - API Key dikonfigurasi via `NINEROUTER_API_KEY` di `backend/.env`.
   - **Hot-Reload Environment**: Menggunakan `load_dotenv(override=True)` sehingga perubahan key di `.env` langsung aktif tanpa perlu me-restart server.
 - **Failover Transparan (Graceful Fallback)**:
-  - Jika kuota/rate limit habis (HTTP 429) atau API belum dikonfigurasi, sistem otomatis beralih ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`).
+  - Jika service 9Router belum aktif atau kuota/rate limit habis (HTTP 429), sistem otomatis beralih ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`).
 - **4 Pilar Analisis Mendalam**:
   1. `coreLogic`: Logika objektif pemilihan skenario berdasarkan profil emiten & kecukupan kas.
   2. `invalidationRisk`: Batas risiko dan level harga invalidasi (Plan B) bila tren breakdown.
@@ -173,6 +172,24 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Endpoint `GET /api/v1/system/market-status` menyediakan status sesi live (`OPEN_SESSION_1`, `MARKET_BREAK`, `OPEN_SESSION_2`, `POST_CLOSING`, `CLOSED_EOD`, `CLOSED_WEEKEND`, `CLOSED_HOLIDAY`).
 - **Live Status Indicator di Topbar**:
   - Komponen `Topbar.tsx` secara dinamis menampilkan pill status pasar BEI dengan warna indikator Stockbit Clean (Emerald untuk sesi buka, Amber untuk jeda istirahat, Slate untuk market closed/libur) beserta tooltip deskriptif.
+
+### N. Framework Keputusan Ritel Mikro (Budget Rp 250.000 / Bulan)
+- **Karakteristik & Alokasi Modal**:
+  - *Investasi (70–80% / ~Rp 200rb)*: Cicil beli (DCA) bertahap 1–3 lot per bulan pada saham lapis 1 / lapis 2 berfundamental sehat dan rutin dividen saat harga di area *Major Support* atau *RSI Oversold (< 35)*.
+  - *Trading Swing (20–30% / ~Rp 50rb–100rb)*: Hanya entry jika rasio $Risk : Reward \ge 1 : 2.0$ dengan proteksi Stop Loss ketat (-5%).
+- **3 Pertanyaan Diagnostik Penyelamatan Saham Nyangkut**:
+  1. *Perusahaan Sehat & Dividen Rutin?* $\rightarrow$ **HOLD & CICIL AVERAGE DOWN** di support kuat (gunakan Kalkulator Recovery).
+  2. *Saham Siklikal di Siklus Bawah?* $\rightarrow$ **HOLD & TUNGGU REBOUND** ke area MA20.
+  3. *Saham Gorengan/Rugi Prospek Suram?* $\rightarrow$ **CUT LOSS DISIPLIN** dan alihkan sisa modal ke saham investasi berdividen.
+
+### O. Kebijakan Integritas Data & Kepatuhan Hukum (Zero-Risk Compliance)
+- **Kepatuhan Regulasi & Anti-Scraping**:
+  - Sistem **TIDAK MENGGUNAKAN** reverse-engineering scraping yang melanggar Terms of Service (ToS) sekuritas / UU ITE.
+  - Seluruh data harga EOD ditarik secara legal via Yahoo Finance (`yfinance`).
+- **Alternatif Pendeteksian Akumulasi / Distribusi**:
+  - Menggunakan proxy matematis legal (Chaikin Money Flow / CMF, On-Balance Volume / OBV, Money Flow Index / MFI) berbasis native Pandas tanpa ketergantungan kredensial akun sekuritas eksternal.
+- **Prinsip Evaluasi MCP Eksternal**:
+  - MCP pihak ketiga (seperti Stockbit MCP komunitas) diposisikan sebagai plugin riset terpisah (decoupled / on-demand), bukan ketergantungan inti (*core dependency*) dari database dan scheduler aplikasi.
 
 ---
 

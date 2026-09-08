@@ -118,12 +118,26 @@ export const api = {
         body: JSON.stringify({ provider }),
       },
     ),
-  analyzeStock: (ticker: string, provider?: string) => {
-    const params = provider ? `?provider=${provider}` : "";
-    return fetchApi<any>(`/api/v1/analysis/${ticker}${params}`, {
+  analyzeStock: (ticker: string, provider?: string, forceRefresh?: boolean) => {
+    const params = new URLSearchParams();
+    if (provider) params.append("provider", provider);
+    if (forceRefresh) params.append("force_refresh", "true");
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return fetchApi<any>(`/api/v1/analysis/${ticker}${query}`, {
       method: "POST",
     });
   },
+  getCopilotChatHistory: (ticker: string) =>
+    fetchApi<any[]>(`/api/v1/analysis/${ticker}/chat-history`),
+  sendCopilotChat: (ticker: string, data: { question: string; force_refresh?: boolean }) =>
+    fetchApi<any>(`/api/v1/analysis/${ticker}/chat`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  clearCopilotChatHistory: (ticker: string) =>
+    fetchApi<any>(`/api/v1/analysis/${ticker}/chat-history`, {
+      method: "DELETE",
+    }),
 
   // Recovery Engine
   getRecovery: (ticker: string) => fetchApi<any>(`/api/v1/recovery/${ticker}`),
@@ -139,7 +153,7 @@ export const api = {
     }),
   discussRecovery: (
     ticker: string,
-    data: { scenario_id: string; user_question?: string; provider?: string },
+    data: { scenario_id: string; user_question?: string; provider?: string; force_refresh?: boolean },
   ) =>
     fetchApi<any>(`/api/v1/recovery/${ticker}/discuss`, {
       method: "POST",
@@ -178,5 +192,10 @@ export const api = {
 
   // System & Market Calendar
   getMarketStatus: () => fetchApi<any>("/api/v1/system/market-status"),
+  sendHeartbeat: () =>
+    fetchApi<{ status: string; timestamp: number }>(
+      "/api/v1/system/heartbeat",
+      { method: "POST" },
+    ),
 };
 

@@ -100,6 +100,15 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Chat otomatis di-reset **hanya saat penutupan sesi pasar bursa aktif (17:30 WIB)**.
 * **Live Market Status di Topbar**: Menampilkan badge status pasar BEI secara *real-time* (`🟢 Market Open (Sesi 1/2)`, `🟡 Istirahat Siang`, `⚪ Weekend (Pasar Tutup)`, atau `⚪ Libur: [Nama Libur]`).
 
+### 12. 💡 Framework Keputusan Ritel Mikro & Kepatuhan Data
+* **SOP Keputusan Mekanis untuk Ritel (Budget Rp 250rb/Bulan)**:
+  - *Investasi (70–80%)*: Menabung saham perusahaan sehat & rutin dividen saat harga berada di area Major Support / RSI Oversold.
+  - *Trading Swing (20–30%)*: Transaksi disiplin dengan syarat baku Risk-to-Reward Ratio (RRR $\ge$ 1 : 2.0) dan Stop Loss ketat.
+  - *Penyelamatan Posisi Nyangkut*: Rekomendasi kalkulator presisi untuk mengukur kebutuhan lot & modal cicil pemulihan.
+* **Arsitektur Data Legal & Zero-Risk Compliance**:
+  - Mengandalkan data harga publik resmi via Yahoo Finance (`yfinance`) dan Native Pandas tanpa memerlukan scraping ilegal, bypass login sekuritas, atau risiko pelanggaran UU ITE/ToS platform.
+
+
 ---
 
 ## 🎨 Filosofi Desain UI

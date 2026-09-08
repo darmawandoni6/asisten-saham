@@ -151,6 +151,105 @@
 - [x] 10.4 Live Market Status Indicator di Topbar (`frontend/components/Topbar.tsx` & API `/api/v1/system/market-status`).
 - [x] 10.5 Pemutakhiran dokumentasi `README.md`, `AGENTS.md`, dan `TODO.md`.
 
+---
+
+## ⚡ TAHAP 11 — Triple-Provider LLM Engine (Gemini, OpenCode Zen, & OpenRouter) [SELESAI ✅]
+> Integrasi 3 provider AI mandiri, cache 5 menit configurable di `.env`, fail-safe JSON parsing, dan EOD AI pre-warming.
+
+- [x] 11.1 Integrasi & Sanitasi OpenCode Zen & OpenRouter:
+  - Dukungan penuh untuk OpenCode Zen (`https://opencode.ai/zen/v1`) dan OpenRouter (`https://openrouter.ai/api/v1`).
+  - Normalisasi nama model dengan prefix `free/` dan penanganan token reasoning (`reasoning: {enabled: true}`).
+- [x] 11.2 UI Triple-Provider Switcher:
+  - Toggle pill 3 arah `[ ✨ Gemini ] [ ⚡ Zen ] [ 🌐 Router ]` di modal recovery dan dashboard.
+- [x] 11.3 In-Memory & DB AI Caching (Configurable TTL):
+  - Konfigurasi `AI_CACHE_TTL_SECONDS=300` (5 menit), `AI_MAX_TOKENS=2000`, `AI_TIMEOUT_SECONDS=45` di `backend/.env`.
+  - Cache in-memory instan `_RECOVERY_DISCUSS_CACHE` untuk diskusi skenario recovery & Q&A.
+  - Database caching ber-TTL untuk `AIAnalysis` di SQLite.
+- [x] 11.4 Fail-Safe Multi-Stage JSON Extractor:
+  - Ekstraksi tangguh terhadap CoT / reasoning models (Minimax, Cohere, Nemotron, Deepseek) dengan regex & partial recovery.
+- [x] 11.5 EOD AI Pre-Warming:
+  - Scheduler otomatis melakukan pre-computing analisis AI pasca-closing 17:30 WIB sehingga dashboard langsung terbuka instan tanpa jeda loading.
+- [x] 11.6 Developer Tooling:
+  - Pembuatan `Makefile` untuk manajemen server dev (`make dev`, `make dev-be`, `make dev-fe`, `make build`, dll).
+
+---
+
+## 💾 TAHAP 12 — AI Deep-Dive Database Persistence, Attribution Badges & Switch Debounce [SELESAI ✅]
+> Persistensi analisis bedah skenario ke database lokal SQLite, badge visual AI attribution di modal & chat bubble, serta proteksi debounce switching provider.
+
+- [x] 12.1 SQLite Table `RecoveryDeepDive` (`backend/models.py` & `models.py`):
+  - Skema tabel `recovery_deepdives` dengan kolom `ticker`, `scenario_id`, `date`, `source`, `deep_dive_data`, dan constraint unik.
+- [x] 12.2 Instant DB History Retrieval (0 Token & 0ms Latency):
+  - Pengecekan riwayat database terlebih dahulu saat tombol *Bedah Logika & Diskusi AI* ditekan (`fromDb: true`).
+  - Pemanggilan AI eksternal hanya dilakukan on-demand jika belum pernah dianalisis atau saat ada pertanyaan chat baru.
+- [x] 12.3 Visual Attribution Badges (Modal Header & Chat History):
+  - Badge provider di header modal (`Google Gemini AI`, `OpenCode Zen AI`, `OpenRouter AI`, `Rule-Based`) dan status cache `💾 Tersimpan di Database (0 Token)`.
+  - Badge identitas penjawab pada setiap bubble chat assistant (`Dibalas oleh [Provider]`).
+- [x] 12.4 Frontend Provider Switch Debounce:
+  - Proteksi debounce timer (350ms) dan pelacakan request id di `frontend/app/recovery/page.tsx` saat beralih provider untuk mencegah spamming dan race conditions.
+- [x] 12.5 On-Demand Retry Mechanism for Rule-Based Fallbacks:
+  - Tombol `[ 🔄 Coba Lagi dengan AI ]` pada bubble chat yang dibalas oleh Rule-Based dan tombol `[ 🔄 Coba Ulang dengan AI ]` pada banner bedah skenario.
+  - Parameter `force_refresh: true` untuk mem-bypass cache / DB dan memperbarui jawaban ke model AI pilihan.
+
+---
+
+## 🔀 TAHAP 13 — Dedicated 9Router Gateway Migration (Single Unified AI Engine) [SELESAI ✅]
+> Migrasi seluruh integrasi LLM aplikasi ke 9Router AI Gateway lokal (`http://localhost:20128/v1`) sebagai satu-satunya provider AI utama.
+
+- [x] 13.1 Konfigurasi & Konektivitas 9Router:
+  - Integrasi endpoint OpenAI-compatible `http://localhost:20128/v1` dengan model `9router` dan autentikasi Bearer API Key di `backend/.env`.
+  - Dukungan auto-routing 9Router ke 100+ model dan kompresi token hemat biaya.
+- [x] 13.2 Penyederhanaan AI Engine Backend:
+  - `backend/services/ai_copilot.py` dikonfigurasi untuk menjadikan 9Router sebagai satu-satunya provider aktif.
+  - Penanganan payload non-streaming (`stream: False`), ekstraksi JSON CoT/reasoning, dan fallback transparan ke deterministic rule-based jika 9Router offline.
+- [x] 13.3 Clean UI Stockbit Style:
+  - Penyederhanaan panel AI Copilot ([`AICopilotPanel.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/AICopilotPanel.tsx)) dan modal diskusi ([`recovery/page.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/recovery/page.tsx)) dengan badge visual `[ ✨ 9Router AI ]`.
+  - Penghapusan toggle switch yang tidak diperlukan demi tampilan antarmuka yang bersih dan terfokus.
+
+---
+
+## 💬 TAHAP 14 — Interactive Chat & Ephemeral Session Retention di AICopilotPanel [SELESAI ✅]
+> Menambahkan opsi tanya jawab / chat interaktif langsung di panel AI Copilot ([`AICopilotPanel.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/AICopilotPanel.tsx)) atas rekomendasi yang diberikan, persistensi database per emiten, pembersihan saat reses EOD (17:30 WIB), dan reset riwayat saat analisa ulang.
+
+- [x] 14.1 Database Model `CopilotChatLog` (`backend/models.py`):
+  - Skema tabel `copilot_chat_logs` dengan kolom `ticker`, `role`, `message`, `source`, `session_date`, dan `created_at`.
+- [x] 14.2 AI Copilot Q&A Discussion Engine (`backend/services/ai_copilot.py`):
+  - Fungsi `discuss_copilot_recommendation` yang memanfaatkan konteks portofolio, indikator teknikal EOD, putusan rekomendasi, serta riwayat percakapan multi-turn.
+  - Failover terintegrasi ke intelligent rule-based expert jika gateway AI offline / batas kuota tercapai.
+- [x] 14.3 API Endpoints & Force Refresh Chat Wiping (`backend/routers/analysis.py`):
+  - `GET /api/v1/analysis/{ticker}/chat-history`: Pengambilan riwayat chat sesi hari ini.
+  - `POST /api/v1/analysis/{ticker}/chat`: Pengiriman pertanyaan baru dan penyimpanan respons.
+  - `DELETE /api/v1/analysis/{ticker}/chat-history`: Pembersihan riwayat chat secara manual.
+  - `POST /api/v1/analysis/{ticker}?force_refresh=true`: Pembersihan otomatis seluruh histori chat dan cache saat pengguna meminta analisis ulang.
+- [x] 14.4 Siklus Pembersihan Otomatis saat Reses EOD (`backend/scheduler.py`):
+  - `CopilotChatLog` otomatis dibersihkan bersama `RecoveryChatLog` saat market close hari bursa aktif (17:30 WIB) via `APScheduler`.
+- [x] 14.5 Komponen UI Stockbit Clean Light Mode (`frontend/components/AICopilotPanel.tsx`):
+  - Quick question chips dinamis sesuai rekomendasi (HOLD, CUT LOSS, AVERAGE DOWN, TRIM 50%).
+  - Tampilan chat bubble rapi dengan Markdown rendering, badge transparansi provider (`9Router AI` / `Rule-Based`), dan tombol retry.
+  - Input field responsif dengan keyboard submission (`Enter`) dan auto-scroll.
+  - Tombol manual *Bersihkan Riwayat* dan reset otomatis pada tombol *Analisis Ulang*.
+
+---
+
+## 🎨 TAHAP 15 — Integrasi Komponen Resmi shadcn/ui & Radix UI Primitives [SELESAI ✅]
+> Mengintegrasikan registry komponen resmi standar shadcn/ui (berbasis `@radix-ui/react-*` dan `class-variance-authority`) pada antarmuka AI Copilot Panel dan Modal.
+
+- [x] 15.1 Registry Komponen shadcn/ui di `frontend/components/ui/`:
+  - [`button.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/button.tsx): Varian `default`, `destructive`, `outline`, `secondary`, `ghost`, `link`, `emerald`.
+  - [`badge.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/badge.tsx): Varian `default`, `secondary`, `destructive`, `outline`, `emerald`, `purple`, `amber`.
+  - [`card.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/card.tsx): `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`.
+  - [`scroll-area.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/scroll-area.tsx): `ScrollArea`, `ScrollBar` (Radix UI).
+  - [`input.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/input.tsx): `Input` form control.
+  - [`dialog.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/dialog.tsx): `Dialog`, `DialogPortal`, `DialogOverlay`, `DialogClose`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription` (Radix UI Dialog).
+  - [`separator.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/separator.tsx): `Separator` (Radix UI).
+- [x] 15.2 Refactor Modal ke `<Dialog>` di [`AICopilotPanel.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/AICopilotPanel.tsx) & [`page.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/page.tsx):
+  - Mengganti pembungkus modal manual dengan `<Dialog>`, `<DialogContent>`, `<DialogHeader>`, `<DialogTitle>`, `<DialogDescription>` resmi shadcn/ui.
+  - Dukungan aksesibilitas lengkap (A11y, ARIA dialog, focus trap, ESC key close, click-outside-to-close, smooth animations).
+  - Pembatasan tinggi modal terpusat `max-h-[88vh] sm:max-h-[90vh]` dengan internal `ScrollArea`.
+
+
+
+
 
 
 

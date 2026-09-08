@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Topbar } from "@/components/Topbar";
 import { formatNumber, formatPercent, formatRupiah } from "@/lib/utils";
@@ -21,7 +21,10 @@ import {
   X,
   Trash2,
   Clock,
-  Bot
+  Bot,
+  Cpu,
+  Database,
+  RotateCw
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { RecoveryDiagnosis, Holding, RecoveryDiscussion, RecoveryChatMessage } from "@/types";
@@ -44,42 +47,103 @@ export default function RecoveryPage() {
   const [chatHistory, setChatHistory] = useState<Array<{ role: "user" | "assistant"; text: string; source?: string }>>([]);
   const [customQuestion, setCustomQuestion] = useState("");
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<"gemini" | "opencode_zen">("gemini");
+  const [retryingIndex, setRetryingIndex] = useState<number | null>(null);
 
-  const handleOpenDiscussion = async (scenarioId: string, providerOverride?: "gemini" | "opencode_zen") => {
-    setActiveScenarioModal(scenarioId);
+  // Debounce & Request Tracking Refs
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const latestRequestIdRef = useRef<number>(0);
+
+  const handleRetryDeepDive = async () => {
+    if (!activeScenarioModal || isDiscussionLoading || !selectedTicker) return;
     setIsDiscussionLoading(true);
-    setChatHistory([]);
-    setCustomQuestion("");
-    const providerToUse = providerOverride || selectedProvider;
     try {
-      const [res, history] = await Promise.all([
-        api.discussRecovery(selectedTicker, { scenario_id: scenarioId, provider: providerToUse }),
-        api.getRecoveryChatHistory(selectedTicker, scenarioId).catch(() => [])
-      ]);
+      const res = await api.discussRecovery(selectedTicker, {
+        scenario_id: activeScenarioModal,
+        provider: "9router",
+        force_refresh: true
+      });
       if (res) {
         setDiscussionData(res);
       }
-      if (history && history.length > 0) {
-        setChatHistory(
-          history.map((item: RecoveryChatMessage) => ({
-            role: item.role,
-            text: item.message,
-            source: item.source
-          }))
-        );
-      }
     } catch (err) {
-      console.warn("Error loading scenario discussion:", err);
+      console.warn("Error retrying deep dive:", err);
     } finally {
       setIsDiscussionLoading(false);
     }
   };
 
-  const handleSwitchProvider = async (newProvider: "gemini" | "opencode_zen") => {
-    setSelectedProvider(newProvider);
-    if (!activeScenarioModal) return;
-    await handleOpenDiscussion(activeScenarioModal, newProvider);
+  const handleRetryQuestion = async (assistantIdx: number) => {
+    if (retryingIndex !== null || isSubmittingQuestion || !activeScenarioModal || !selectedTicker) return;
+    let questionText = "";
+    for (let i = assistantIdx - 1; i >= 0; i--) {
+      if (chatHistory[i].role === "user") {
+        questionText = chatHistory[i].text;
+        break;
+      }
+    }
+    if (!questionText) return;
+
+    setRetryingIndex(assistantIdx);
+    try {
+      const res = await api.discussRecovery(selectedTicker, {
+        scenario_id: activeScenarioModal,
+        user_question: questionText,
+        provider: "9router",
+        force_refresh: true
+      });
+      if (res && res.answer) {
+        setChatHistory((prev) => {
+          const next = [...prev];
+          next[assistantIdx] = {
+            role: "assistant",
+            text: res.answer,
+            source: res.source
+          };
+          return next;
+        });
+      }
+    } catch (err) {
+      console.warn("Retry question error:", err);
+    } finally {
+      setRetryingIndex(null);
+    }
+  };
+
+  const handleOpenDiscussion = async (scenarioId: string) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    const requestId = ++latestRequestIdRef.current;
+    setActiveScenarioModal(scenarioId);
+    setIsDiscussionLoading(true);
+    setChatHistory([]);
+    setCustomQuestion("");
+    try {
+      const [res, history] = await Promise.all([
+        api.discussRecovery(selectedTicker, { scenario_id: scenarioId, provider: "9router" }),
+        api.getRecoveryChatHistory(selectedTicker, scenarioId).catch(() => [])
+      ]);
+      if (requestId === latestRequestIdRef.current) {
+        if (res) {
+          setDiscussionData(res);
+        }
+        if (history && history.length > 0) {
+          setChatHistory(
+            history.map((item: RecoveryChatMessage) => ({
+              role: item.role,
+              text: item.message,
+              source: item.source
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.warn("Error loading scenario discussion:", err);
+    } finally {
+      if (requestId === latestRequestIdRef.current) {
+        setIsDiscussionLoading(false);
+      }
+    }
   };
 
   const handleClearChatHistory = async () => {
@@ -102,7 +166,7 @@ export default function RecoveryPage() {
       const res = await api.discussRecovery(selectedTicker, {
         scenario_id: activeScenarioModal,
         user_question: q,
-        provider: selectedProvider
+        provider: "9router"
       });
       if (res && res.answer) {
         setChatHistory((prev) => [...prev, { role: "assistant", text: res.answer, source: res.source }]);
@@ -118,6 +182,10 @@ export default function RecoveryPage() {
   };
 
   const handleCloseDiscussion = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    latestRequestIdRef.current++;
     setActiveScenarioModal(null);
     setDiscussionData(null);
     setChatHistory([]);
@@ -835,55 +903,32 @@ export default function RecoveryPage() {
                     </h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                    {discussionData?.source === "gemini" ? (
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Google Gemini AI
-                      </span>
-                    ) : discussionData?.source === "opencode_zen" ? (
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 flex items-center gap-1">
-                        <Bot className="w-3.5 h-3.5 text-indigo-600" /> OpenCode Zen AI
+                    {discussionData?.source === "9router" ? (
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> 9Router AI
                       </span>
                     ) : (
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 shadow-2xs">
                         ⚡ Rule-Based Expert Engine
                       </span>
                     )}
+
+                    {discussionData?.fromDb ? (
+                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-2xs" title="Data hasil analisis diambil dari cache database lokal (0 Token AI terpakai)">
+                        <Database className="w-3 h-3 text-purple-600" /> Tersimpan di Database (0 Token)
+                      </span>
+                    ) : discussionData?.source && discussionData.source !== "rule_based" ? (
+                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-emerald-600" /> Live AI Analysis
+                      </span>
+                    ) : null}
+
                     <span className="text-xs text-slate-500">• Analisis Mendalam &amp; Tanya Jawab</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 self-end sm:self-center">
-                {/* Provider Selector Switcher */}
-                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-medium border border-slate-200">
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchProvider("gemini")}
-                    disabled={isDiscussionLoading}
-                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 text-[11px] ${
-                      selectedProvider === "gemini"
-                        ? "bg-white text-emerald-800 shadow-2xs font-bold border border-emerald-200"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    <Sparkles className="w-3 h-3 text-emerald-600" />
-                    <span>Gemini</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchProvider("opencode_zen")}
-                    disabled={isDiscussionLoading}
-                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 text-[11px] ${
-                      selectedProvider === "opencode_zen"
-                        ? "bg-white text-indigo-800 shadow-2xs font-bold border border-indigo-200"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    <Bot className="w-3 h-3 text-indigo-600" />
-                    <span>Zen</span>
-                  </button>
-                </div>
-
                 <button
                   type="button"
                   onClick={handleCloseDiscussion}
@@ -903,6 +948,25 @@ export default function RecoveryPage() {
                 </div>
               ) : discussionData?.deepDive ? (
                 <>
+                  {/* Alert Banner if result is Rule-Based with Retry button */}
+                  {discussionData?.source === "rule_based" && (
+                    <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Analisis saat ini menggunakan <strong>Expert Rule-Based Engine</strong>. Anda dapat mencoba analisis ulang dengan AI.</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRetryDeepDive}
+                        disabled={isDiscussionLoading}
+                        className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-2xs self-start sm:self-auto"
+                      >
+                        <RotateCw className={`w-3.5 h-3.5 ${isDiscussionLoading ? "animate-spin" : ""}`} />
+                        <span>Coba Ulang dengan AI</span>
+                      </button>
+                    </div>
+                  )}
+
                   {/* 4 Deep Dive Cards */}
                   <div className="space-y-3">
                     {/* Core Logic */}
@@ -996,28 +1060,59 @@ export default function RecoveryPage() {
                             key={idx}
                             className={`p-3.5 rounded-xl text-xs leading-relaxed ${
                               item.role === "user"
-                                ? "bg-purple-100 text-purple-900 ml-8 border border-purple-200"
-                                : "bg-slate-100 text-slate-800 mr-4 border border-slate-200"
+                                ? "bg-purple-100/70 text-purple-900 ml-8 border border-purple-200 shadow-2xs"
+                                : "bg-slate-100/90 text-slate-800 mr-4 border border-slate-200 shadow-2xs"
                             }`}
                           >
-                            <div className="flex items-center justify-between mb-1">
-                              <strong className="block text-xs uppercase font-mono font-semibold opacity-75">
+                            <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200/50">
+                              <strong className="block text-xs uppercase font-mono font-bold opacity-80">
                                 {item.role === "user" ? "Pertanyaan Anda" : "Jawaban AI Copilot"}
                               </strong>
-                              {item.role === "assistant" && item.source && (
-                                <span className={`text-[10px] px-1.5 py-0.2 rounded font-sans font-bold ${
-                                  item.source === "opencode_zen"
-                                    ? "bg-indigo-100 text-indigo-800"
-                                    : item.source === "gemini"
-                                    ? "bg-emerald-100 text-emerald-800"
-                                    : "bg-slate-200 text-slate-700"
-                                }`}>
-                                  {item.source === "opencode_zen" ? "OpenCode Zen" : item.source === "gemini" ? "Gemini" : "Rule-Based"}
-                                </span>
+                              {item.role === "assistant" && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-md font-sans font-bold flex items-center gap-1 border shadow-2xs ${
+                                    item.source === "9router"
+                                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                      : "bg-slate-200/80 text-slate-700 border-slate-300"
+                                  }`}>
+                                    {item.source === "9router" ? (
+                                      <>
+                                        <Sparkles className="w-3 h-3 text-emerald-600" />
+                                        <span>Dibalas oleh 9Router AI</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>⚡ Dibalas oleh Rule-Based</span>
+                                      </>
+                                    )}
+                                  </span>
+
+                                  {item.source === "rule_based" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRetryQuestion(idx)}
+                                      disabled={retryingIndex !== null || isSubmittingQuestion}
+                                      className="text-[10px] px-2 py-0.5 rounded-md font-sans font-bold flex items-center gap-1 bg-white hover:bg-purple-50 text-purple-700 hover:text-purple-900 border border-purple-200 transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                                      title="Kirim ulang pertanyaan ke model AI"
+                                    >
+                                      {retryingIndex === idx ? (
+                                        <>
+                                          <div className="w-2.5 h-2.5 border-1.5 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                                          <span>Mencoba AI...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <RotateCw className="w-2.5 h-2.5 text-purple-600" />
+                                          <span>Coba Lagi dengan AI</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </div>
                             {item.role === "user" ? (
-                              <div className="whitespace-pre-line">{item.text}</div>
+                              <div className="whitespace-pre-line font-medium">{item.text}</div>
                             ) : (
                               <MarkdownText content={item.text} className="text-xs leading-relaxed text-slate-800" />
                             )}

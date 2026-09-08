@@ -83,9 +83,33 @@ class RecoveryChatLog(Base):
     scenario_id = Column(String, nullable=False, index=True)
     role = Column(String, nullable=False) # 'user' or 'assistant'
     message = Column(Text, nullable=False)
-    source = Column(String, nullable=True) # 'gemini' or 'rule_based'
+    source = Column(String, nullable=True) # 'gemini' | 'opencode_zen' | 'openrouter' | '9router' | 'rule_based'
     session_date = Column(Date, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class CopilotChatLog(Base):
+    __tablename__ = "copilot_chat_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    ticker = Column(String, nullable=False, index=True)
+    role = Column(String, nullable=False) # 'user' or 'assistant'
+    message = Column(Text, nullable=False)
+    source = Column(String, nullable=True) # '9router' | 'rule_based'
+    session_date = Column(Date, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class RecoveryDeepDive(Base):
+    __tablename__ = "recovery_deepdives"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    ticker = Column(String, nullable=False, index=True)
+    scenario_id = Column(String, nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    source = Column(String, nullable=False) # 'gemini' | 'opencode_zen' | 'openrouter' | '9router' | 'rule_based'
+    deep_dive_data = Column(Text, nullable=False) # JSON representation of 4 pillars
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (UniqueConstraint('ticker', 'scenario_id', 'date', 'source', name='uix_deepdive_ticker_scenario_date_src'),)
 
 class UserSetting(Base):
     __tablename__ = "user_settings"

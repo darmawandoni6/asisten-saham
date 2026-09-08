@@ -1,10 +1,11 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from database import SessionLocal
-from models import Holding, RecoveryChatLog
+from models import Holding, RecoveryChatLog, CopilotChatLog
 from services.data_fetcher import fetch_and_store_stock_data
 from services.portfolio_engine import evaluate_holding_status
 from services.telegram_bot import send_telegram_notification
 from services.market_calendar import is_active_trading_day, get_holiday_name
+from services.ai_copilot import analyze_holding_with_ai
 from datetime import datetime
 
 scheduler = BackgroundScheduler()
@@ -35,21 +36,30 @@ def run_eod_market_pipeline():
                     "open": float(last_row["open"]),
                     "ma20": float(last_row["ma20"]),
                     "ma50": float(last_row["ma50"]),
-                    "rsi": float(last_row["rsi"])
+                    "rsi": float(last_row["rsi"]),
+                    "support": float(last_row.get("support") or 0),
+                    "resistance": float(last_row.get("resistance") or 0)
                 }
                 card = evaluate_holding_status(h, candle, db)
                 if card["actionStatus"] in ["SELL_CUT_LOSS", "TRAILING_STOP_WARNING", "TAKE_PROFIT"]:
                     urgent_actions.append(f"• *{card['ticker']}*: {card['actionStatus']} ({card['actionReason']})")
+
+                # Pre-warm AI Analysis cache for instant user experience
+                try:
+                    analyze_holding_with_ai(h, candle, db)
+                except Exception as ai_e:
+                    print(f"[Scheduler] Pre-warming AI untuk {h.ticker} dilewati: {ai_e}")
 
         if urgent_actions:
             msg = "🔔 *Asisten Saham — EOD Alert 17:30 WIB*\n\n" + "\n".join(urgent_actions)
             send_telegram_notification(msg)
             print("[Scheduler] Telegram notification terkirim.")
 
-        # Purge temporary recovery discussion chat history HANYA pada market close hari bursa aktif
+        # Purge temporary recovery discussion & copilot chat history HANYA pada market close hari bursa aktif
         deleted_chats = db.query(RecoveryChatLog).delete()
+        deleted_copilot = db.query(CopilotChatLog).delete()
         db.commit()
-        print(f"[Scheduler] EOD Market Close: {deleted_chats} riwayat chat diskusi recovery berhasil dibersihkan untuk siklus bursa baru.")
+        print(f"[Scheduler] EOD Market Close: {deleted_chats} chat recovery & {deleted_copilot} chat copilot berhasil dibersihkan untuk siklus bursa baru.")
     except Exception as e:
         print(f"[Scheduler] Error pipeline: {e}")
     finally:

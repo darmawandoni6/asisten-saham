@@ -146,7 +146,9 @@ export interface RecoveryDiagnosis {
 
 export interface RecoveryDiscussion {
   status: string;
-  source: 'gemini' | 'opencode_zen' | 'rule_based';
+  source: 'gemini' | 'opencode_zen' | 'openrouter' | '9router' | 'rule_based';
+  fromDb?: boolean;
+  createdAt?: string;
   hasApiKey?: boolean;
   scenarioId: string;
   scenarioTitle: string;
@@ -165,6 +167,16 @@ export interface RecoveryChatMessage {
   id?: number;
   ticker: string;
   scenarioId: string;
+  role: 'user' | 'assistant';
+  message: string;
+  source?: string;
+  sessionDate?: string;
+  createdAt?: string;
+}
+
+export interface CopilotChatMessage {
+  id?: number;
+  ticker: string;
   role: 'user' | 'assistant';
   message: string;
   source?: string;
@@ -258,7 +270,7 @@ export interface AICopilotAnalysisResult {
 }
 
 export interface AIProviderInfo {
-  id: 'gemini' | 'opencode_zen';
+  id: 'gemini' | 'opencode_zen' | 'openrouter' | '9router';
   name: string;
   model: string;
   base_url?: string;
@@ -267,7 +279,7 @@ export interface AIProviderInfo {
 }
 
 export interface AIProvidersResponse {
-  active_provider: 'gemini' | 'opencode_zen';
+  active_provider: 'gemini' | 'opencode_zen' | 'openrouter' | '9router';
   providers: AIProviderInfo[];
 }
 
