@@ -50,7 +50,7 @@ export function Topbar({
   };
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+    <header className="h-16 border-b border-slate-200 bg-white/90 backdrop-blur-md p-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
       <div>
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">{title}</h2>
         <p className="text-[11px] text-slate-500">{subtitle}</p>

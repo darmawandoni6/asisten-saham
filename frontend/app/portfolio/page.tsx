@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   Calculator,
@@ -76,7 +76,7 @@ export default function PortfolioPage() {
     }
   };
 
-  const loadPortfolio = async () => {
+  const loadPortfolio = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await api.getDashboard();
@@ -96,10 +96,39 @@ export default function PortfolioPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadPortfolio();
+    let isMounted = true;
+
+    api
+      .getDashboard()
+      .then(async data => {
+        if (!isMounted) return;
+        if (data && data.holdings) {
+          setHoldings(data.holdings);
+        }
+        if (data && data.summary && data.summary.cashBalance !== undefined) {
+          setCashBalance(data.summary.cashBalance);
+        } else {
+          const balRes = await api.getCashBalance().catch(() => null);
+          if (isMounted && balRes && balRes.cash_balance !== undefined) {
+            setCashBalance(balRes.cash_balance);
+          }
+        }
+      })
+      .catch(e => {
+        console.warn('Portfolio API offline:', e);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleAddHolding = async (e: React.FormEvent) => {

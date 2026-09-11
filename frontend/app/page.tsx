@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
-import { Layers, PlusCircle, TrendingUp } from 'lucide-react';
+import { PlusCircle, TrendingUp } from 'lucide-react';
 
 import { AICopilotPanel } from '@/components/AICopilotPanel';
 import { ActionCard } from '@/components/ActionCard';
@@ -13,6 +13,10 @@ import { DailyActionSheet } from '@/components/DailyActionSheet';
 import { EditBalanceModal } from '@/components/EditBalanceModal';
 import { PortfolioSummaryCards } from '@/components/PortfolioSummaryCards';
 import { Topbar } from '@/components/Topbar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { api } from '@/lib/api';
 import { Holding, PortfolioSummary } from '@/types';
 
@@ -40,7 +44,7 @@ export default function DashboardPage() {
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await api.getDashboard();
@@ -53,10 +57,31 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadDashboard();
+    let isMounted = true;
+
+    api
+      .getDashboard()
+      .then(data => {
+        if (isMounted && data) {
+          setHoldings(data.holdings || []);
+          setSummary(data.summary || INITIAL_SUMMARY);
+        }
+      })
+      .catch(err => {
+        console.warn('Backend API offline:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleOpenChart = (holding: Holding) => {
@@ -74,7 +99,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
+    <div className="flex-1 flex flex-col min-h-0 bg-slate-50 pb-16">
       <Topbar
         title="Smart Decision Dashboard (EOD Analysis)"
         subtitle="Rekomendasi objektif Hold / Sell / Buy berdasarkan data closing 17:30 WIB"
@@ -86,15 +111,15 @@ export default function DashboardPage() {
         <PortfolioSummaryCards summary={summary} onEditCashBalance={() => setIsBalanceModalOpen(true)} />
 
         {/* 1. Core Feature: Smart Action Cards */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>Smart Action Cards</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-base font-bold text-slate-900">Smart Action Cards</h2>
+                <Badge variant="secondary" className="font-mono text-xs font-semibold">
                   {holdings.length} Saham Terpantau
-                </span>
-              </h2>
+                </Badge>
+              </div>
               <p className="text-xs text-slate-500 mt-0.5">
                 Kartu ringkasan status harian dengan 5 indikator warna tegas (Cut Loss, Take Profit, Hold, Trailing
                 Stop, Recovery)
@@ -102,7 +127,26 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {holdings.length > 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map(idx => (
+                <Card key={idx} className="p-5 animate-pulse border-slate-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div className="h-6 w-24 bg-slate-200 rounded" />
+                    <div className="h-5 w-20 bg-slate-200 rounded" />
+                  </div>
+                  <div className="py-6 space-y-3">
+                    <div className="h-4 w-32 bg-slate-200 rounded" />
+                    <div className="h-8 w-48 bg-slate-200 rounded" />
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 flex gap-2">
+                    <div className="h-8 flex-1 bg-slate-200 rounded-lg" />
+                    <div className="h-8 flex-1 bg-slate-200 rounded-lg" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : holdings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {holdings.map(holding => (
                 <ActionCard
@@ -114,23 +158,28 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-2xs flex flex-col items-center justify-center">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Belum Ada Saham di Portofolio</h3>
-              <p className="text-xs text-slate-500 max-w-sm mb-5">
-                Mulai masukkan trading plan pertama Anda (Ticker, Avg Price Beli, Lot, Target Price, dan Stop Loss)
-                untuk memantau status aksi harian.
-              </p>
-              <Link
-                href="/portfolio"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-2xs transition-colors"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Tambah Saham Pertama</span>
-              </Link>
-            </div>
+            <Card className="border-slate-200 bg-white p-10 text-center shadow-2xs flex flex-col items-center justify-center">
+              <CardHeader className="p-0 pb-3 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <CardTitle className="text-sm font-bold text-slate-900 normal-case tracking-normal">
+                  Belum Ada Saham di Portofolio
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 max-w-sm">
+                  Mulai masukkan trading plan pertama Anda (Ticker, Avg Price Beli, Lot, Target Price, dan Stop Loss)
+                  untuk memantau status aksi harian.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 pt-4">
+                <Button asChild variant="emerald" size="sm" className="gap-2 rounded-xl">
+                  <Link href="/portfolio">
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Tambah Saham Pertama</span>
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           )}
         </div>
 
@@ -142,19 +191,25 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Modal / Dialog for Chart */}
-      {activeModal === 'chart' && selectedHolding && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="max-w-4xl w-full">
+      {/* Modal / Dialog for Candlestick Chart (shadcn/ui Dialog) */}
+      <Dialog open={activeModal === 'chart' && !!selectedHolding} onOpenChange={open => !open && closeModal()}>
+        <DialogContent className="max-w-4xl p-0 border-none bg-transparent shadow-none [&>button]:hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Grafik Candlestick {selectedHolding?.ticker}</DialogTitle>
+            <DialogDescription>
+              Grafik teknikal candlestick harian untuk saham {selectedHolding?.ticker}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedHolding && (
             <CandlestickChart
               ticker={selectedHolding.ticker}
               candles={[]}
               holding={selectedHolding}
               onClose={closeModal}
             />
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal / Dialog for AI Copilot (shadcn/ui Dialog) */}
       {selectedHolding && (
@@ -174,6 +229,6 @@ export default function DashboardPage() {
           loadDashboard();
         }}
       />
-    </main>
+    </div>
   );
 }
