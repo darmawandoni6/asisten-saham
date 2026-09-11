@@ -5,6 +5,21 @@ import { usePathname } from 'next/navigation';
 
 import { BookOpen, Briefcase, HelpCircle, LayoutDashboard, LifeBuoy, Search, Sparkles, TrendingUp } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Sidebar as BaseSidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -44,80 +59,98 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 shadow-sm">
-      <div>
-        {/* Brand Logo & Name (Stockbit Clean Green Accent) */}
-        <div className="h-16 px-6 flex items-center gap-3 border-b border-slate-100 bg-white">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-sm text-white">
-            <TrendingUp className="w-5 h-5" />
+    <BaseSidebar
+      collapsible="none"
+      className="w-64 h-screen max-h-screen sticky top-0 bg-white border-r border-slate-200 shrink-0 shadow-xs z-20 flex flex-col justify-between"
+    >
+      {/* 1. Header (Brand Logo & Name) */}
+      <SidebarHeader className="h-16 px-5 flex flex-row items-center gap-3 bg-white shrink-0 space-y-0">
+        <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-2xs text-white shrink-0">
+          <TrendingUp className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h1 className="font-bold text-slate-900 text-sm tracking-tight truncate">Asisten Saham</h1>
+            <Badge variant="emerald" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase shrink-0">
+              IDX
+            </Badge>
           </div>
+          <p className="text-[11px] text-slate-500 font-medium truncate">EOD Decision Copilot</p>
+        </div>
+      </SidebarHeader>
+
+      <SidebarSeparator />
+
+      {/* 2. Scrollable Navigation Content */}
+      <SidebarContent className="px-3 py-4">
+        <SidebarGroup className="p-0 space-y-4">
           <div>
-            <h1 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
-              Asisten Saham
-              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                IDX
-              </span>
-            </h1>
-            <p className="text-[11px] text-slate-500 font-medium">EOD Decision Copilot</p>
+            <SidebarGroupLabel className="px-3 mb-1">Menu Utama</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {NAV_ITEMS.map(item => {
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link href={item.href}>
+                          <Icon
+                            className={cn(
+                              'w-4 h-4 transition-colors shrink-0',
+                              isActive ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600',
+                            )}
+                          />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
           </div>
-        </div>
 
-        {/* Navigation Items */}
-        <div className="px-3 py-5 space-y-1">
-          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase mb-2">Menu Utama</p>
-          {NAV_ITEMS.map(item => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group',
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-800 font-semibold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon
-                    className={cn(
-                      'w-4 h-4 transition-colors',
-                      isActive ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600',
-                    )}
-                  />
-                  <span>{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+          {/* EOD Session Schedule Card */}
+          <Card className="bg-slate-50/80 border-slate-200/80 shadow-none">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 text-slate-700 text-xs font-bold mb-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Siklus Kerja EOD</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah
+                penutupan bursa IDX untuk aksi esok hari.
+              </p>
+            </CardContent>
+          </Card>
+        </SidebarGroup>
+      </SidebarContent>
 
-        {/* EOD Session Schedule Box */}
-        <div className="mx-3 mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <div className="flex items-center gap-2 text-slate-700 text-xs font-bold mb-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Siklus Kerja EOD</span>
-          </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah
-            penutupan bursa IDX untuk aksi esok hari.
-          </p>
-        </div>
-      </div>
+      <SidebarSeparator />
 
-      {/* AI Copilot Status & Footer */}
-      <div className="p-4 border-t border-slate-100 bg-white">
-        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <div className="flex items-center gap-2 text-slate-800 text-xs font-bold mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>AI Copilot Active</span>
-          </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            Gemini 2.0 Flash mengevaluasi closing bursa jam 17:30 WIB secara objektif.
-          </p>
-        </div>
-      </div>
-    </aside>
+      {/* 3. Footer (AI Copilot Status) */}
+      <SidebarFooter className="p-3 bg-white shrink-0">
+        <Card className="bg-slate-50/80 border-slate-200/80 shadow-none">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-1.5 text-slate-800 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>AI Copilot</span>
+              </div>
+              <Badge variant="emerald" className="text-[9px] px-1.5 py-0 h-4 font-semibold">
+                Aktif
+              </Badge>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Mengevaluasi closing bursa jam 17:30 WIB secara objektif.
+            </p>
+          </CardContent>
+        </Card>
+      </SidebarFooter>
+    </BaseSidebar>
   );
 }
