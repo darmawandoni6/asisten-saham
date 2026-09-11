@@ -2,6 +2,8 @@
 
 import { PieChart } from 'lucide-react';
 
+import { Card } from '@/components/ui/card';
+
 interface SectorAllocationCardProps {
   sectorMap: Record<string, number>;
   totalCost: number;
@@ -10,7 +12,7 @@ interface SectorAllocationCardProps {
 
 export function SectorAllocationCard({ sectorMap, totalCost, hasHoldings }: SectorAllocationCardProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+    <Card className="rounded-xl border-slate-200 bg-white p-5 shadow-2xs">
       <div className="mb-4 flex items-center gap-2 text-xs font-bold tracking-wider text-slate-900 uppercase">
         <PieChart className="h-4 w-4 text-emerald-600" />
         <span>Money Management: Alokasi Sektor</span>
@@ -35,6 +37,6 @@ export function SectorAllocationCard({ sectorMap, totalCost, hasHoldings }: Sect
       ) : (
         <p className="py-6 text-center text-xs text-slate-400">Belum ada saham untuk dihitung alokasi sektornya.</p>
       )}
-    </div>
+    </Card>
   );
 }

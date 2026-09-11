@@ -2,6 +2,7 @@
 
 import { Plus, Wallet } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { formatRupiah } from '@/lib/utils';
 
 interface PortfolioHeaderProps {
@@ -31,23 +32,27 @@ export function PortfolioHeader({ cashBalance, onOpenEditBalance, onOpenAddHoldi
               {formatRupiah(cashBalance)}
             </span>
           </div>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={onOpenEditBalance}
-            className="ml-1 cursor-pointer rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+            className="ml-1 h-6 rounded-lg border-emerald-200 bg-emerald-50 px-2 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100"
           >
             ✏️ Edit
-          </button>
+          </Button>
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="emerald"
+          size="sm"
           onClick={onOpenAddHolding}
-          className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-2xs transition-all hover:bg-emerald-500"
+          className="gap-2 rounded-xl text-xs font-semibold shadow-2xs"
         >
           <Plus className="h-4 w-4" />
           <span>Tambah Saham Baru</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

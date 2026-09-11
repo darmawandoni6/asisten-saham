@@ -2,6 +2,9 @@
 
 import { Inbox, LineChart, Tag, Trash2 } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { formatNumber, formatPercent, formatRupiah } from '@/lib/utils';
 import { Holding } from '@/types';
 
@@ -14,7 +17,7 @@ interface PortfolioTableProps {
 
 export function PortfolioTable({ holdings, onOpenChart, onSellHolding, onDeleteHolding }: PortfolioTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
+    <Card className="overflow-hidden rounded-xl border-slate-200 bg-white shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
@@ -44,13 +47,19 @@ export function PortfolioTable({ holdings, onOpenChart, onSellHolding, onDeleteH
                     <td className="px-3 py-3.5 font-mono font-bold text-slate-900">{h.ticker}</td>
                     <td className="px-3 py-3.5">
                       {h.jenis === 'investasi' ? (
-                        <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                        <Badge
+                          variant="outline"
+                          className="border-indigo-200 bg-indigo-100 text-[10px] font-semibold text-indigo-700"
+                        >
                           📈 Investasi
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                        <Badge
+                          variant="outline"
+                          className="border-amber-200 bg-amber-100 text-[10px] font-semibold text-amber-700"
+                        >
                           ⚡ Trading
-                        </span>
+                        </Badge>
                       )}
                     </td>
                     <td className="px-3 py-3.5 text-[11px] text-slate-500">{h.sector || '—'}</td>
@@ -83,34 +92,40 @@ export function PortfolioTable({ holdings, onOpenChart, onSellHolding, onDeleteH
                       )}
                     </td>
                     <td className="px-3 py-3.5 text-center">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => onOpenChart(h)}
-                        className="rounded-lg bg-slate-100 p-1.5 text-slate-700 transition-colors hover:bg-slate-200"
+                        className="h-7 w-7 p-0 text-slate-700 hover:bg-slate-200"
                         title="Buka Chart"
                       >
                         <LineChart className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </td>
                     <td className="px-3 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button
+                        <Button
                           type="button"
+                          variant="outline"
+                          size="sm"
                           onClick={() => onSellHolding(h)}
-                          className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                          className="h-7 gap-1 border-emerald-200 bg-emerald-50 px-2.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
                           title="Jual saham / Take Profit / Cut Loss"
                         >
                           <Tag className="h-3 w-3" />
                           <span>Jual</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => onDeleteHolding(h.id)}
-                          className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 p-1.5 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                          className="h-7 w-7 border-slate-200 bg-slate-50 p-0 text-slate-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                           title="Hapus manual dari pencatatan"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -130,6 +145,6 @@ export function PortfolioTable({ holdings, onOpenChart, onSellHolding, onDeleteH
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -14,6 +14,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { formatNumber, formatPercent, formatRupiah } from '@/lib/utils';
 import { ActionType, Holding } from '@/types';
 
@@ -108,8 +111,8 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
   const isProfit = holding.floatingPnl >= 0;
 
   return (
-    <div
-      className={`rounded-xl border border-slate-200 bg-white ${config.topBorder} flex flex-col justify-between p-5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs`}
+    <Card
+      className={`rounded-xl border-slate-200 bg-white ${config.topBorder} flex flex-col justify-between p-5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs`}
     >
       <div>
         {/* Header: Ticker, Name, Status Badge */}
@@ -117,21 +120,22 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-lg font-bold tracking-tight text-slate-900">{holding.ticker}</span>
-              <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
+              <Badge variant="secondary" className="text-[10px] font-bold text-slate-600 uppercase">
                 {holding.sector}
-              </span>
+              </Badge>
             </div>
             <p className="mt-0.5 max-w-[210px] truncate text-xs text-slate-500" title={holding.name}>
               {holding.name}
             </p>
           </div>
 
-          <span
-            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-bold ${config.badgeBg}`}
+          <Badge
+            variant="outline"
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold ${config.badgeBg}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${config.indicatorDot}`} />
             {config.title}
-          </span>
+          </Badge>
         </div>
 
         {/* Pricing Metrics Grid */}
@@ -208,24 +212,28 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
 
       {/* Footer Action Buttons */}
       <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={() => onSelectStock?.(holding)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+          className="flex-1 gap-1.5 text-xs font-semibold"
         >
           <LineChart className="h-3.5 w-3.5 text-slate-500" />
           <span>Buka Chart</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onOpenAI?.(holding)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
+          className="flex-1 gap-1.5 border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-800 hover:bg-emerald-100"
         >
           <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
           <span>AI Copilot</span>
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

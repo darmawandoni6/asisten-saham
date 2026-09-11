@@ -1,6 +1,6 @@
-'use client';
-
 import React from 'react';
+
+import { cn } from '@/lib/utils';
 
 interface MarkdownTextProps {
   content: string;
@@ -132,7 +132,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
 
     flushList();
     elements.push(
-      <p key={`p-${idx}`} className="mb-2 leading-relaxed text-slate-700 last:mb-0">
+      <p key={`p-${idx}`} className="mb-2 leading-relaxed text-slate-700">
         {parseInlineFormatting(line)}
       </p>,
     );
@@ -140,5 +140,5 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
 
   flushList();
 
-  return <div className={`text-sm ${className}`}>{elements}</div>;
+  return <div className={cn('text-sm', className)}>{elements}</div>;
 }
