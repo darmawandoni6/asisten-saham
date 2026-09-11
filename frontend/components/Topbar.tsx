@@ -1,13 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
 import { Bell, Clock, HelpCircle, RefreshCw, Send } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { api } from '@/lib/api';
+import { cn } from '@/lib/utils';
+import { MarketStatus } from '@/types';
 
 interface TopbarProps {
   title?: string;
@@ -21,13 +25,22 @@ export function Topbar({
   onRefresh,
 }: TopbarProps) {
   const [isSyncing, setIsSyncing] = useState(false);
-  const [marketStatus, setMarketStatus] = useState<any>(null);
+  const [marketStatus, setMarketStatus] = useState<MarketStatus | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    let isMounted = true;
     api
       .getMarketStatus()
-      .then(setMarketStatus)
+      .then(res => {
+        if (isMounted && res) {
+          setMarketStatus(res as MarketStatus);
+        }
+      })
       .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSyncEOD = async () => {
@@ -38,7 +51,9 @@ export function Topbar({
       onRefresh?.();
       api
         .getMarketStatus()
-        .then(setMarketStatus)
+        .then(res => {
+          if (res) setMarketStatus(res);
+        })
         .catch(() => {});
     } catch (e) {
       console.warn('Sync EOD fallback:', e);
@@ -50,83 +65,93 @@ export function Topbar({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 p-6 shadow-2xs backdrop-blur-md">
-      <div>
-        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">{title}</h2>
-        <p className="text-[11px] text-slate-500">{subtitle}</p>
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/95 px-6 shadow-2xs backdrop-blur-md">
+      <div className="flex items-center gap-3">
+        <SidebarTrigger className="md:hidden" />
+        <div>
+          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">{title}</h2>
+          <p className="text-[11px] text-slate-500">{subtitle}</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* Dynamic Market Status Pill */}
         <div
           className="hidden cursor-default items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs shadow-2xs sm:flex"
           title={marketStatus?.description || 'Jadwal Sinkronisasi EOD Penutupan Pasar BEI'}
         >
-          <Clock className={`h-3.5 w-3.5 ${marketStatus?.isOpen ? 'text-emerald-600' : 'text-slate-500'}`} />
+          <Clock className={cn('h-3.5 w-3.5', marketStatus?.isOpen ? 'text-emerald-600' : 'text-slate-500')} />
           <span className="text-[11px] text-slate-500">Status BEI:</span>
-          <span
-            className={`flex items-center gap-1.5 text-[11px] font-semibold ${
-              marketStatus?.isOpen
-                ? 'text-emerald-700'
-                : marketStatus?.status === 'MARKET_BREAK'
-                  ? 'text-amber-700'
-                  : 'text-slate-700'
-            }`}
+          <Badge
+            variant={marketStatus?.isOpen ? 'emerald' : marketStatus?.status === 'MARKET_BREAK' ? 'amber' : 'secondary'}
+            className="gap-1 px-1.5 py-0 text-[10px] font-semibold"
           >
             <span
-              className={`h-2 w-2 rounded-full ${
+              className={cn(
+                'h-1.5 w-1.5 rounded-full',
                 marketStatus?.isOpen
                   ? 'animate-pulse bg-emerald-600'
                   : marketStatus?.status === 'MARKET_BREAK'
                     ? 'bg-amber-500'
-                    : 'bg-slate-400'
-              }`}
+                    : 'bg-slate-400',
+              )}
             />
             {marketStatus?.badgeText || 'EOD 17:30 WIB'}
-          </span>
+          </Badge>
         </div>
 
         {/* Action: Sync yfinance */}
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleSyncEOD}
           disabled={isSyncing}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+          className="gap-1.5 border-slate-300 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50"
         >
-          <RefreshCw className={`h-3.5 w-3.5 text-slate-500 ${isSyncing ? 'animate-spin text-emerald-600' : ''}`} />
+          <RefreshCw className={cn('h-3.5 w-3.5 text-slate-500', isSyncing && 'animate-spin text-emerald-600')} />
           <span>{isSyncing ? 'Menarik Data...' : 'Tarik EOD'}</span>
-        </button>
+        </Button>
 
         {/* Action: Test Telegram alert */}
-        <button
+        <Button
           type="button"
+          variant="emerald"
+          size="sm"
           onClick={() => alert('Daily Action Sheet berhasil dikirimkan ke Bot Telegram Anda!')}
-          className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs transition-colors hover:bg-emerald-500"
+          className="gap-1.5 text-xs font-semibold shadow-2xs"
           title="Kirim Ringkasan Sore ke Telegram"
         >
           <Send className="h-3.5 w-3.5" />
           <span className="hidden md:inline">Telegram Bot</span>
-        </button>
+        </Button>
 
         {/* Panduan Cara Pakai Link Button */}
-        <Link
-          href="/guide"
-          className="flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-2xs transition-colors hover:bg-emerald-100"
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="gap-1.5 border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-100 hover:text-emerald-900"
           title="Buka Panduan & Cara Pakai Aplikasi"
         >
-          <HelpCircle className="h-3.5 w-3.5 text-emerald-700" />
-          <span className="hidden sm:inline">Panduan Pakai</span>
-        </Link>
+          <Link href="/guide">
+            <HelpCircle className="h-3.5 w-3.5 text-emerald-700" />
+            <span className="hidden sm:inline">Panduan Pakai</span>
+          </Link>
+        </Button>
 
         {/* Notification Bell */}
         <div className="relative">
-          <button
+          <Button
             type="button"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-2xs transition-colors hover:text-slate-900"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 text-slate-600 shadow-2xs hover:text-slate-900"
+            title="Notifikasi"
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-rose-600 ring-2 ring-white" />
-          </button>
+            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-rose-600 ring-2 ring-white" />
+          </Button>
         </div>
       </div>
     </header>

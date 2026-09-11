@@ -42,8 +42,8 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
       await api.updateCashBalance(numericValue);
       onSuccess(numericValue);
       onClose();
-    } catch (err: any) {
-      setError(err?.message || 'Gagal memperbarui saldo kas.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Gagal memperbarui saldo kas.');
     } finally {
       setIsSaving(false);
     }

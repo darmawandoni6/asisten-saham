@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -71,8 +70,8 @@ function SellHoldingModalContent({
       });
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err?.message || 'Gagal mengeksekusi penjualan saham.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Gagal mengeksekusi penjualan saham.');
     } finally {
       setIsSubmitting(false);
     }

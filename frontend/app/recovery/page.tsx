@@ -101,7 +101,7 @@ export default function RecoveryPage() {
           const next = [...prev];
           next[assistantIdx] = {
             role: 'assistant',
-            text: res.answer,
+            text: res.answer || '',
             source: res.source,
           };
           return next;
@@ -174,7 +174,7 @@ export default function RecoveryPage() {
         provider: '9router',
       });
       if (res && res.answer) {
-        setChatHistory(prev => [...prev, { role: 'assistant', text: res.answer, source: res.source }]);
+        setChatHistory(prev => [...prev, { role: 'assistant', text: res.answer || '', source: res.source }]);
       }
     } catch {
       setChatHistory(prev => [

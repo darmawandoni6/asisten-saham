@@ -317,7 +317,7 @@ export default function JournalPage() {
                   value={ticker}
                   onChange={e => setTicker(e.target.value)}
                   required
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 uppercase focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 uppercase focus:outline-none"
                 />
               </div>
 
@@ -326,8 +326,8 @@ export default function JournalPage() {
                   <label className="mb-1 block font-medium text-slate-700">Aksi</label>
                   <select
                     value={action}
-                    onChange={e => setAction(e.target.value as any)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    onChange={e => setAction(e.target.value as 'SELL' | 'CUT_LOSS')}
+                    className="w-full rounded-lg border bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                   >
                     <option value="SELL">SELL (Take Profit)</option>
                     <option value="CUT_LOSS">CUT LOSS</option>
@@ -337,8 +337,8 @@ export default function JournalPage() {
                   <label className="mb-1 block font-medium text-slate-700">Evaluasi Psikologi</label>
                   <select
                     value={flag}
-                    onChange={e => setFlag(e.target.value as any)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    onChange={e => setFlag(e.target.value as 'DISCIPLINED' | 'FOMO_BUY' | 'PANIC_SELL')}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none"
                   >
                     <option value="DISCIPLINED">Disiplin Trading Plan</option>
                     <option value="FOMO_BUY">FOMO (Ikut-ikutan)</option>
@@ -356,7 +356,7 @@ export default function JournalPage() {
                     value={price}
                     onChange={e => setPrice(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -367,7 +367,7 @@ export default function JournalPage() {
                     value={lot}
                     onChange={e => setLot(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:outline-none"
                   />
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function JournalPage() {
                   placeholder="Contoh: 1500000 (jika profit) atau -500000 (jika rugi)"
                   value={realizedPnl}
                   onChange={e => setRealizedPnl(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:outline-none"
                 />
               </div>
 
@@ -390,7 +390,7 @@ export default function JournalPage() {
                   placeholder="Apa yang dipelajari dari transaksi ini..."
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none"
                 />
               </div>
 

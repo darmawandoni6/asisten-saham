@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -45,7 +44,7 @@ import { CandlestickChart } from '@/components/CandlestickChart';
 import { Topbar } from '@/components/Topbar';
 import { api } from '@/lib/api';
 import { formatNumber, formatPercent } from '@/lib/utils';
-import { ScreenerChatMessage, ScreenerDiscussionResponse, ScreenerItem } from '@/types';
+import { ScreenerChatMessage, ScreenerDiscussionResponse, ScreenerItem, ScreenerRawItem } from '@/types';
 
 type SortField =
   | 'convictionScore'
@@ -103,7 +102,7 @@ export default function ScreenerPage() {
   >({});
   const [activeCardDiscussionTicker, setActiveCardDiscussionTicker] = useState<string | null>(null);
 
-  const mapScreenerItem = (r: any): ScreenerItem => {
+  const mapScreenerItem = (r: ScreenerRawItem): ScreenerItem => {
     const scoreVal = r.score ?? 85;
     const rrrVal = r.risk_reward_ratio || r.riskRewardRatio || '1 : 2.0';
     let defaultConvScore = 8;
@@ -142,7 +141,7 @@ export default function ScreenerPage() {
       score: scoreVal,
       convictionScore: r.conviction_score ?? r.convictionScore ?? defaultConvScore,
       convictionLabel: r.conviction_label ?? r.convictionLabel ?? defaultConvLabel,
-      catalyst: r.catalyst || r.why_buy,
+      catalyst: r.catalyst || r.why_buy || '',
       actionStance:
         r.action_stance ||
         (r.strategy === 'OVERSOLD'
@@ -150,7 +149,7 @@ export default function ScreenerPage() {
           : r.strategy === 'BREAKOUT'
             ? 'BUY ON BREAKOUT (Momentum MA20)'
             : 'ACCUMULATE / DCA (Support MA50)'),
-      whyBuy: r.why_buy || r.catalyst,
+      whyBuy: r.why_buy || r.catalyst || '',
       watchTrigger:
         r.watch_trigger ||
         `Pantau konfirmasi pantulan harga di area support Rp ${formatNumber(r.support)} pada pembukaan jam bursa (09:00 WIB).`,
@@ -202,7 +201,7 @@ export default function ScreenerPage() {
           error: null,
         },
       }));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn('Error initializing screener discussion:', err);
       setDiscussions(prev => ({
         ...prev,
@@ -212,7 +211,7 @@ export default function ScreenerPage() {
           data: prev[ticker]?.data || null,
           messages: prev[ticker]?.messages || [],
           inputQuestion: prev[ticker]?.inputQuestion || '',
-          error: err.message || 'Gagal memuat analisis AI',
+          error: err instanceof Error ? err.message : 'Gagal memuat analisis AI',
         },
       }));
     }
@@ -269,7 +268,7 @@ export default function ScreenerPage() {
           },
         }));
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error sending screener question:', err);
       setDiscussions(prev => ({
         ...prev,
@@ -281,7 +280,7 @@ export default function ScreenerPage() {
             inputQuestion: '',
           }),
           isSending: false,
-          error: err.message || 'Gagal mengirim pertanyaan ke AI',
+          error: err instanceof Error ? err.message : 'Gagal mengirim pertanyaan ke AI',
         },
       }));
     }
@@ -418,11 +417,14 @@ export default function ScreenerPage() {
           message: `Gagal memuat data saham ${rawTicker}. Pastikan kode ticker terdaftar di Bursa Efek Indonesia (IDX).`,
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Custom ticker analysis error:', err);
       setCustomFeedback({
         type: 'error',
-        message: err.message || `Gagal menganalisis saham ${rawTicker}. Pastikan ticker terdaftar di BEI.`,
+        message:
+          err instanceof Error
+            ? err.message
+            : `Gagal menganalisis saham ${rawTicker}. Pastikan ticker terdaftar di BEI.`,
       });
     } finally {
       setIsAnalyzingCustom(false);
@@ -452,33 +454,33 @@ export default function ScreenerPage() {
   });
 
   const sortedItems = [...filteredItems].sort((a, b) => {
-    let valA: any = a[sortField];
-    let valB: any = b[sortField];
+    const rawA = a[sortField];
+    const rawB = b[sortField];
 
     if (sortField === 'ticker' || sortField === 'strategy') {
-      valA = (valA || '').toLowerCase();
-      valB = (valB || '').toLowerCase();
-      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+      const strA = String(rawA ?? '').toLowerCase();
+      const strB = String(rawB ?? '').toLowerCase();
+      if (strA < strB) return sortDirection === 'asc' ? -1 : 1;
+      if (strA > strB) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     }
 
     if (sortField === 'riskRewardRatio') {
-      valA = parseFloat((valA || '0').replace(/[^0-9.]/g, '')) || 0;
-      valB = parseFloat((valB || '0').replace(/[^0-9.]/g, '')) || 0;
-      return sortDirection === 'asc' ? valA - valB : valB - valA;
+      const numA = parseFloat(String(rawA ?? '0').replace(/[^0-9.]/g, '')) || 0;
+      const numB = parseFloat(String(rawB ?? '0').replace(/[^0-9.]/g, '')) || 0;
+      return sortDirection === 'asc' ? numA - numB : numB - numA;
     }
 
     if (sortField === 'convictionScore' || sortField === 'score') {
-      valA = a.convictionScore ?? Math.round((a.score || 85) / 10);
-      valB = b.convictionScore ?? Math.round((b.score || 85) / 10);
-      return sortDirection === 'asc' ? valA - valB : valB - valA;
+      const scoreA = a.convictionScore ?? Math.round((a.score || 85) / 10);
+      const scoreB = b.convictionScore ?? Math.round((b.score || 85) / 10);
+      return sortDirection === 'asc' ? scoreA - scoreB : scoreB - scoreA;
     }
 
     // Numeric sort
-    valA = Number(valA) || 0;
-    valB = Number(valB) || 0;
-    return sortDirection === 'asc' ? valA - valB : valB - valA;
+    const numA = typeof rawA === 'number' ? rawA : Number(rawA) || 0;
+    const numB = typeof rawB === 'number' ? rawB : Number(rawB) || 0;
+    return sortDirection === 'asc' ? numA - numB : numB - numA;
   });
 
   const renderSortTh = (label: string, field: SortField, align: 'left' | 'right' = 'left', tooltip?: string) => {

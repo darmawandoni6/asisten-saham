@@ -205,6 +205,46 @@ export interface ScreenerDiscussionResponse {
   history?: ScreenerChatMessage[];
 }
 
+export interface ScreenerRawItem {
+  ticker: string;
+  name: string;
+  sector: string;
+  price: number;
+  change_pct?: number;
+  changePct?: number;
+  volume: number;
+  rsi: number;
+  ma_status?: string;
+  maStatus?: string;
+  strategy: 'OVERSOLD' | 'BREAKOUT' | 'VALUE' | 'CUSTOM';
+  score?: number;
+  conviction_score?: number;
+  convictionScore?: number;
+  conviction_label?: string;
+  convictionLabel?: string;
+  catalyst?: string;
+  support: number;
+  resistance: number;
+  action_stance?: string;
+  actionStance?: string;
+  why_buy?: string;
+  whyBuy?: string;
+  watch_trigger?: string;
+  watchTrigger?: string;
+  buy_area?: string;
+  buyArea?: string;
+  target_price?: number;
+  targetPrice?: number;
+  stop_loss?: number;
+  stopLoss?: number;
+  risk_reward_ratio?: string;
+  riskRewardRatio?: string;
+  potential_gain_pct?: number;
+  potentialGainPct?: number;
+  potential_risk_pct?: number;
+  potentialRiskPct?: number;
+}
+
 export interface ScreenerItem {
   ticker: string;
   name: string;
@@ -302,4 +342,101 @@ export interface AIProviderInfo {
 export interface AIProvidersResponse {
   active_provider: 'gemini' | 'opencode_zen' | 'openrouter' | '9router';
   providers: AIProviderInfo[];
+}
+
+export interface MarketStatus {
+  isOpen: boolean;
+  status: string;
+  badgeText: string;
+  description: string;
+  nextSessionTime?: string;
+  serverTime?: string;
+}
+
+export interface DashboardResponse {
+  summary: PortfolioSummary;
+  holdings: Holding[];
+}
+
+export interface StockChartResponse {
+  ticker: string;
+  candles: PriceCandle[];
+}
+
+export interface RecommendTpSlResponse {
+  ticker: string;
+  jenis?: string;
+  currentPrice?: number;
+  current_price?: number;
+  tp?: number;
+  sl?: number | null;
+  sector?: string;
+  target_price?: number;
+  stop_loss?: number | null;
+  risk_reward_ratio?: string;
+  support?: number;
+  resistance?: number;
+  ma20?: number;
+  ma50?: number;
+  ma200?: number;
+  rsi?: number;
+  above_ma20?: boolean;
+  above_ma50?: boolean;
+  tpRationale?: string;
+  slRationale?: string;
+  avgDownTarget?: number | null;
+  avgDownRationale?: string | null;
+  dataSource?: string;
+}
+
+export interface AvgDownCalculationResult {
+  additional_lots: number;
+  additional_capital: number;
+  new_avg_price: number;
+  target_avg_price: number;
+  target_buy_price: number;
+  current_lot: number;
+  current_avg: number;
+}
+
+export interface CopilotChatResponse {
+  answer: string;
+  source: string;
+  suggested_questions?: string[];
+}
+
+export interface PostMortemSummary {
+  winRatePct: number;
+  totalRealizedPnl: number;
+  profitFactor: number;
+  totalTrades: number;
+  dominantPattern: string;
+  aiFeedback: string;
+  recommendations: string[];
+  disciplinedTradesPct?: number;
+  fomoTradesCount?: number;
+  panicSellCount?: number;
+  insights?: string[];
+}
+
+export interface CreateTradeRequest {
+  ticker: string;
+  action: string;
+  price: number;
+  lot: number;
+  realized_pnl?: number;
+  notes?: string;
+  psychology_flag?: string;
+}
+
+export interface ApiStatusResponse {
+  status: string;
+  message?: string;
+  detail?: string;
+}
+
+export interface BatchImportResponse {
+  status: string;
+  imported_count: number;
+  holdings?: Holding[];
 }
