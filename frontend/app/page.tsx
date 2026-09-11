@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
@@ -17,72 +17,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { api } from '@/lib/api';
-import { Holding, PortfolioSummary } from '@/types';
-
-const INITIAL_SUMMARY: PortfolioSummary = {
-  totalEquity: 0,
-  totalCost: 0,
-  floatingPnl: 0,
-  floatingPnlPct: 0.0,
-  cashBalance: 0,
-  totalLots: 0,
-  actionCounts: {
-    sellCutLoss: 0,
-    takeProfit: 0,
-    holdMonitor: 0,
-    trailingStopWarning: 0,
-    recoveryMode: 0,
-  },
-};
+import { useDashboard } from '@/hooks/useDashboard';
+import { Holding } from '@/types';
 
 export default function DashboardPage() {
-  const [holdings, setHoldings] = useState<Holding[]>([]);
-  const [summary, setSummary] = useState<PortfolioSummary>(INITIAL_SUMMARY);
+  const { holdings, summary, isLoading, loadDashboard, setSummary } = useDashboard();
+
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [activeModal, setActiveModal] = useState<'chart' | 'ai' | null>(null);
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadDashboard = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await api.getDashboard();
-      if (data) {
-        setHoldings(data.holdings || []);
-        setSummary(data.summary || INITIAL_SUMMARY);
-      }
-    } catch (err) {
-      console.warn('Backend API offline:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    let isMounted = true;
-
-    api
-      .getDashboard()
-      .then(data => {
-        if (isMounted && data) {
-          setHoldings(data.holdings || []);
-          setSummary(data.summary || INITIAL_SUMMARY);
-        }
-      })
-      .catch(err => {
-        console.warn('Backend API offline:', err);
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    loadDashboard();
+  }, [loadDashboard]);
 
   const handleOpenChart = (holding: Holding) => {
     setSelectedHolding(holding);

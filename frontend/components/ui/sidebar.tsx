@@ -449,6 +449,8 @@ const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.ComponentProps<'
     );
   },
 );
+SidebarMenuBadge.displayName = 'SidebarMenuBadge';
+
 const SidebarMenuAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<'button'> & {
