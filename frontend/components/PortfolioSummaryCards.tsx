@@ -1,15 +1,11 @@
-"use client";
+'use client';
 
-import React from "react";
-import { PortfolioSummary } from "@/types";
-import { formatRupiah, formatPercent } from "@/lib/utils";
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  Layers, 
-  AlertTriangle 
-} from "lucide-react";
+import React from 'react';
+
+import { AlertTriangle, Layers, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+
+import { formatPercent, formatRupiah } from '@/lib/utils';
+import { PortfolioSummary } from '@/types';
 
 interface Props {
   summary: PortfolioSummary;
@@ -35,9 +31,7 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
           </div>
         </div>
         <div className="mt-2">
-          <div className="text-xl font-bold font-mono text-slate-900">
-            {formatRupiah(totalCapital)}
-          </div>
+          <div className="text-xl font-bold font-mono text-slate-900">{formatRupiah(totalCapital)}</div>
           <p className="text-[11px] text-slate-500 mt-1">
             Saham: <span className="font-mono text-slate-700 font-semibold">{formatRupiah(summary.totalEquity)}</span>
           </p>
@@ -50,21 +44,23 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
             Floating PnL (EOD)
           </span>
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            isPnlPositive 
-              ? "bg-emerald-50 text-emerald-700" 
-              : "bg-rose-50 text-rose-700"
-          }`}>
+          <div
+            className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+              isPnlPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+            }`}
+          >
             {isPnlPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
           </div>
         </div>
         <div className="mt-2 flex items-baseline gap-2">
-          <div className={`text-xl font-bold font-mono ${isPnlPositive ? "text-emerald-700" : "text-rose-600"}`}>
+          <div className={`text-xl font-bold font-mono ${isPnlPositive ? 'text-emerald-700' : 'text-rose-600'}`}>
             {formatRupiah(summary.floatingPnl)}
           </div>
-          <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
-            isPnlPositive ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-          }`}>
+          <span
+            className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+              isPnlPositive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+            }`}
+          >
             {formatPercent(summary.floatingPnlPct)}
           </span>
         </div>
@@ -119,12 +115,13 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
           )}
         </div>
         <div className="mt-2">
-          <div className="text-xl font-bold font-mono text-slate-900">
-            {formatRupiah(summary.cashBalance)}
-          </div>
+          <div className="text-xl font-bold font-mono text-slate-900">{formatRupiah(summary.cashBalance)}</div>
           <p className="text-[11px] text-slate-500 mt-1">
             {totalCapital > 0 ? (
-              <>Alokasi: <span className="text-slate-800 font-semibold">{stockPct}% Saham</span> / <span className="text-emerald-700 font-semibold">{cashPct}% Cash</span></>
+              <>
+                Alokasi: <span className="text-slate-800 font-semibold">{stockPct}% Saham</span> /{' '}
+                <span className="text-emerald-700 font-semibold">{cashPct}% Cash</span>
+              </>
             ) : (
               <span>Belum ada alokasi modal</span>
             )}

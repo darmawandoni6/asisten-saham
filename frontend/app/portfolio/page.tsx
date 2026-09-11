@@ -1,27 +1,29 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { Topbar } from "@/components/Topbar";
-import { Holding } from "@/types";
-import { formatRupiah, formatNumber, formatPercent } from "@/lib/utils";
-import { CandlestickChart } from "@/components/CandlestickChart";
-import { 
-  Plus, 
-  Trash2, 
-  LineChart, 
-  PieChart, 
-  Calculator, 
-  X,
-  Layers,
+import React, { useEffect, useState } from 'react';
+
+import {
+  Calculator,
   Inbox,
-  Sparkles,
+  Layers,
+  LineChart,
+  PieChart,
+  Plus,
   RefreshCw,
+  Sparkles,
+  Tag,
+  Trash2,
   Wallet,
-  Tag
-} from "lucide-react";
-import { EditBalanceModal } from "@/components/EditBalanceModal";
-import { SellHoldingModal } from "@/components/SellHoldingModal";
-import { api } from "@/lib/api";
+  X,
+} from 'lucide-react';
+
+import { CandlestickChart } from '@/components/CandlestickChart';
+import { EditBalanceModal } from '@/components/EditBalanceModal';
+import { SellHoldingModal } from '@/components/SellHoldingModal';
+import { Topbar } from '@/components/Topbar';
+import { api } from '@/lib/api';
+import { formatNumber, formatPercent, formatRupiah } from '@/lib/utils';
+import { Holding } from '@/types';
 
 export default function PortfolioPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -34,14 +36,14 @@ export default function PortfolioPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // New Holding Form State
-  const [ticker, setTicker] = useState("");
-  const [avgPrice, setAvgPrice] = useState("");
-  const [lot, setLot] = useState("");
-  const [targetPrice, setTargetPrice] = useState("");
-  const [stopLoss, setStopLoss] = useState("");
-  const [sector, setSector] = useState("");
-  const [buyReason, setBuyReason] = useState("");
-  const [jenis, setJenis] = useState<"trading" | "investasi">("trading");
+  const [ticker, setTicker] = useState('');
+  const [avgPrice, setAvgPrice] = useState('');
+  const [lot, setLot] = useState('');
+  const [targetPrice, setTargetPrice] = useState('');
+  const [stopLoss, setStopLoss] = useState('');
+  const [sector, setSector] = useState('');
+  const [buyReason, setBuyReason] = useState('');
+  const [jenis, setJenis] = useState<'trading' | 'investasi'>('trading');
 
   const [isFetchingAi, setIsFetchingAi] = useState(false);
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -55,21 +57,24 @@ export default function PortfolioPage() {
       const res = await api.getAiTpSl(ticker, jenis, priceNum);
       if (res) {
         if (res.tp) setTargetPrice(res.tp.toString());
-        if (jenis === "trading" && res.sl) setStopLoss(res.sl.toString());
+        if (jenis === 'trading' && res.sl) setStopLoss(res.sl.toString());
         if (res.sector) setSector(res.sector);
-        if (jenis === "investasi") {
-          setAiNote(`💡 Rekomendasi Investasi: TP Rp ${res.tp?.toLocaleString()} (Target Puncak 200 Hari) • No Hard Stop Loss`);
+        if (jenis === 'investasi') {
+          setAiNote(
+            `💡 Rekomendasi Investasi: TP Rp ${res.tp?.toLocaleString()} (Target Puncak 200 Hari) • No Hard Stop Loss`,
+          );
         } else {
-          setAiNote(`💡 Rekomendasi Trading: TP Rp ${res.tp?.toLocaleString()} (Resistance) • SL Rp ${res.sl?.toLocaleString()} (Support -3%)`);
+          setAiNote(
+            `💡 Rekomendasi Trading: TP Rp ${res.tp?.toLocaleString()} (Resistance) • SL Rp ${res.sl?.toLocaleString()} (Support -3%)`,
+          );
         }
       }
     } catch (err) {
-      console.warn("Gagal menarik rekomendasi AI TP/SL:", err);
+      console.warn('Gagal menarik rekomendasi AI TP/SL:', err);
     } finally {
       setIsFetchingAi(false);
     }
   };
-
 
   const loadPortfolio = async () => {
     setIsLoading(true);
@@ -87,7 +92,7 @@ export default function PortfolioPage() {
         }
       }
     } catch (e) {
-      console.warn("Portfolio API offline:", e);
+      console.warn('Portfolio API offline:', e);
     } finally {
       setIsLoading(false);
     }
@@ -104,8 +109,8 @@ export default function PortfolioPage() {
     const priceNum = parseFloat(avgPrice);
     const lotNum = parseInt(lot);
     // TP/SL default berbeda untuk investasi vs trading
-    const tpNum = targetPrice ? parseFloat(targetPrice) : (jenis === "investasi" ? priceNum * 1.30 : priceNum * 1.15);
-    const slNum = jenis === "investasi" ? undefined : (stopLoss ? parseFloat(stopLoss) : priceNum * 0.93);
+    const tpNum = targetPrice ? parseFloat(targetPrice) : jenis === 'investasi' ? priceNum * 1.3 : priceNum * 1.15;
+    const slNum = jenis === 'investasi' ? undefined : stopLoss ? parseFloat(stopLoss) : priceNum * 0.93;
 
     try {
       await api.createHolding({
@@ -116,15 +121,15 @@ export default function PortfolioPage() {
         stop_loss: slNum,
         sector: sector || undefined,
         buy_reason: buyReason,
-        jenis
+        jenis,
       });
       await loadPortfolio();
     } catch (err) {
       const newHolding: Holding = {
         id: Date.now(),
-        ticker: ticker.toUpperCase().includes(".JK") ? ticker.toUpperCase() : `${ticker.toUpperCase()}.JK`,
+        ticker: ticker.toUpperCase().includes('.JK') ? ticker.toUpperCase() : `${ticker.toUpperCase()}.JK`,
         name: `${ticker.toUpperCase()} Tbk`,
-        sector: sector || "—",
+        sector: sector || '—',
         jenis: jenis,
         avgPrice: priceNum,
         lot: lotNum,
@@ -134,13 +139,13 @@ export default function PortfolioPage() {
         targetPrice: tpNum,
         stopLoss: slNum ?? null,
         highWatermark: priceNum,
-        trailingStopPrice: jenis === "investasi" ? null : Math.round(priceNum * 0.93),
+        trailingStopPrice: jenis === 'investasi' ? null : Math.round(priceNum * 0.93),
         floatingPnl: 0,
         floatingPnlPct: 0,
-        actionStatus: "HOLD_MONITOR",
-        actionReason: "Posisi baru ditambahkan ke trading plan.",
-        buyReason: buyReason || "Trading plan entry baru",
-        buyDate: new Date().toISOString().split("T")[0],
+        actionStatus: 'HOLD_MONITOR',
+        actionReason: 'Posisi baru ditambahkan ke trading plan.',
+        buyReason: buyReason || 'Trading plan entry baru',
+        buyDate: new Date().toISOString().split('T')[0],
         rsi: 50.0,
         aboveMa20: true,
         aboveMa50: true,
@@ -149,22 +154,22 @@ export default function PortfolioPage() {
     }
 
     setIsModalOpen(false);
-    setTicker("");
-    setAvgPrice("");
-    setLot("");
-    setTargetPrice("");
-    setStopLoss("");
-    setBuyReason("");
-    setJenis("trading");
+    setTicker('');
+    setAvgPrice('');
+    setLot('');
+    setTargetPrice('');
+    setStopLoss('');
+    setBuyReason('');
+    setJenis('trading');
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Hapus saham ini dari pencatatan portofolio?")) {
+    if (confirm('Hapus saham ini dari pencatatan portofolio?')) {
       try {
         await api.deleteHolding(id);
         await loadPortfolio();
       } catch (err) {
-        setHoldings(holdings.filter((h) => h.id !== id));
+        setHoldings(holdings.filter(h => h.id !== id));
       }
     }
   };
@@ -172,7 +177,7 @@ export default function PortfolioPage() {
   // Calculate sector distribution
   const totalCost = holdings.reduce((acc, h) => acc + h.avgPrice * h.shares, 0);
   const sectorMap: Record<string, number> = {};
-  holdings.forEach((h) => {
+  holdings.forEach(h => {
     const cost = h.avgPrice * h.shares;
     sectorMap[h.sector] = (sectorMap[h.sector] || 0) + cost;
   });
@@ -202,7 +207,9 @@ export default function PortfolioPage() {
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 font-semibold block leading-tight">Saldo Kas RDN</span>
-                <span className="text-xs font-mono font-bold text-slate-800 leading-tight">{formatRupiah(cashBalance)}</span>
+                <span className="text-xs font-mono font-bold text-slate-800 leading-tight">
+                  {formatRupiah(cashBalance)}
+                </span>
               </div>
               <button
                 type="button"
@@ -246,17 +253,15 @@ export default function PortfolioPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
                 {holdings.length > 0 ? (
-                  holdings.map((h) => {
+                  holdings.map(h => {
                     const cost = h.avgPrice * h.shares;
                     const isProfit = h.floatingPnl >= 0;
 
-                      return (
+                    return (
                       <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">
-                          {h.ticker}
-                        </td>
+                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">{h.ticker}</td>
                         <td className="py-3.5 px-3">
-                          {h.jenis === "investasi" ? (
+                          {h.jenis === 'investasi' ? (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
                               📈 Investasi
                             </span>
@@ -266,26 +271,18 @@ export default function PortfolioPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-3 text-slate-500 text-[11px]">
-                          {h.sector || "—"}
-                        </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">
-                          Rp {formatNumber(h.avgPrice)}
-                        </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-700">
-                          {formatNumber(h.lot)} Lot
-                        </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">
-                          {formatRupiah(cost)}
-                        </td>
+                        <td className="py-3.5 px-3 text-slate-500 text-[11px]">{h.sector || '—'}</td>
+                        <td className="py-3.5 px-3 font-mono text-slate-800">Rp {formatNumber(h.avgPrice)}</td>
+                        <td className="py-3.5 px-3 font-mono text-slate-700">{formatNumber(h.lot)} Lot</td>
+                        <td className="py-3.5 px-3 font-mono text-slate-800">{formatRupiah(cost)}</td>
                         <td className="py-3.5 px-3 font-mono font-bold text-slate-900">
                           Rp {formatNumber(h.currentPrice)}
                         </td>
                         <td className="py-3.5 px-3 font-mono font-bold">
-                          <div className={isProfit ? "text-emerald-700" : "text-rose-600"}>
+                          <div className={isProfit ? 'text-emerald-700' : 'text-rose-600'}>
                             {formatPercent(h.floatingPnlPct)}
                           </div>
-                          <div className={`text-[10px] ${isProfit ? "text-emerald-600" : "text-rose-500"}`}>
+                          <div className={`text-[10px] ${isProfit ? 'text-emerald-600' : 'text-rose-500'}`}>
                             {formatRupiah(h.floatingPnl)}
                           </div>
                         </td>
@@ -296,7 +293,11 @@ export default function PortfolioPage() {
                           {h.stopLoss ? (
                             <span className="text-rose-600">Rp {formatNumber(h.stopLoss)}</span>
                           ) : (
-                            <span className="text-indigo-500 text-[10px] font-medium">No Hard SL<br/><span className="text-slate-400">Avg Down</span></span>
+                            <span className="text-indigo-500 text-[10px] font-medium">
+                              No Hard SL
+                              <br />
+                              <span className="text-slate-400">Avg Down</span>
+                            </span>
                           )}
                         </td>
                         <td className="py-3.5 px-3 text-center">
@@ -347,7 +348,6 @@ export default function PortfolioPage() {
                     </td>
                   </tr>
                 )}
-
               </tbody>
             </table>
           </div>
@@ -455,30 +455,31 @@ export default function PortfolioPage() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setJenis("trading")}
+                    onClick={() => setJenis('trading')}
                     className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-all ${
-                      jenis === "trading"
-                        ? "bg-amber-500 border-amber-500 text-white shadow-sm"
-                        : "bg-white border-slate-300 text-slate-600 hover:border-amber-400"
+                      jenis === 'trading'
+                        ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
+                        : 'bg-white border-slate-300 text-slate-600 hover:border-amber-400'
                     }`}
                   >
                     ⚡ Trading
                   </button>
                   <button
                     type="button"
-                    onClick={() => setJenis("investasi")}
+                    onClick={() => setJenis('investasi')}
                     className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-all ${
-                      jenis === "investasi"
-                        ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
-                        : "bg-white border-slate-300 text-slate-600 hover:border-indigo-400"
+                      jenis === 'investasi'
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
+                        : 'bg-white border-slate-300 text-slate-600 hover:border-indigo-400'
                     }`}
                   >
                     📈 Investasi
                   </button>
                 </div>
-                {jenis === "investasi" && (
+                {jenis === 'investasi' && (
                   <p className="mt-1.5 text-[10px] text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-2.5 py-1.5">
-                    Mode Investasi: Tidak ada Hard Stop Loss. Strategi fokus pada averaging down dan hold jangka panjang.
+                    Mode Investasi: Tidak ada Hard Stop Loss. Strategi fokus pada averaging down dan hold jangka
+                    panjang.
                   </p>
                 )}
               </div>
@@ -489,7 +490,7 @@ export default function PortfolioPage() {
                   type="text"
                   placeholder="Contoh: BBRI atau BBRI.JK"
                   value={ticker}
-                  onChange={(e) => setTicker(e.target.value)}
+                  onChange={e => setTicker(e.target.value)}
                   required
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono uppercase focus:outline-none focus:border-emerald-600"
                 />
@@ -502,7 +503,7 @@ export default function PortfolioPage() {
                     type="number"
                     placeholder="4850"
                     value={avgPrice}
-                    onChange={(e) => setAvgPrice(e.target.value)}
+                    onChange={e => setAvgPrice(e.target.value)}
                     required
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                   />
@@ -513,7 +514,7 @@ export default function PortfolioPage() {
                     type="number"
                     placeholder="50"
                     value={lot}
-                    onChange={(e) => setLot(e.target.value)}
+                    onChange={e => setLot(e.target.value)}
                     required
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                   />
@@ -522,9 +523,7 @@ export default function PortfolioPage() {
 
               {/* AI Auto-Calculate Trigger */}
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-semibold text-slate-700">
-                  Target Profit &amp; Stop Loss
-                </span>
+                <span className="text-[11px] font-semibold text-slate-700">Target Profit &amp; Stop Loss</span>
                 <button
                   type="button"
                   onClick={handleFetchAiRecommendation}
@@ -532,8 +531,8 @@ export default function PortfolioPage() {
                   className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[11px] font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
                   title="Gunakan algoritma teknikal AI untuk menghitung TP & SL otomatis dari data 200 hari bursa"
                 >
-                  <Sparkles className={`w-3.5 h-3.5 ${isFetchingAi ? "animate-spin text-emerald-600" : ""}`} />
-                  <span>{isFetchingAi ? "Menghitung..." : "⚡ Hitung Rekomendasi AI"}</span>
+                  <Sparkles className={`w-3.5 h-3.5 ${isFetchingAi ? 'animate-spin text-emerald-600' : ''}`} />
+                  <span>{isFetchingAi ? 'Menghitung...' : '⚡ Hitung Rekomendasi AI'}</span>
                 </button>
               </div>
 
@@ -543,21 +542,23 @@ export default function PortfolioPage() {
                 </div>
               )}
 
-              <div className={jenis === "investasi" ? "" : "grid grid-cols-2 gap-3"}>
+              <div className={jenis === 'investasi' ? '' : 'grid grid-cols-2 gap-3'}>
                 <div>
                   <label className="block text-emerald-700 font-medium mb-1">
-                    Target Price (TP){jenis === "investasi" ? " — Kosongkan = Auto AI" : " — Kosongkan = Auto AI"}
+                    Target Price (TP){jenis === 'investasi' ? ' — Kosongkan = Auto AI' : ' — Kosongkan = Auto AI'}
                   </label>
                   <input
                     type="number"
-                    placeholder={jenis === "investasi" ? "Auto-calculate AI (Target 200 Hari)" : "Auto-calculate AI (Resistance)"}
+                    placeholder={
+                      jenis === 'investasi' ? 'Auto-calculate AI (Target 200 Hari)' : 'Auto-calculate AI (Resistance)'
+                    }
                     value={targetPrice}
-                    onChange={(e) => setTargetPrice(e.target.value)}
+                    onChange={e => setTargetPrice(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                   />
                 </div>
 
-                {jenis === "trading" && (
+                {jenis === 'trading' && (
                   <div>
                     <label className="block text-rose-600 font-medium mb-1">
                       Stop Loss (SL) <span className="text-slate-400 font-normal">— Kosongkan = Auto AI</span>
@@ -566,21 +567,21 @@ export default function PortfolioPage() {
                       type="number"
                       placeholder="Auto-calculate AI (Support -3%)"
                       value={stopLoss}
-                      onChange={(e) => setStopLoss(e.target.value)}
+                      onChange={e => setStopLoss(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-rose-500"
                     />
                   </div>
                 )}
-
               </div>
 
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
-                  Sektor Saham <span className="text-slate-400 font-normal">(Opsional — Auto-detect jika dikosongkan)</span>
+                  Sektor Saham{' '}
+                  <span className="text-slate-400 font-normal">(Opsional — Auto-detect jika dikosongkan)</span>
                 </label>
                 <select
                   value={sector}
-                  onChange={(e) => setSector(e.target.value)}
+                  onChange={e => setSector(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
                 >
                   <option value="">⚡ Auto-detect dari Yahoo Finance (Rekomendasi)</option>
@@ -597,14 +598,13 @@ export default function PortfolioPage() {
                 </select>
               </div>
 
-
               <div>
                 <label className="block text-slate-700 font-medium mb-1">Alasan Beli (Catatan Plan)</label>
                 <textarea
                   rows={2}
                   placeholder="Misal: Rebound MA50 dengan volume akumulasi..."
                   value={buyReason}
-                  onChange={(e) => setBuyReason(e.target.value)}
+                  onChange={e => setBuyReason(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
                 />
               </div>
@@ -641,7 +641,7 @@ export default function PortfolioPage() {
         isOpen={isBalanceModalOpen}
         currentBalance={cashBalance}
         onClose={() => setIsBalanceModalOpen(false)}
-        onSuccess={(newBalance) => {
+        onSuccess={newBalance => {
           setCashBalance(newBalance);
           loadPortfolio();
         }}

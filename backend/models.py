@@ -98,6 +98,18 @@ class CopilotChatLog(Base):
     session_date = Column(Date, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+class ScreenerChatLog(Base):
+    __tablename__ = "screener_chat_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    ticker = Column(String, nullable=False, index=True)
+    role = Column(String, nullable=False) # 'user' or 'assistant'
+    message = Column(Text, nullable=False)
+    source = Column(String, nullable=True) # '9router' | 'rule_based'
+    conviction_score = Column(Integer, nullable=True)
+    session_date = Column(Date, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 class RecoveryDeepDive(Base):
     __tablename__ = "recovery_deepdives"
 

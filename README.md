@@ -114,6 +114,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | Layer | Teknologi |
 |---|---|
 | **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, Lucide Icons |
+| **Code Formatting** | Prettier & `@trivago/prettier-plugin-sort-imports` |
 | **Charts** | TradingView Lightweight Charts (v5) |
 | **Backend & Web Server** | Python FastAPI, Uvicorn (Port `8000`) |
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM |

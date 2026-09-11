@@ -1,17 +1,20 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Topbar } from "@/components/Topbar";
-import { PortfolioSummaryCards } from "@/components/PortfolioSummaryCards";
-import { ActionCard } from "@/components/ActionCard";
-import { DailyActionSheet } from "@/components/DailyActionSheet";
-import { CandlestickChart } from "@/components/CandlestickChart";
-import { AICopilotPanel } from "@/components/AICopilotPanel";
-import { EditBalanceModal } from "@/components/EditBalanceModal";
-import { Holding, PortfolioSummary } from "@/types";
-import { api } from "@/lib/api";
-import { PlusCircle, TrendingUp, Layers } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+
+import Link from 'next/link';
+
+import { Layers, PlusCircle, TrendingUp } from 'lucide-react';
+
+import { AICopilotPanel } from '@/components/AICopilotPanel';
+import { ActionCard } from '@/components/ActionCard';
+import { CandlestickChart } from '@/components/CandlestickChart';
+import { DailyActionSheet } from '@/components/DailyActionSheet';
+import { EditBalanceModal } from '@/components/EditBalanceModal';
+import { PortfolioSummaryCards } from '@/components/PortfolioSummaryCards';
+import { Topbar } from '@/components/Topbar';
+import { api } from '@/lib/api';
+import { Holding, PortfolioSummary } from '@/types';
 
 const INITIAL_SUMMARY: PortfolioSummary = {
   totalEquity: 0,
@@ -26,14 +29,14 @@ const INITIAL_SUMMARY: PortfolioSummary = {
     holdMonitor: 0,
     trailingStopWarning: 0,
     recoveryMode: 0,
-  }
+  },
 };
 
 export default function DashboardPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [summary, setSummary] = useState<PortfolioSummary>(INITIAL_SUMMARY);
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
-  const [activeModal, setActiveModal] = useState<"chart" | "ai" | null>(null);
+  const [activeModal, setActiveModal] = useState<'chart' | 'ai' | null>(null);
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,7 +49,7 @@ export default function DashboardPage() {
         setSummary(data.summary || INITIAL_SUMMARY);
       }
     } catch (err) {
-      console.warn("Backend API offline:", err);
+      console.warn('Backend API offline:', err);
     } finally {
       setIsLoading(false);
     }
@@ -58,12 +61,12 @@ export default function DashboardPage() {
 
   const handleOpenChart = (holding: Holding) => {
     setSelectedHolding(holding);
-    setActiveModal("chart");
+    setActiveModal('chart');
   };
 
   const handleOpenAI = (holding: Holding) => {
     setSelectedHolding(holding);
-    setActiveModal("ai");
+    setActiveModal('ai');
   };
 
   const closeModal = () => {
@@ -72,18 +75,15 @@ export default function DashboardPage() {
 
   return (
     <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
-      <Topbar 
-        title="Smart Decision Dashboard (EOD Analysis)" 
+      <Topbar
+        title="Smart Decision Dashboard (EOD Analysis)"
         subtitle="Rekomendasi objektif Hold / Sell / Buy berdasarkan data closing 17:30 WIB"
         onRefresh={loadDashboard}
       />
 
       <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top Summary Metrics */}
-        <PortfolioSummaryCards 
-          summary={summary} 
-          onEditCashBalance={() => setIsBalanceModalOpen(true)}
-        />
+        <PortfolioSummaryCards summary={summary} onEditCashBalance={() => setIsBalanceModalOpen(true)} />
 
         {/* 1. Core Feature: Smart Action Cards */}
         <div>
@@ -96,14 +96,15 @@ export default function DashboardPage() {
                 </span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Kartu ringkasan status harian dengan 5 indikator warna tegas (Cut Loss, Take Profit, Hold, Trailing Stop, Recovery)
+                Kartu ringkasan status harian dengan 5 indikator warna tegas (Cut Loss, Take Profit, Hold, Trailing
+                Stop, Recovery)
               </p>
             </div>
           </div>
 
           {holdings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {holdings.map((holding) => (
+              {holdings.map(holding => (
                 <ActionCard
                   key={holding.id}
                   holding={holding}
@@ -117,11 +118,10 @@ export default function DashboardPage() {
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">
-                Belum Ada Saham di Portofolio
-              </h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-1">Belum Ada Saham di Portofolio</h3>
               <p className="text-xs text-slate-500 max-w-sm mb-5">
-                Mulai masukkan trading plan pertama Anda (Ticker, Avg Price Beli, Lot, Target Price, dan Stop Loss) untuk memantau status aksi harian.
+                Mulai masukkan trading plan pertama Anda (Ticker, Avg Price Beli, Lot, Target Price, dan Stop Loss)
+                untuk memantau status aksi harian.
               </p>
               <Link
                 href="/portfolio"
@@ -137,16 +137,13 @@ export default function DashboardPage() {
         {/* 2. Daily Action Sheet */}
         {holdings.length > 0 && (
           <div>
-            <DailyActionSheet 
-              holdings={holdings} 
-              onOpenStock={handleOpenAI}
-            />
+            <DailyActionSheet holdings={holdings} onOpenStock={handleOpenAI} />
           </div>
         )}
       </div>
 
       {/* Modal / Dialog for Chart */}
-      {activeModal === "chart" && selectedHolding && (
+      {activeModal === 'chart' && selectedHolding && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="max-w-4xl w-full">
             <CandlestickChart
@@ -161,11 +158,7 @@ export default function DashboardPage() {
 
       {/* Modal / Dialog for AI Copilot (shadcn/ui Dialog) */}
       {selectedHolding && (
-        <AICopilotPanel
-          isOpen={activeModal === "ai"}
-          holding={selectedHolding}
-          onClose={closeModal}
-        />
+        <AICopilotPanel isOpen={activeModal === 'ai'} holding={selectedHolding} onClose={closeModal} />
       )}
 
       {/* Modal Edit Cash Balance */}
@@ -173,8 +166,8 @@ export default function DashboardPage() {
         isOpen={isBalanceModalOpen}
         currentBalance={summary.cashBalance || 0}
         onClose={() => setIsBalanceModalOpen(false)}
-        onSuccess={(newBalance) => {
-          setSummary((prev) => ({
+        onSuccess={newBalance => {
+          setSummary(prev => ({
             ...prev,
             cashBalance: newBalance,
           }));

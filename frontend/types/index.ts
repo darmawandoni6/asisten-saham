@@ -1,29 +1,28 @@
-export type ActionType = 
-  | 'SELL_CUT_LOSS' 
+export type ActionType =
+  | 'SELL_CUT_LOSS'
   | 'SL_PROXIMITY_WARNING'
-  | 'TAKE_PROFIT' 
+  | 'TAKE_PROFIT'
   | 'TP_PROXIMITY_WARNING'
-  | 'HOLD_MONITOR' 
-  | 'TRAILING_STOP_WARNING' 
+  | 'HOLD_MONITOR'
+  | 'TRAILING_STOP_WARNING'
   | 'RECOVERY_MODE'
   | 'AVERAGING_REVIEW';
-
 
 export interface Holding {
   id: number;
   ticker: string;
   name: string;
   sector: string;
-  jenis: 'trading' | 'investasi';  // Tipe kepemilikan
+  jenis: 'trading' | 'investasi'; // Tipe kepemilikan
   avgPrice: number;
   lot: number;
   shares: number; // lot * 100
   currentPrice: number;
   previousClose: number;
   targetPrice: number;
-  stopLoss: number | null;  // null untuk saham investasi
+  stopLoss: number | null; // null untuk saham investasi
   highWatermark: number; // Highest price since buy
-  trailingStopPrice: number | null;  // null untuk saham investasi
+  trailingStopPrice: number | null; // null untuk saham investasi
   floatingPnl: number;
   floatingPnlPct: number;
   actionStatus: ActionType;
@@ -34,7 +33,6 @@ export interface Holding {
   aboveMa20: boolean;
   aboveMa50: boolean;
 }
-
 
 export interface PriceCandle {
   time: string; // YYYY-MM-DD
@@ -184,6 +182,28 @@ export interface CopilotChatMessage {
   createdAt?: string;
 }
 
+export interface ScreenerChatMessage {
+  id?: number;
+  ticker: string;
+  role: 'user' | 'assistant';
+  message: string;
+  source?: string;
+  convictionScore?: number;
+  sessionDate?: string;
+  createdAt?: string;
+}
+
+export interface ScreenerDiscussionResponse {
+  status: string;
+  source: string;
+  ticker: string;
+  conviction_score: number;
+  conviction_label: string;
+  conviction_reason?: string;
+  answer: string;
+  suggested_questions: string[];
+  history?: ScreenerChatMessage[];
+}
 
 export interface ScreenerItem {
   ticker: string;
@@ -196,6 +216,8 @@ export interface ScreenerItem {
   maStatus: string;
   strategy: 'OVERSOLD' | 'BREAKOUT' | 'VALUE' | 'CUSTOM';
   score: number; // 0 - 100
+  convictionScore?: number; // 1 - 10 (10 = Wajib Dibeli Besok Pagi)
+  convictionLabel?: string;
   catalyst: string;
   support: number;
   resistance: number;
@@ -209,7 +231,6 @@ export interface ScreenerItem {
   potentialGainPct?: number;
   potentialRiskPct?: number;
 }
-
 
 export interface TradeLogItem {
   id: number;
@@ -282,4 +303,3 @@ export interface AIProvidersResponse {
   active_provider: 'gemini' | 'opencode_zen' | 'openrouter' | '9router';
   providers: AIProviderInfo[];
 }
-

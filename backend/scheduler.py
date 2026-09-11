@@ -1,11 +1,11 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from database import SessionLocal
-from models import Holding, RecoveryChatLog, CopilotChatLog
+from models import Holding
 from services.data_fetcher import fetch_and_store_stock_data
 from services.portfolio_engine import evaluate_holding_status
 from services.telegram_bot import send_telegram_notification
 from services.market_calendar import is_active_trading_day, get_holiday_name
-from services.ai_copilot import analyze_holding_with_ai
+from services.ai_copilot import analyze_holding_with_ai, purge_ai_chat_and_cache
 from datetime import datetime
 
 scheduler = BackgroundScheduler()
@@ -24,6 +24,10 @@ def run_eod_market_pipeline():
     print(f"[{now}] Menjalankan pipeline EOD otomatis (Hari Bursa Aktif)...")
     db = SessionLocal()
     try:
+        # 1. Bersihkan histori chat AI lama dan cache analisis untuk siklus bursa baru
+        purged = purge_ai_chat_and_cache(db)
+        print(f"[Scheduler] EOD Sync: Histori chat AI & cache berhasil dibersihkan ({purged}).")
+
         holdings = db.query(Holding).all()
         urgent_actions = []
 
@@ -55,11 +59,6 @@ def run_eod_market_pipeline():
             send_telegram_notification(msg)
             print("[Scheduler] Telegram notification terkirim.")
 
-        # Purge temporary recovery discussion & copilot chat history HANYA pada market close hari bursa aktif
-        deleted_chats = db.query(RecoveryChatLog).delete()
-        deleted_copilot = db.query(CopilotChatLog).delete()
-        db.commit()
-        print(f"[Scheduler] EOD Market Close: {deleted_chats} chat recovery & {deleted_copilot} chat copilot berhasil dibersihkan untuk siklus bursa baru.")
     except Exception as e:
         print(f"[Scheduler] Error pipeline: {e}")
     finally:

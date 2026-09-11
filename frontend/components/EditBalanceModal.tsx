@@ -1,8 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { X, Wallet, Check, AlertCircle } from "lucide-react";
-import { api } from "@/lib/api";
+import { useEffect, useState } from 'react';
+
+import { AlertCircle, Check, Wallet, X } from 'lucide-react';
+
+import { api } from '@/lib/api';
 
 interface EditBalanceModalProps {
   isOpen: boolean;
@@ -11,12 +13,7 @@ interface EditBalanceModalProps {
   onSuccess: (newBalance: number) => void;
 }
 
-export function EditBalanceModal({
-  isOpen,
-  currentBalance,
-  onClose,
-  onSuccess,
-}: EditBalanceModalProps) {
+export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }: EditBalanceModalProps) {
   const [balanceInput, setBalanceInput] = useState<string>(currentBalance.toString());
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,12 +27,12 @@ export function EditBalanceModal({
 
   if (!isOpen) return null;
 
-  const numericValue = parseInt(balanceInput.replace(/\D/g, ""), 10) || 0;
+  const numericValue = parseInt(balanceInput.replace(/\D/g, ''), 10) || 0;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (numericValue < 0) {
-      setError("Saldo kas tidak boleh negatif.");
+      setError('Saldo kas tidak boleh negatif.');
       return;
     }
 
@@ -46,7 +43,7 @@ export function EditBalanceModal({
       onSuccess(numericValue);
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Gagal memperbarui saldo kas.");
+      setError(err?.message || 'Gagal memperbarui saldo kas.');
     } finally {
       setIsSaving(false);
     }
@@ -98,9 +95,9 @@ export function EditBalanceModal({
               <input
                 type="text"
                 inputMode="numeric"
-                value={numericValue > 0 ? numericValue.toLocaleString("id-ID") : balanceInput}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
+                value={numericValue > 0 ? numericValue.toLocaleString('id-ID') : balanceInput}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '');
                   setBalanceInput(val);
                 }}
                 placeholder="0"
@@ -153,7 +150,7 @@ export function EditBalanceModal({
               className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-xs transition-colors"
             >
               <Check className="w-3.5 h-3.5" />
-              {isSaving ? "Menyimpan..." : "Simpan Saldo"}
+              {isSaving ? 'Menyimpan...' : 'Simpan Saldo'}
             </button>
           </div>
         </form>

@@ -247,6 +247,23 @@
   - Dukungan aksesibilitas lengkap (A11y, ARIA dialog, focus trap, ESC key close, click-outside-to-close, smooth animations).
   - Pembatasan tinggi modal terpusat `max-h-[88vh] sm:max-h-[90vh]` dengan internal `ScrollArea`.
 
+---
+
+## 🧹 TAHAP 16 — Code Formatting & Prettier Integration [SELESAI ✅]
+> Menambahkan Prettier dan plugin sorting import otomatis untuk standarisasi format kode frontend.
+
+- [x] 16.1 Instalasi Prettier & Plugin:
+  - `prettier` dan `@trivago/prettier-plugin-sort-imports` di `frontend/devDependencies`.
+- [x] 16.2 Konfigurasi & Ignore Files:
+  - Konfigurasi [`.prettierrc`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierrc) dengan aturan single quote, semicolon, trailing comma all, print width 120, dan grup import Next.js/React.
+  - Pembuatan [`.prettierignore`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierignore) untuk direktori build (`.next`, `out`, `node_modules`, dll).
+- [x] 16.3 NPM Helper Scripts:
+  - `npm run format`: Format seluruh file frontend secara otomatis.
+  - `npm run format:check`: Validasi formatting pada CI/local.
+- [x] 16.4 Eksekusi & Format Seluruh Codebase:
+  - 40 file frontend diformat seragam dan lulus verifikasi `npm run format:check` & `make build`.
+
+
 
 
 

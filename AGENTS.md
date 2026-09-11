@@ -24,6 +24,9 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
    - AI **DILARANG KERAS** menjalankan perintah `git commit` maupun `git push` secara otomatis setelah membuat fitur/perubahan.
    - Seluruh perubahan kode dan pengujian hanya boleh dilakukan di file lokal.
    - `git commit` / `git push` **HANYA** boleh dijalankan jika pengguna memberikan perintah/izin eksplisit secara langsung.
+8. **STANDAR CODE FORMATTING & LINTING (PRETTIER & ESLINT)**:
+   - Frontend menggunakan **Prettier** dengan plugin `@trivago/prettier-plugin-sort-imports` (`frontend/.prettierrc`).
+   - Setiap perubahan file frontend wajib mematuhi aturan format (`npm run format` / `npm run format:check`) dan lolos build (`npm run build`).
 
 ---
 
@@ -113,13 +116,12 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   2. `invalidationRisk`: Batas risiko dan level harga invalidasi (Plan B) bila tren breakdown.
   3. `cashflowAndTimeline`: Estimasi arus kas dividen riil per tahun & estimasi rentang waktu rebound.
   4. `tomorrowActionPlan`: Checklist 3 langkah aksi konkret sebelum market buka pukul 09:00 WIB.
-- **Active Trading Cycle Chat Retention**:
-  - Model: `RecoveryChatLog` (`recovery_chat_logs`).
-  - Menyimpan riwayat percakapan interaktif khusus untuk sesi siklus hari bursa berjalan (*Trading Cycle Session*).
-  - **TIDAK DIHAPUS oleh pergantian tanggal kalender biasa**.
-  - Chat bertahan sepanjang akhir pekan (Jumat sore s/d Senin 17:30 WIB) dan sepanjang hari libur nasional/cuti bersama BEI.
-  - Otomatis dibersihkan (*purged*) **HANYA saat penutupan bursa hari bursa aktif (17:30 WIB)** via `APScheduler` di `backend/scheduler.py` atau tombol manual *Bersihkan Riwayat*.
-  - Dilengkapi endpoint `GET /api/v1/recovery/{ticker}/chat-history` dan `DELETE /api/v1/recovery/{ticker}/chat-history` (tombol *Bersihkan Riwayat* di UI).
+- **AI Chat Retention & Reset saat Sinkronisasi (Sync Purge)**:
+  - Model: `CopilotChatLog` (`copilot_chat_logs`), `RecoveryChatLog` (`recovery_chat_logs`), `ScreenerChatLog` (`screener_chat_logs`).
+  - **Selalu Disimpan Permanen**: Seluruh percakapan AI (Copilot Dashboard, Recovery Discussion, dan Screener Discussion) selalu disimpan permanen di database lokal SQLite dan tidak terhapus oleh pergantian tanggal, navigasi halaman, atau restart browser.
+  - **Dibersihkan (Reset) Hanya Saat Sinkronisasi (EOD Sync)**: Histori chat AI dan cache analisis (`AIAnalysis`, `RecoveryDeepDive`) otomatis di-reset saat sinkronisasi data pasar baru dijalankan (melalui tombol Sinkronisasi EOD `POST /api/v1/stocks/fetch-all`, CLI `sync_eod.py`, jadwal harian 17:30 WIB di `backend/scheduler.py`, atau tombol manual *Bersihkan Riwayat* di UI), sehingga siklus percakapan selalu relevan dengan data candle closing bursa terbaru.
+  - Dilengkapi endpoint API lengkap: `GET`/`DELETE` untuk `/api/v1/analysis/{ticker}/chat-history`, `/api/v1/recovery/{ticker}/chat-history`, dan `/api/v1/screener/{ticker}/chat-history`.
+
 
 ### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
 - Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
@@ -200,8 +202,10 @@ make 9router    # Jalankan hanya 9Router AI Gateway (:20128)
 make stop       # Hentikan seluruh proses (:8000, :3000, :20128)
 make sync-eod   # Sinkronisasi data closing EOD Yahoo Finance
 
-# 2. Build Verification (Harus 0 TypeScript error)
+# 2. Build & Code Formatting Verification (Harus 0 TypeScript error & lolos Prettier)
 make build      # atau: cd frontend && npm run build
+cd frontend && npm run format       # Format semua file frontend dengan Prettier
+cd frontend && npm run format:check # Verifikasi formatting frontend
 
 # 3. Sinkronisasi Data EOD via Workspace Skill
 ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py

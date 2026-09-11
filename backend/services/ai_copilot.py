@@ -6,7 +6,7 @@ from datetime import datetime, date
 from typing import Dict, Any, Tuple, Optional, List
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from models import AIAnalysis, Holding, RecoveryDeepDive
+from models import AIAnalysis, Holding, RecoveryDeepDive, CopilotChatLog, RecoveryChatLog, ScreenerChatLog
 
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV_PATH = os.path.join(BACKEND_DIR, ".env")
@@ -1087,3 +1087,248 @@ def discuss_recovery_scenario(
             "Bolehkah saya mencicil bertahap dengan saldo kas yang ada?"
         ]
     }
+
+
+def discuss_screener_recommendation(
+    screener_item: Dict[str, Any],
+    user_question: Optional[str] = None,
+    conversation_history: Optional[List[dict]] = None,
+    db: Optional[Session] = None,
+    provider: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Menjawab pertanyaan trader atau memberikan bedah AI mendalam mengapa saham dari Screener ini direkomendasikan,
+    menghitung Skor Perhatian (1-10) di mana 10 berarti Wajib Dibeli Besok Pagi,
+    serta memberikan panduan teknikal, trigger konfirmasi 09:00 WIB, invalidation level, dan alokasi risiko.
+    """
+    ticker = screener_item.get("ticker", "UNKNOWN.JK")
+    name = screener_item.get("name", ticker)
+    sector = screener_item.get("sector", "General")
+    price = float(screener_item.get("price", 0))
+    change_pct = float(screener_item.get("change_pct", screener_item.get("changePct", 0)))
+    rsi = float(screener_item.get("rsi", 50.0))
+    strategy = screener_item.get("strategy", "VALUE").upper()
+    score_100 = float(screener_item.get("score", 85))
+    why_buy = screener_item.get("why_buy", screener_item.get("whyBuy", screener_item.get("catalyst", "")))
+    watch_trigger = screener_item.get("watch_trigger", screener_item.get("watchTrigger", ""))
+    buy_area = screener_item.get("buy_area", screener_item.get("buyArea", f"Rp {int(price):,}"))
+    target_price = float(screener_item.get("target_price", screener_item.get("targetPrice", price * 1.08)))
+    stop_loss = float(screener_item.get("stop_loss", screener_item.get("stopLoss", price * 0.95)))
+    rrr = screener_item.get("risk_reward_ratio", screener_item.get("riskRewardRatio", "1 : 2.0"))
+    ma_status = screener_item.get("ma_status", screener_item.get("maStatus", "Normal"))
+
+    # Hitung default Skor Perhatian 1-10
+    if score_100 >= 90 or (score_100 >= 87 and ("2." in rrr or "3." in rrr or "4." in rrr)):
+        default_conviction_score = 10
+        default_conviction_label = "Wajib Dibeli Besok Pagi (Setup Sempurna)"
+    elif score_100 >= 85:
+        default_conviction_score = 9
+        default_conviction_label = "Sangat Direkomendasikan Beli Besok Pagi"
+    elif score_100 >= 80:
+        default_conviction_score = 8
+        default_conviction_label = "Prioritas Masuk Radar Beli"
+    elif score_100 >= 75:
+        default_conviction_score = 7
+        default_conviction_label = "Layak Pantau / Akumulasi Bertahap"
+    else:
+        default_conviction_score = 6
+        default_conviction_label = "Tunggu Konfirmasi Pantulan"
+
+    active_provider = provider or get_active_provider()
+    has_valid_api = bool(get_ai_api_key())
+
+    q_clean = user_question.strip() if user_question else ""
+
+    if has_valid_api:
+        try:
+            history_context = ""
+            if conversation_history and len(conversation_history) > 0:
+                history_lines = []
+                for h in conversation_history[-6:]:
+                    role_label = "USER" if h.get("role") == "user" else "AI"
+                    msg_text = h.get("message") or h.get("text", "")
+                    if msg_text:
+                        history_lines.append(f"{role_label}: {msg_text}")
+                if history_lines:
+                    history_context = "\nRiwayat Diskusi Sebelumnya:\n" + "\n".join(history_lines) + "\n"
+
+            system_prompt = (
+                "Anda adalah AI Senior Quantitative Analyst & Technical Strategist spesialis pasar saham Bursa Efek Indonesia (IDX). "
+                "Tugas Anda adalah membedah secara objektif mengapa suatu saham masuk dalam rekomendasi EOD Screener, "
+                "menilai tingkat kelayakan beli dengan Skor Perhatian (1-10) di mana SKOR 10 berarti 'WAJIB DIBELI BESOK PAGI' "
+                "karena setup teknikalnya sudah matang dan RRR prima, serta menjawab pertanyaan trader secara taktis dan disiplin risiko.\n\n"
+                "ATURAN DAN SKALA SKOR PERHATIAN (1-10):\n"
+                "• 10/10: WAJIB DIBELI BESOK PAGI (Setup sempurna, breakout valid/oversold lantai kuat, RRR >= 1:2.0, volume akumulasi).\n"
+                "• 8-9/10: SANGAT DIREKOMENDASIKAN (Kondisi sangat bagus, siap antre dengan konfirmasi pembukaan 09:00 WIB).\n"
+                "• 6-7/10: LAYAK PANTAU / AKUMULASI (Bagus untuk swing atau cicil DCA bertahap di area support).\n"
+                "• 4-5/10: SPEKULATIF / WAIT & SEE (Volatilitas tinggi atau dekat resisten).\n"
+                "• 1-3/10: HINDARI SEMENTARA (Risiko breakdown lebih dominan).\n\n"
+                "Format Wajib: Berikan jawaban dalam JSON valid dengan schema:\n"
+                "{\n"
+                '  "conviction_score": 10,\n'
+                '  "conviction_label": "Wajib Dibeli Besok Pagi (Setup Sempurna)",\n'
+                '  "conviction_reason": "Ringkasan 1-2 kalimat alasan skor conviction ini...",\n'
+                '  "answer": "Penjelasan detail komprehensif membedah teknikal, alasan rekomendasi, SOP entry jam 09:00 WIB, dan menjawab pertanyaan pengguna jika ada...",\n'
+                '  "suggested_questions": ["Pertanyaan taktis 1", "Pertanyaan taktis 2", "Pertanyaan taktis 3"]\n'
+                "}\n"
+                "Pastikan seluruh harga rupiah bulat (contoh: Rp 1.450)."
+            )
+
+            prompt = f"""
+            Data Rekomendasi Screener EOD:
+            - Saham: {ticker} ({name})
+            - Sektor: {sector}
+            - Harga Closing Terakhir: Rp {int(price):,} ({change_pct:+.2f}%)
+            - Strategi Screener: {strategy}
+            - AI Technical Score (0-100): {score_100:.0f}/100
+            - Indikator: RSI={rsi:.1f} | Status={ma_status}
+            - Area Beli Ideal: {buy_area}
+            - Target Profit (TP): Rp {int(target_price):,}
+            - Stop Loss (SL): Rp {int(stop_loss):,}
+            - Risk/Reward Ratio: {rrr}
+            - Alasan Sistem: {why_buy}
+            - Wajib Dipantau Besok: {watch_trigger}
+
+            {history_context}
+            Pertanyaan Trader:
+            "{q_clean if q_clean else 'Mengapa saham ini direkomendasikan dan berapa skor perhatian (1-10) untuk dibeli besok pagi?'}"
+            """
+
+            resp_text, used_provider = call_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                preferred_provider=active_provider,
+                json_mode=True
+            )
+
+            parsed = _extract_json(resp_text)
+            conv_score = parsed.get("conviction_score", default_conviction_score)
+            try:
+                conv_score = int(conv_score)
+                conv_score = min(max(conv_score, 1), 10)
+            except Exception:
+                conv_score = default_conviction_score
+
+            conv_label = parsed.get("conviction_label", default_conviction_label)
+            ans = parsed.get("answer") or parsed.get("rationale") or _clean_chat_response(resp_text)
+            sugg = parsed.get("suggested_questions") or [
+                f"Apakah aman pasang antrean buy di area {buy_area} saat pembukaan?",
+                f"Berapa porsi lot maksimal dari saldo kas untuk {ticker}?",
+                f"Apa tanda pembatalan setup jika market merah besok?"
+            ]
+
+            return {
+                "status": "success",
+                "source": used_provider,
+                "ticker": ticker,
+                "conviction_score": conv_score,
+                "conviction_label": conv_label,
+                "conviction_reason": parsed.get("conviction_reason", ""),
+                "answer": ans,
+                "suggested_questions": sugg[:3]
+            }
+
+        except Exception as e:
+            print(f"[discuss_screener_recommendation] {active_provider} error: {e}, falling back to rule-based engine")
+
+    # Fallback Deterministic Rule-Based Expert Engine
+    if strategy == "BREAKOUT":
+        rec_detail = (
+            f"Saham {ticker} ({name}) berhasil menembus dan bertahan di atas garis penahan MA20 dengan indikator RSI {rsi:.1f}. "
+            f"Fase sideways telah selesai dan fase ekspansi momentum bullish dimulai. "
+            f"Rasio Risk:Reward tercatat menarik pada {rrr} dengan target penguatan menuju Rp {int(target_price):,} "
+            f"dan batas proteksi ketat (Stop Loss) di Rp {int(stop_loss):,}."
+        )
+        action_sop = (
+            f"1. **Buka Market (09:00–09:15 WIB)**: Amati apakah harga dibuka stabil di area beli {buy_area} dengan volume beli aktif.\n"
+            f"2. **Eksekusi Entry**: Beli maksimal 20-25% dari saldo kas Anda agar portofolio tetap terdiversifikasi sehat.\n"
+            f"3. **Proteksi & Exit**: Pasang Stop Order otomatis di sekuritas pada level Rp {int(stop_loss):,}, dan siapkan TP1 untuk kunci laba 50% lot di Rp {int(target_price):,}."
+        )
+    elif strategy == "OVERSOLD":
+        rec_detail = (
+            f"Saham {ticker} ({name}) mengalami tekanan jual jenuh ekstrem dengan RSI {rsi:.1f} tepat di atas lantai Support Mayor. "
+            f"Secara statistik, probabilitas terjadinya pantulan teknikal (Technical Rebound / Buy on Weakness) sangat tinggi "
+            f"dengan potensi gain menuju Rp {int(target_price):,} dan risiko terbatas pada level Stop Loss Rp {int(stop_loss):,} (RRR {rrr})."
+        )
+        action_sop = (
+            f"1. **Buka Market (09:00 WIB)**: Jangan langsung HAKA (Hajar Kanan). Tunggu terbentuknya candle hijau penahan di area {buy_area}.\n"
+            f"2. **Eksekusi Entry**: Masuk bertahap (50% lot pertama saat ada pantulan bid, 50% lot kedua saat volume naik).\n"
+            f"3. **Invalidasi**: Jika harga breakdown menembus ke bawah Rp {int(stop_loss):,}, batalkan rencana beli atau segera cut-loss jika sudah terlanjur match."
+        )
+    else:  # VALUE
+        rec_detail = (
+            f"Saham {ticker} ({name}) merupakan emiten berbobot fundamental solid di sektor {sector} yang sedang berkonsolidasi sehat "
+            f"di area lantai MA50 (Rp {int(price):,}). Valuasi saat ini berada di area diskon akumulasi institusi dengan rasio RRR {rrr}."
+        )
+        action_sop = (
+            f"1. **Buka Market (09:00 WIB)**: Antre santai di area beli ideal {buy_area}.\n"
+            f"2. **Strategi Akumulasi**: Lakukan Dollar-Cost Averaging (DCA) bertahap 2-3 tahap untuk investasi jangka menengah.\n"
+            f"3. **Target & Evaluasi**: Target profit bertahap di Rp {int(target_price):,}, evaluasi jika support fundamental Rp {int(stop_loss):,} ditembus."
+        )
+
+    if q_clean:
+        full_answer = (
+            f"### 🎯 Jawaban AI terkait {ticker}\n\n"
+            f"{rec_detail}\n\n"
+            f"**Terkait Pertanyaan Anda:** *\"{q_clean}\"*\n"
+            f"Dalam kaidah trading disiplin, langkah terbaik adalah menyesuaikan ukuran lot dengan saldo kas Anda dan mematuhi panduan level yang ada.\n\n"
+            f"**📋 Checklist Aksi Jam 09:00 WIB Besok:**\n"
+            f"{action_sop}"
+        )
+    else:
+        full_answer = (
+            f"### 💡 Bedah Rekomendasi AI: {ticker} ({name})\n\n"
+            f"{rec_detail}\n\n"
+            f"**📋 Checklist Aksi Jam 09:00 WIB Besok:**\n"
+            f"{action_sop}"
+        )
+
+    return {
+        "status": "success",
+        "source": "rule_based",
+        "ticker": ticker,
+        "conviction_score": default_conviction_score,
+        "conviction_label": default_conviction_label,
+        "conviction_reason": f"Setup {strategy} dengan AI Score {score_100:.0f}/100 dan RRR {rrr}.",
+        "answer": full_answer,
+        "suggested_questions": [
+            f"Apakah aman pasang antrean buy di area {buy_area} saat pembukaan 09:00 WIB?",
+            f"Berapa alokasi lot yang ideal untuk saldo kas saya?",
+            f"Apa level invalidasi jika IHSG mengalami koreksi besok?"
+        ]
+    }
+
+
+def purge_ai_chat_and_cache(db: Session, ticker: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Menghapus histori percakapan AI (Copilot, Recovery, Screener) dan cache analisis AI
+    saat sinkronisasi data pasar (EOD Sync) dilakukan, sehingga siklus analisis
+    baru dimulai dengan data harga dan candle pasar terbaru.
+    """
+    from services.data_fetcher import normalize_ticker
+    if ticker:
+        norm = normalize_ticker(ticker)
+        copilot_cnt = db.query(CopilotChatLog).filter(CopilotChatLog.ticker == norm).delete()
+        recovery_cnt = db.query(RecoveryChatLog).filter(RecoveryChatLog.ticker == norm).delete()
+        screener_cnt = db.query(ScreenerChatLog).filter(ScreenerChatLog.ticker == norm).delete()
+        analysis_cnt = db.query(AIAnalysis).filter(AIAnalysis.ticker == norm).delete()
+        deepdive_cnt = db.query(RecoveryDeepDive).filter(RecoveryDeepDive.ticker == norm).delete()
+    else:
+        copilot_cnt = db.query(CopilotChatLog).delete()
+        recovery_cnt = db.query(RecoveryChatLog).delete()
+        screener_cnt = db.query(ScreenerChatLog).delete()
+        analysis_cnt = db.query(AIAnalysis).delete()
+        deepdive_cnt = db.query(RecoveryDeepDive).delete()
+
+    db.commit()
+    return {
+        "status": "success",
+        "ticker": ticker or "ALL",
+        "copilot_deleted": copilot_cnt,
+        "recovery_deleted": recovery_cnt,
+        "screener_deleted": screener_cnt,
+        "analysis_deleted": analysis_cnt,
+        "deepdive_deleted": deepdive_cnt
+    }
+
+

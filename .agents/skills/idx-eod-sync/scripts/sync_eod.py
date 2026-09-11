@@ -23,6 +23,7 @@ from models import Holding, PriceHistory
 from services.data_fetcher import fetch_and_store_stock_data, normalize_ticker
 from services.technical import get_latest_indicators
 from services.portfolio_engine import evaluate_holding_status
+from services.ai_copilot import purge_ai_chat_and_cache
 
 def format_idr(val: float) -> str:
     if val >= 0:
@@ -35,12 +36,13 @@ def sync_eod(ticker: str = None, period: str = "6mo", as_json: bool = False):
     try:
         if ticker:
             ticker = normalize_ticker(ticker)
+            purged = purge_ai_chat_and_cache(db, ticker=ticker)
             holdings = db.query(Holding).filter(Holding.ticker == ticker).all()
             if not holdings:
                 print(f"[!] Saham {ticker} tidak ditemukan di tabel portofolio.")
                 print(f"[*] Tetap menarik data harga {ticker} ke database...")
                 df = fetch_and_store_stock_data(ticker, db, period=period)
-                print(f"[✓] Berhasil menarik {len(df)} baris data untuk {ticker}.")
+                print(f"[✓] Berhasil menarik {len(df)} baris data untuk {ticker}. Chat & cache telah direset.")
                 return
         else:
             holdings = db.query(Holding).all()
@@ -52,6 +54,10 @@ def sync_eod(ticker: str = None, period: str = "6mo", as_json: bool = False):
         print(f"📊 ASISTEN SAHAM IDX — EOD MARKET SYNC ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
         print(f"========================================================")
         print(f"[*] Menghubungi Yahoo Finance untuk {len(holdings)} emiten...")
+
+        # Reset histori percakapan AI & cache analisis agar siklus baru dimulai dengan data pasar terbaru
+        purged = purge_ai_chat_and_cache(db, ticker=ticker)
+        print(f"[*] Reset histori chat AI & cache ({purged['copilot_deleted']} copilot, {purged['recovery_deleted']} recovery, {purged['screener_deleted']} screener, {purged['analysis_deleted']} analisis)...")
 
         evaluated_list = []
         total_equity = 0.0

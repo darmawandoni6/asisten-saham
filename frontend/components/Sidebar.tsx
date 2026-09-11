@@ -1,50 +1,41 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Briefcase, 
-  LifeBuoy, 
-  Search, 
-  BookOpen, 
-  Sparkles,
-  TrendingUp,
-  ShieldAlert,
-  HelpCircle
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { BookOpen, Briefcase, HelpCircle, LayoutDashboard, LifeBuoy, Search, Sparkles, TrendingUp } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   {
-    label: "Smart Dashboard",
-    href: "/",
+    label: 'Smart Dashboard',
+    href: '/',
     icon: LayoutDashboard,
   },
   {
-    label: "Portofolio & Plan",
-    href: "/portfolio",
+    label: 'Portofolio & Plan',
+    href: '/portfolio',
     icon: Briefcase,
   },
   {
-    label: "Recovery Engine",
-    href: "/recovery",
+    label: 'Recovery Engine',
+    href: '/recovery',
     icon: LifeBuoy,
   },
   {
-    label: "EOD Screener",
-    href: "/screener",
+    label: 'EOD Screener',
+    href: '/screener',
     icon: Search,
   },
   {
-    label: "Trading Journal",
-    href: "/journal",
+    label: 'Trading Journal',
+    href: '/journal',
     icon: BookOpen,
   },
   {
-    label: "Panduan Cara Pakai",
-    href: "/guide",
+    label: 'Panduan Cara Pakai',
+    href: '/guide',
     icon: HelpCircle,
   },
 ];
@@ -73,10 +64,8 @@ export function Sidebar() {
 
         {/* Navigation Items */}
         <div className="px-3 py-5 space-y-1">
-          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase mb-2">
-            Menu Utama
-          </p>
-          {NAV_ITEMS.map((item) => {
+          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase mb-2">Menu Utama</p>
+          {NAV_ITEMS.map(item => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
             return (
@@ -84,17 +73,17 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group",
+                  'flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group',
                   isActive
-                    ? "bg-emerald-50 text-emerald-800 font-semibold shadow-xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    ? 'bg-emerald-50 text-emerald-800 font-semibold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
-                      "w-4 h-4 transition-colors",
-                      isActive ? "text-emerald-700" : "text-slate-400 group-hover:text-slate-600"
+                      'w-4 h-4 transition-colors',
+                      isActive ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600',
                     )}
                   />
                   <span>{item.label}</span>
@@ -111,7 +100,8 @@ export function Sidebar() {
             <span>Siklus Kerja EOD</span>
           </div>
           <p className="text-[11px] text-slate-500 leading-relaxed">
-            Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah penutupan bursa IDX untuk aksi esok hari.
+            Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah
+            penutupan bursa IDX untuk aksi esok hari.
           </p>
         </div>
       </div>

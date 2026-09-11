@@ -5,6 +5,7 @@ from models import Holding, PriceHistory, get_cash_balance
 from services.data_fetcher import fetch_and_store_stock_data, normalize_ticker
 from services.technical import get_latest_indicators
 from services.portfolio_engine import evaluate_holding_status
+from services.ai_copilot import purge_ai_chat_and_cache
 import pandas as pd
 
 router = APIRouter(prefix="/api/v1", tags=["Stocks & Dashboard"])
@@ -113,7 +114,8 @@ def get_stock_chart(ticker: str, db: Session = Depends(get_db)):
 def manual_fetch(ticker: str, db: Session = Depends(get_db)):
     ticker = normalize_ticker(ticker)
     df = fetch_and_store_stock_data(ticker, db, period="6mo")
-    return {"status": "success", "ticker": ticker, "rows_fetched": len(df)}
+    purged = purge_ai_chat_and_cache(db, ticker=ticker)
+    return {"status": "success", "ticker": ticker, "rows_fetched": len(df), "purged_chat_cache": purged}
 
 @router.post("/stocks/fetch-all")
 def fetch_all(db: Session = Depends(get_db)):
@@ -122,4 +124,6 @@ def fetch_all(db: Session = Depends(get_db)):
     for h in holdings:
         df = fetch_and_store_stock_data(h.ticker, db, period="6mo")
         results[h.ticker] = len(df)
-    return {"status": "success", "fetched": results}
+    purged = purge_ai_chat_and_cache(db)
+    return {"status": "success", "fetched": results, "purged_chat_cache": purged}
+

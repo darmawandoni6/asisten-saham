@@ -1,31 +1,26 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { Topbar } from "@/components/Topbar";
-import { TradeLogItem } from "@/types";
-import { formatNumber, formatPercent, formatRupiah } from "@/lib/utils";
-import { 
-  Brain, 
-  AlertCircle, 
-  CheckCircle2, 
-  Plus, 
-  Flame, 
-  X,
-  Inbox
-} from "lucide-react";
-import { api } from "@/lib/api";
+import React, { useEffect, useState } from 'react';
+
+import { AlertCircle, Brain, CheckCircle2, Flame, Inbox, Plus, X } from 'lucide-react';
+
+import { Topbar } from '@/components/Topbar';
+import { api } from '@/lib/api';
+import { formatNumber, formatPercent, formatRupiah } from '@/lib/utils';
+import { TradeLogItem } from '@/types';
 
 const INITIAL_POST_MORTEM = {
   winRatePct: 0.0,
   totalRealizedPnl: 0,
   profitFactor: 0.0,
   totalTrades: 0,
-  dominantPattern: "Belum ada transaksi tercatat",
-  aiFeedback: "Belum ada riwayat transaksi yang ditutup. Catat hasil penjualan atau cut loss Anda pada tombol 'Catat Transaksi' untuk mulai menganalisis performa dan mendeteksi bias emosi trading.",
+  dominantPattern: 'Belum ada transaksi tercatat',
+  aiFeedback:
+    "Belum ada riwayat transaksi yang ditutup. Catat hasil penjualan atau cut loss Anda pada tombol 'Catat Transaksi' untuk mulai menganalisis performa dan mendeteksi bias emosi trading.",
   recommendations: [
-    "Catat setiap hasil transaksi secara jujur dan disiplin.",
-    "Selalu tentukan Target Profit dan Stop Loss sebelum mengeksekusi order beli."
-  ]
+    'Catat setiap hasil transaksi secara jujur dan disiplin.',
+    'Selalu tentukan Target Profit dan Stop Loss sebelum mengeksekusi order beli.',
+  ],
 };
 
 export default function JournalPage() {
@@ -34,24 +29,21 @@ export default function JournalPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // New Trade Form
-  const [ticker, setTicker] = useState("");
-  const [action, setAction] = useState<"BUY" | "SELL" | "CUT_LOSS">("SELL");
-  const [price, setPrice] = useState("");
-  const [lot, setLot] = useState("");
-  const [realizedPnl, setRealizedPnl] = useState("");
-  const [notes, setNotes] = useState("");
-  const [flag, setFlag] = useState<"DISCIPLINED" | "FOMO_BUY" | "PANIC_SELL">("DISCIPLINED");
+  const [ticker, setTicker] = useState('');
+  const [action, setAction] = useState<'BUY' | 'SELL' | 'CUT_LOSS'>('SELL');
+  const [price, setPrice] = useState('');
+  const [lot, setLot] = useState('');
+  const [realizedPnl, setRealizedPnl] = useState('');
+  const [notes, setNotes] = useState('');
+  const [flag, setFlag] = useState<'DISCIPLINED' | 'FOMO_BUY' | 'PANIC_SELL'>('DISCIPLINED');
 
   const loadJournal = async () => {
     try {
-      const [tradesData, pmData] = await Promise.all([
-        api.getTrades(),
-        api.getPostMortem()
-      ]);
+      const [tradesData, pmData] = await Promise.all([api.getTrades(), api.getPostMortem()]);
       setTradeLogs(tradesData || []);
       if (pmData) setPostMortem(pmData);
     } catch (e) {
-      console.warn("Journal API fallback:", e);
+      console.warn('Journal API fallback:', e);
     }
   };
 
@@ -75,13 +67,13 @@ export default function JournalPage() {
         lot: lotNum,
         realized_pnl: pnlNum,
         notes,
-        psychology_flag: flag
+        psychology_flag: flag,
       });
       await loadJournal();
     } catch (err) {
       const newItem: TradeLogItem = {
         id: Date.now(),
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toISOString().split('T')[0],
         ticker: ticker.toUpperCase(),
         action,
         price: priceNum,
@@ -96,28 +88,28 @@ export default function JournalPage() {
     }
 
     setIsModalOpen(false);
-    setTicker("");
-    setPrice("");
-    setLot("");
-    setRealizedPnl("");
-    setNotes("");
+    setTicker('');
+    setPrice('');
+    setLot('');
+    setRealizedPnl('');
+    setNotes('');
   };
 
   const getFlagBadge = (flag?: string) => {
     switch (flag) {
-      case "DISCIPLINED":
+      case 'DISCIPLINED':
         return (
           <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" /> Disiplin Plan
           </span>
         );
-      case "FOMO_BUY":
+      case 'FOMO_BUY':
         return (
           <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold flex items-center gap-1">
             <Flame className="w-3 h-3" /> FOMO Buy
           </span>
         );
-      case "PANIC_SELL":
+      case 'PANIC_SELL':
         return (
           <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold flex items-center gap-1">
             <AlertCircle className="w-3 h-3" /> Panic Sell
@@ -150,12 +142,8 @@ export default function JournalPage() {
           </div>
 
           <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
-              Win Rate
-            </span>
-            <div className="mt-2 text-xl font-bold font-mono text-slate-900">
-              {postMortem.winRatePct}%
-            </div>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Win Rate</span>
+            <div className="mt-2 text-xl font-bold font-mono text-slate-900">{postMortem.winRatePct}%</div>
             <p className="text-[11px] text-slate-500 mt-1">Dihitung dari {tradeLogs.length} transaksi</p>
           </div>
 
@@ -163,9 +151,7 @@ export default function JournalPage() {
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
               Profit Factor
             </span>
-            <div className="mt-2 text-xl font-bold font-mono text-slate-900">
-              {postMortem.profitFactor}x
-            </div>
+            <div className="mt-2 text-xl font-bold font-mono text-slate-900">{postMortem.profitFactor}x</div>
             <p className="text-[11px] text-slate-500 mt-1">Rasio gross profit vs gross loss</p>
           </div>
 
@@ -173,9 +159,7 @@ export default function JournalPage() {
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
               Evaluasi Dominan
             </span>
-            <div className="mt-2 text-xs font-bold text-amber-700 truncate">
-              {postMortem.dominantPattern}
-            </div>
+            <div className="mt-2 text-xs font-bold text-amber-700 truncate">{postMortem.dominantPattern}</div>
             <p className="text-[11px] text-slate-500 mt-1">Terdeteksi oleh AI post-mortem</p>
           </div>
         </div>
@@ -252,50 +236,42 @@ export default function JournalPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
                 {tradeLogs.length > 0 ? (
-                  tradeLogs.map((log) => {
+                  tradeLogs.map(log => {
                     const isProfit = (log.realizedPnl || 0) >= 0;
                     return (
                       <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3.5 px-3 font-mono text-slate-500 text-[11px]">
-                          {log.date}
-                        </td>
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">
-                          {log.ticker}
-                        </td>
+                        <td className="py-3.5 px-3 font-mono text-slate-500 text-[11px]">{log.date}</td>
+                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">{log.ticker}</td>
                         <td className="py-3.5 px-3">
-                          <span className={`text-[10px] px-2 py-0.5 rounded font-bold font-mono border ${
-                            log.action === "SELL"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : log.action === "BUY"
-                              ? "bg-sky-50 text-sky-700 border-sky-200"
-                              : "bg-rose-50 text-rose-700 border-rose-200"
-                          }`}>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded font-bold font-mono border ${
+                              log.action === 'SELL'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : log.action === 'BUY'
+                                  ? 'bg-sky-50 text-sky-700 border-sky-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
                             {log.action}
                           </span>
                         </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">
-                          Rp {formatNumber(log.price)}
-                        </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-700">
-                          {log.lot} Lot
-                        </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">
-                          {formatRupiah(log.totalValue)}
-                        </td>
+                        <td className="py-3.5 px-3 font-mono text-slate-800">Rp {formatNumber(log.price)}</td>
+                        <td className="py-3.5 px-3 font-mono text-slate-700">{log.lot} Lot</td>
+                        <td className="py-3.5 px-3 font-mono text-slate-800">{formatRupiah(log.totalValue)}</td>
                         <td className="py-3.5 px-3 font-mono font-bold">
-                          {log.realizedPnl !== undefined && log.realizedPnl !== null && log.action !== "BUY" ? (
-                            <div className={isProfit ? "text-emerald-700" : "text-rose-600"}>
-                              {isProfit ? "+" : ""}{formatRupiah(log.realizedPnl)} ({isProfit ? "+" : ""}{formatPercent(log.realizedPnlPct || 0)})
+                          {log.realizedPnl !== undefined && log.realizedPnl !== null && log.action !== 'BUY' ? (
+                            <div className={isProfit ? 'text-emerald-700' : 'text-rose-600'}>
+                              {isProfit ? '+' : ''}
+                              {formatRupiah(log.realizedPnl)} ({isProfit ? '+' : ''}
+                              {formatPercent(log.realizedPnlPct || 0)})
                             </div>
                           ) : (
                             <span className="text-slate-400 font-normal text-xs">-</span>
                           )}
                         </td>
-                        <td className="py-3.5 px-3">
-                          {getFlagBadge(log.psychologyFlag)}
-                        </td>
+                        <td className="py-3.5 px-3">{getFlagBadge(log.psychologyFlag)}</td>
                         <td className="py-3.5 px-3 text-slate-600 text-[11px] max-w-xs leading-relaxed">
-                          {log.notes || "-"}
+                          {log.notes || '-'}
                         </td>
                       </tr>
                     );
@@ -339,7 +315,7 @@ export default function JournalPage() {
                   type="text"
                   placeholder="Contoh: BBRI.JK"
                   value={ticker}
-                  onChange={(e) => setTicker(e.target.value)}
+                  onChange={e => setTicker(e.target.value)}
                   required
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono uppercase focus:outline-none focus:border-emerald-600"
                 />
@@ -350,7 +326,7 @@ export default function JournalPage() {
                   <label className="block text-slate-700 font-medium mb-1">Aksi</label>
                   <select
                     value={action}
-                    onChange={(e) => setAction(e.target.value as any)}
+                    onChange={e => setAction(e.target.value as any)}
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
                   >
                     <option value="SELL">SELL (Take Profit)</option>
@@ -361,7 +337,7 @@ export default function JournalPage() {
                   <label className="block text-slate-700 font-medium mb-1">Evaluasi Psikologi</label>
                   <select
                     value={flag}
-                    onChange={(e) => setFlag(e.target.value as any)}
+                    onChange={e => setFlag(e.target.value as any)}
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
                   >
                     <option value="DISCIPLINED">Disiplin Trading Plan</option>
@@ -378,7 +354,7 @@ export default function JournalPage() {
                     type="number"
                     placeholder="5100"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={e => setPrice(e.target.value)}
                     required
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                   />
@@ -389,7 +365,7 @@ export default function JournalPage() {
                     type="number"
                     placeholder="50"
                     value={lot}
-                    onChange={(e) => setLot(e.target.value)}
+                    onChange={e => setLot(e.target.value)}
                     required
                     className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                   />
@@ -402,7 +378,7 @@ export default function JournalPage() {
                   type="number"
                   placeholder="Contoh: 1500000 (jika profit) atau -500000 (jika rugi)"
                   value={realizedPnl}
-                  onChange={(e) => setRealizedPnl(e.target.value)}
+                  onChange={e => setRealizedPnl(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
                 />
               </div>
@@ -413,7 +389,7 @@ export default function JournalPage() {
                   rows={2}
                   placeholder="Apa yang dipelajari dari transaksi ini..."
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={e => setNotes(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
                 />
               </div>

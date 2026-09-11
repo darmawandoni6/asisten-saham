@@ -1,9 +1,9 @@
-import { PriceCandle } from "@/types";
+import { PriceCandle } from '@/types';
 
 export function generateMockCandles(
   basePrice: number,
-  trend: "up" | "down" | "flat" = "up",
-  days: number = 60
+  trend: 'up' | 'down' | 'flat' = 'up',
+  days: number = 60,
 ): PriceCandle[] {
   const candles: PriceCandle[] = [];
   let price = basePrice;
@@ -17,15 +17,15 @@ export function generateMockCandles(
     const dayOfWeek = date.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = date.toISOString().split('T')[0];
 
     const volatility = price * 0.02;
     const delta =
-      trend === "up"
+      trend === 'up'
         ? (Math.random() - 0.44) * volatility
-        : trend === "down"
-        ? (Math.random() - 0.56) * volatility
-        : (Math.random() - 0.5) * volatility;
+        : trend === 'down'
+          ? (Math.random() - 0.56) * volatility
+          : (Math.random() - 0.5) * volatility;
 
     const open = Math.round(price);
     const close = Math.round(price + delta);
@@ -68,9 +68,9 @@ export function generateMockCandles(
 }
 
 export const MOCK_CANDLES_BY_TICKER: Record<string, PriceCandle[]> = {
-  "BBRI.JK": generateMockCandles(4700, "up", 75),
-  "BRIS.JK": generateMockCandles(2300, "up", 75),
-  "SIDO.JK": generateMockCandles(630, "down", 75),
-  "ASII.JK": generateMockCandles(5200, "down", 75),
-  "GOTO.JK": generateMockCandles(65, "down", 75),
+  'BBRI.JK': generateMockCandles(4700, 'up', 75),
+  'BRIS.JK': generateMockCandles(2300, 'up', 75),
+  'SIDO.JK': generateMockCandles(630, 'down', 75),
+  'ASII.JK': generateMockCandles(5200, 'down', 75),
+  'GOTO.JK': generateMockCandles(65, 'down', 75),
 };

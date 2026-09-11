@@ -133,6 +133,23 @@ def evaluate_screener_indicators(df, ticker: str, profile_name: str, profile_sec
 
     score = min(max(score, 70), 98)
 
+    # Conviction Score 1 - 10 (Skor Perhatian / Keyakinan Beli Besok Pagi)
+    if score >= 90 or (score >= 87 and rrr_num >= 2.0):
+        conviction_score = 10
+        conviction_label = "Wajib Dibeli Besok Pagi"
+    elif score >= 85:
+        conviction_score = 9
+        conviction_label = "Sangat Direkomendasikan Beli Besok Pagi"
+    elif score >= 80:
+        conviction_score = 8
+        conviction_label = "Prioritas Masuk Radar Beli"
+    elif score >= 75:
+        conviction_score = 7
+        conviction_label = "Layak Pantau / Akumulasi Bertahap"
+    else:
+        conviction_score = 6
+        conviction_label = "Tunggu Konfirmasi Pantulan"
+
     # Risk / Reward calculations
     potential_gain_nominal = max(target_price - close, 1)
     potential_risk_nominal = max(close - stop_loss, 1)
@@ -155,6 +172,8 @@ def evaluate_screener_indicators(df, ticker: str, profile_name: str, profile_sec
         "ma_status": ma_status,
         "strategy": strategy,
         "score": score,
+        "conviction_score": conviction_score,
+        "conviction_label": conviction_label,
         "catalyst": why_buy,
         "action_stance": action_stance,
         "why_buy": why_buy,

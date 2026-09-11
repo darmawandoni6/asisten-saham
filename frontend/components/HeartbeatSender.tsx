@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { api } from "@/lib/api";
+import { useEffect } from 'react';
+
+import { api } from '@/lib/api';
 
 export function HeartbeatSender() {
   useEffect(() => {
@@ -16,16 +17,16 @@ export function HeartbeatSender() {
     const interval = setInterval(sendHeartbeat, 15000);
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === 'visible') {
         sendHeartbeat();
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

@@ -1,19 +1,7 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { api } from "@/lib/api";
-import { formatNumber, formatPercent } from "@/lib/utils";
-import { AICopilotAnalysisResult, Holding } from "@/types";
+import { useEffect, useRef, useState } from 'react';
+
 import {
   AlertTriangle,
   Bot,
@@ -28,9 +16,18 @@ import {
   Target,
   Trash2,
   X,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { MarkdownText } from "./MarkdownText";
+} from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { api } from '@/lib/api';
+import { formatNumber, formatPercent } from '@/lib/utils';
+import { AICopilotAnalysisResult, Holding } from '@/types';
+
+import { MarkdownText } from './MarkdownText';
 
 interface AICopilotPanelProps {
   holding: Holding;
@@ -38,21 +35,17 @@ interface AICopilotPanelProps {
   onClose?: () => void;
 }
 
-export function AICopilotPanel({
-  holding,
-  isOpen = true,
-  onClose,
-}: AICopilotPanelProps) {
+export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPanelProps) {
   const [data, setData] = useState<AICopilotAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentTicker, setCurrentTicker] = useState(holding.ticker);
 
   // Chat state
-  const [chatHistory, setChatHistory] = useState<
-    Array<{ role: "user" | "assistant"; text: string; source?: string }>
-  >([]);
-  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string; source?: string }>>(
+    [],
+  );
+  const [chatInput, setChatInput] = useState('');
   const [isSendingChat, setIsSendingChat] = useState(false);
   const [retryingChatIdx, setRetryingChatIdx] = useState<number | null>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -71,7 +64,7 @@ export function AICopilotPanel({
     async function loadData() {
       try {
         const [analysisRes, historyRes] = await Promise.all([
-          api.analyzeStock(holding.ticker, "9router"),
+          api.analyzeStock(holding.ticker, '9router'),
           api.getCopilotChatHistory(holding.ticker).catch(() => []),
         ]);
 
@@ -79,7 +72,7 @@ export function AICopilotPanel({
           setData(analysisRes as AICopilotAnalysisResult);
           if (Array.isArray(historyRes) && historyRes.length > 0) {
             setChatHistory(
-              historyRes.map((h) => ({
+              historyRes.map(h => ({
                 role: h.role,
                 text: h.message,
                 source: h.source,
@@ -92,14 +85,11 @@ export function AICopilotPanel({
         }
       } catch (err: unknown) {
         if (isMounted) {
-          const errorMessage =
-            err instanceof Error
-              ? err.message
-              : "Pastikan server backend berjalan di port 8000.";
+          const errorMessage = err instanceof Error ? err.message : 'Pastikan server backend berjalan di port 8000.';
           setData({
-            status: "error",
-            error_type: "AI_ERROR",
-            message: "Gagal terhubung ke server backend AI.",
+            status: 'error',
+            error_type: 'AI_ERROR',
+            message: 'Gagal terhubung ke server backend AI.',
             detail: errorMessage,
           });
           setIsLoading(false);
@@ -126,17 +116,14 @@ export function AICopilotPanel({
     setIsRefreshing(true);
     setChatHistory([]); // Clear chat state immediately
     try {
-      const res = await api.analyzeStock(holding.ticker, "9router", true);
+      const res = await api.analyzeStock(holding.ticker, '9router', true);
       setData(res as AICopilotAnalysisResult);
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Pastikan server backend berjalan di port 8000.";
+      const errorMessage = err instanceof Error ? err.message : 'Pastikan server backend berjalan di port 8000.';
       setData({
-        status: "error",
-        error_type: "AI_ERROR",
-        message: "Gagal terhubung ke server backend AI.",
+        status: 'error',
+        error_type: 'AI_ERROR',
+        message: 'Gagal terhubung ke server backend AI.',
         detail: errorMessage,
       });
     } finally {
@@ -150,7 +137,7 @@ export function AICopilotPanel({
       await api.clearCopilotChatHistory(holding.ticker);
       setChatHistory([]);
     } catch (err) {
-      console.warn("Failed to clear chat history:", err);
+      console.warn('Failed to clear chat history:', err);
     }
   };
 
@@ -159,29 +146,23 @@ export function AICopilotPanel({
     const q = questionText.trim();
     if (!q || isSendingChat) return;
 
-    setChatInput("");
-    setChatHistory((prev) => [...prev, { role: "user", text: q }]);
+    setChatInput('');
+    setChatHistory(prev => [...prev, { role: 'user', text: q }]);
     setIsSendingChat(true);
 
     try {
       const res = await api.sendCopilotChat(holding.ticker, { question: q });
       if (res && res.answer) {
-        setChatHistory((prev) => [
-          ...prev,
-          { role: "assistant", text: res.answer, source: res.source },
-        ]);
+        setChatHistory(prev => [...prev, { role: 'assistant', text: res.answer, source: res.source }]);
       }
     } catch (err: unknown) {
-      const errMsg =
-        err instanceof Error
-          ? err.message
-          : "Terjadi kendala saat menghubungi AI.";
-      setChatHistory((prev) => [
+      const errMsg = err instanceof Error ? err.message : 'Terjadi kendala saat menghubungi AI.';
+      setChatHistory(prev => [
         ...prev,
         {
-          role: "assistant",
+          role: 'assistant',
           text: `Maaf, kendala memproses pertanyaan: ${errMsg}. Silakan coba lagi.`,
-          source: "rule_based",
+          source: 'rule_based',
         },
       ]);
     } finally {
@@ -192,9 +173,9 @@ export function AICopilotPanel({
   // Retry a question with AI if answered by rule-based fallback
   const handleRetryChat = async (assistantIdx: number) => {
     if (retryingChatIdx !== null || isSendingChat) return;
-    let qText = "";
+    let qText = '';
     for (let i = assistantIdx - 1; i >= 0; i--) {
-      if (chatHistory[i].role === "user") {
+      if (chatHistory[i].role === 'user') {
         qText = chatHistory[i].text;
         break;
       }
@@ -208,10 +189,10 @@ export function AICopilotPanel({
         force_refresh: true,
       });
       if (res && res.answer) {
-        setChatHistory((prev) => {
+        setChatHistory(prev => {
           const next = [...prev];
           next[assistantIdx] = {
-            role: "assistant",
+            role: 'assistant',
             text: res.answer,
             source: res.source,
           };
@@ -219,56 +200,54 @@ export function AICopilotPanel({
         });
       }
     } catch (err) {
-      console.warn("Retry chat error:", err);
+      console.warn('Retry chat error:', err);
     } finally {
       setRetryingChatIdx(null);
     }
   };
 
-  const getRecommendationVariant = (
-    rec?: string,
-  ): "destructive" | "emerald" | "purple" | "amber" => {
+  const getRecommendationVariant = (rec?: string): 'destructive' | 'emerald' | 'purple' | 'amber' => {
     switch (rec) {
-      case "CUT LOSS":
-      case "SELL ALL":
-        return "destructive";
-      case "TRIM 50%":
-      case "BUY MORE":
-        return "emerald";
-      case "AVERAGE DOWN":
-        return "purple";
+      case 'CUT LOSS':
+      case 'SELL ALL':
+        return 'destructive';
+      case 'TRIM 50%':
+      case 'BUY MORE':
+        return 'emerald';
+      case 'AVERAGE DOWN':
+        return 'purple';
       default:
-        return "amber";
+        return 'amber';
     }
   };
 
   const getQuickQuestions = (rec?: string) => {
     switch (rec) {
-      case "CUT LOSS":
-      case "SELL ALL":
+      case 'CUT LOSS':
+      case 'SELL ALL':
         return [
-          "Kenapa harus cut loss sekarang?",
-          "Apakah ada potensi pantulan dari support?",
-          "Bisa ditunggu sampai sesi 2 besok?",
+          'Kenapa harus cut loss sekarang?',
+          'Apakah ada potensi pantulan dari support?',
+          'Bisa ditunggu sampai sesi 2 besok?',
         ];
-      case "TRIM 50%":
+      case 'TRIM 50%':
         return [
-          "Kenapa perlu kunci profit separuh sekarang?",
-          "Di level berapa pasang trailing stop untuk sisa lot?",
-          "Kapan waktu terbaik jual seluruh sisa lot?",
+          'Kenapa perlu kunci profit separuh sekarang?',
+          'Di level berapa pasang trailing stop untuk sisa lot?',
+          'Kapan waktu terbaik jual seluruh sisa lot?',
         ];
-      case "AVERAGE DOWN":
-      case "BUY MORE":
+      case 'AVERAGE DOWN':
+      case 'BUY MORE':
         return [
-          "Di harga berapa idealnya cicil beli?",
-          "Berapa batas lot yang aman dibeli?",
-          "Apa sinyal konfirmasi pembalikan arah?",
+          'Di harga berapa idealnya cicil beli?',
+          'Berapa batas lot yang aman dibeli?',
+          'Apa sinyal konfirmasi pembalikan arah?',
         ];
       default: // HOLD
         return [
-          "Kenapa disarankan HOLD?",
-          "Berapa target take profit ideal saya?",
-          "Di mana batas risiko atau stop loss saya?",
+          'Kenapa disarankan HOLD?',
+          'Berapa target take profit ideal saya?',
+          'Di mana batas risiko atau stop loss saya?',
         ];
     }
   };
@@ -278,7 +257,7 @@ export function AICopilotPanel({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
+      onOpenChange={open => {
         if (!open) onClose?.();
       }}
     >
@@ -294,19 +273,15 @@ export function AICopilotPanel({
                 <DialogTitle className="font-mono font-bold text-base sm:text-lg text-slate-900 leading-tight">
                   {holding.ticker}
                 </DialogTitle>
-                <span className="text-xs text-slate-500 hidden sm:inline">
-                  ({holding.name})
-                </span>
+                <span className="text-xs text-slate-500 hidden sm:inline">({holding.name})</span>
                 <Badge variant="emerald" className="gap-1 shadow-2xs">
                   <Sparkles className="w-3 h-3 text-emerald-600" />
                   9Router AI
                 </Badge>
               </div>
               <DialogDescription className="text-[11px] text-slate-500 mt-0.5 text-left">
-                Evaluasi EOD • Tipe:{" "}
-                <span className="font-semibold uppercase font-mono text-slate-700">
-                  {holding.jenis}
-                </span>
+                Evaluasi EOD • Tipe:{' '}
+                <span className="font-semibold uppercase font-mono text-slate-700">{holding.jenis}</span>
               </DialogDescription>
             </div>
           </div>
@@ -320,21 +295,12 @@ export function AICopilotPanel({
               disabled={isLoading || isRefreshing}
               title="Analisis ulang dan hapus riwayat chat sesi ini"
             >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-emerald-600" : ""}`}
-              />
-              <span className="hidden sm:inline">
-                {isRefreshing ? "Menganalisis..." : "Analisis Ulang"}
-              </span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
+              <span className="hidden sm:inline">{isRefreshing ? 'Menganalisis...' : 'Analisis Ulang'}</span>
             </Button>
 
             {onClose && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                title="Tutup Panel"
-              >
+              <Button variant="ghost" size="icon" onClick={onClose} title="Tutup Panel">
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -349,9 +315,7 @@ export function AICopilotPanel({
             {isLoading && (
               <div className="py-20 text-center space-y-3">
                 <div className="w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                <h4 className="text-sm font-semibold text-slate-800">
-                  Menghubungkan ke 9Router AI...
-                </h4>
+                <h4 className="text-sm font-semibold text-slate-800">Menghubungkan ke 9Router AI...</h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Mengolah data teknikal EOD dan trading plan {holding.ticker}
                 </p>
@@ -359,7 +323,7 @@ export function AICopilotPanel({
             )}
 
             {/* State 2: Alert AI Belum Tersedia (No API Key) */}
-            {!isLoading && data?.status === "unavailable" && (
+            {!isLoading && data?.status === 'unavailable' && (
               <Card className="border-amber-200 bg-amber-50/70 p-5 space-y-3 shadow-2xs">
                 <div className="flex items-start gap-3.5">
                   <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center shrink-0">
@@ -368,14 +332,12 @@ export function AICopilotPanel({
                   <div className="space-y-2 flex-1">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-amber-900">
-                          API Key 9Router Belum Terpasang
-                        </h4>
+                        <h4 className="text-sm font-bold text-amber-900">API Key 9Router Belum Terpasang</h4>
                         <Badge variant="amber">API Key Diperlukan</Badge>
                       </div>
                       <p className="text-xs text-amber-800 mt-1 leading-relaxed">
                         {data.message ||
-                          "Fitur AI Copilot saat ini belum tersedia karena API Key 9Router belum dikonfigurasi."}
+                          'Fitur AI Copilot saat ini belum tersedia karena API Key 9Router belum dikonfigurasi.'}
                       </p>
                     </div>
 
@@ -386,7 +348,7 @@ export function AICopilotPanel({
                       </div>
                       <ol className="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
                         <li>
-                          Pastikan gateway 9Router lokal Anda berjalan di{" "}
+                          Pastikan gateway 9Router lokal Anda berjalan di{' '}
                           <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[10px]">
                             http://localhost:20128/v1
                           </code>
@@ -394,7 +356,7 @@ export function AICopilotPanel({
                         </li>
                         <li>Salin API Key dari dashboard 9Router Anda.</li>
                         <li>
-                          Simpan di file{" "}
+                          Simpan di file{' '}
                           <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[10px]">
                             backend/.env
                           </code>
@@ -427,80 +389,61 @@ export function AICopilotPanel({
             )}
 
             {/* State 3: Alert Limit / Token Habis (Quota Exceeded) */}
-            {!isLoading &&
-              data?.status === "error" &&
-              data?.error_type === "QUOTA_EXCEEDED" && (
-                <Card className="border-rose-200 bg-rose-50/70 p-5 shadow-2xs">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-lg bg-rose-100 border border-rose-300 text-rose-700 flex items-center justify-center shrink-0">
-                      <Clock className="w-5 h-5" />
+            {!isLoading && data?.status === 'error' && data?.error_type === 'QUOTA_EXCEEDED' && (
+              <Card className="border-rose-200 bg-rose-50/70 p-5 shadow-2xs">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-9 h-9 rounded-lg bg-rose-100 border border-rose-300 text-rose-700 flex items-center justify-center shrink-0">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-rose-900">Limit / Kuota AI Habis</h4>
+                        <Badge variant="destructive">Rate Limit Exceeded</Badge>
+                      </div>
+                      <p className="text-xs text-rose-800 mt-1 leading-relaxed">
+                        {data.message ||
+                          'AI belum dapat menjawab saat ini karena limit token atau kuota harian telah habis.'}
+                      </p>
+                      <p className="text-[11px] text-rose-600 mt-1">
+                        {data.detail || 'Mohon tunggu beberapa saat sebelum mencoba analisis ulang.'}
+                      </p>
                     </div>
-                    <div className="space-y-2 flex-1">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-bold text-rose-900">
-                            Limit / Kuota AI Habis
-                          </h4>
-                          <Badge variant="destructive">
-                            Rate Limit Exceeded
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-rose-800 mt-1 leading-relaxed">
-                          {data.message ||
-                            "AI belum dapat menjawab saat ini karena limit token atau kuota harian telah habis."}
-                        </p>
-                        <p className="text-[11px] text-rose-600 mt-1">
-                          {data.detail ||
-                            "Mohon tunggu beberapa saat sebelum mencoba analisis ulang."}
-                        </p>
-                      </div>
 
-                      <div className="pt-2">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={handleRefresh}
-                        >
-                          <RefreshCw className="w-3.5 h-3.5" />
-                          <span>Coba Lagi Nanti</span>
-                        </Button>
-                      </div>
+                    <div className="pt-2">
+                      <Button variant="destructive" size="sm" onClick={handleRefresh}>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Coba Lagi Nanti</span>
+                      </Button>
                     </div>
                   </div>
-                </Card>
-              )}
+                </div>
+              </Card>
+            )}
 
             {/* State 4: Generic Error */}
-            {!isLoading &&
-              data?.status === "error" &&
-              data?.error_type !== "QUOTA_EXCEEDED" && (
-                <Card className="border-slate-200 bg-slate-50 p-5 shadow-2xs">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0">
-                      <ShieldAlert className="w-5 h-5" />
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <h4 className="text-sm font-bold text-slate-900">
-                        Kendala Memuat AI Copilot
-                      </h4>
-                      <p className="text-xs text-slate-600">{data.message}</p>
-                      <div className="pt-2">
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={handleRefresh}
-                        >
-                          <RefreshCw className="w-3.5 h-3.5" />
-                          <span>Coba Lagi</span>
-                        </Button>
-                      </div>
+            {!isLoading && data?.status === 'error' && data?.error_type !== 'QUOTA_EXCEEDED' && (
+              <Card className="border-slate-200 bg-slate-50 p-5 shadow-2xs">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-9 h-9 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <h4 className="text-sm font-bold text-slate-900">Kendala Memuat AI Copilot</h4>
+                    <p className="text-xs text-slate-600">{data.message}</p>
+                    <div className="pt-2">
+                      <Button variant="default" size="sm" onClick={handleRefresh}>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Coba Lagi</span>
+                      </Button>
                     </div>
                   </div>
-                </Card>
-              )}
+                </div>
+              </Card>
+            )}
 
             {/* State 5: Success — Full AI Analysis Output */}
-            {!isLoading && data?.status === "success" && (
+            {!isLoading && data?.status === 'success' && (
               <>
                 {/* 2.1 Structured Recommendation Banner (shadcn/ui Card style) */}
                 <Card className="bg-slate-50/70 border-slate-200/80">
@@ -511,19 +454,15 @@ export function AICopilotPanel({
                       </span>
                       <div className="flex items-center gap-3 mt-1.5">
                         <Badge
-                          variant={getRecommendationVariant(
-                            data.recommendation,
-                          )}
+                          variant={getRecommendationVariant(data.recommendation)}
                           className="text-xs sm:text-sm font-mono font-bold px-3 py-1.5 gap-1.5 shadow-2xs"
                         >
                           <Target className="w-4 h-4" />
-                          REKOMENDASI: {data.recommendation || "HOLD"}
+                          REKOMENDASI: {data.recommendation || 'HOLD'}
                         </Badge>
                         <span className="text-xs text-slate-500">
-                          Confidence:{" "}
-                          <span className="font-bold text-slate-900 font-mono">
-                            {data.confidence || 90}%
-                          </span>
+                          Confidence:{' '}
+                          <span className="font-bold text-slate-900 font-mono">{data.confidence || 90}%</span>
                         </span>
                       </div>
                     </div>
@@ -531,30 +470,22 @@ export function AICopilotPanel({
                     {/* Current Condition Summary Badges */}
                     <div className="flex items-center gap-4 text-xs font-mono bg-white px-3.5 py-2 rounded-lg border border-slate-200 shadow-2xs">
                       <div>
-                        <span className="text-slate-400 text-[10px] block font-sans">
-                          Close EOD
-                        </span>
+                        <span className="text-slate-400 text-[10px] block font-sans">Close EOD</span>
                         <span className="font-bold text-slate-900">
                           Rp {formatNumber(Math.round(data.currentPrice || 0))}
                         </span>
                       </div>
                       <div className="h-6 w-px bg-slate-200" />
                       <div>
-                        <span className="text-slate-400 text-[10px] block font-sans">
-                          Avg Beli
-                        </span>
+                        <span className="text-slate-400 text-[10px] block font-sans">Avg Beli</span>
                         <span className="font-bold text-slate-700">
                           Rp {formatNumber(Math.round(data.avgPrice || 0))}
                         </span>
                       </div>
                       <div className="h-6 w-px bg-slate-200" />
                       <div>
-                        <span className="text-slate-400 text-[10px] block font-sans">
-                          Floating PnL
-                        </span>
-                        <span
-                          className={`font-bold ${(data.pnlPct || 0) >= 0 ? "text-emerald-700" : "text-rose-600"}`}
-                        >
+                        <span className="text-slate-400 text-[10px] block font-sans">Floating PnL</span>
+                        <span className={`font-bold ${(data.pnlPct || 0) >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
                           {formatPercent(data.pnlPct || 0)}
                         </span>
                       </div>
@@ -565,16 +496,11 @@ export function AICopilotPanel({
                 {/* 2.2 AI Narrative Breakdown Card */}
                 <Card className="border-slate-200/80 bg-white shadow-2xs">
                   <CardHeader className="p-4 pb-2">
-                    <CardTitle>
-                      Rasional & Evaluasi Emosi Pasar (9Router AI)
-                    </CardTitle>
+                    <CardTitle>Rasional & Evaluasi Emosi Pasar (9Router AI)</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
                     <div className="p-3.5 rounded-lg bg-slate-50/60 border border-slate-100">
-                      <MarkdownText
-                        content={data.rationale || ""}
-                        className="text-xs leading-relaxed text-slate-800"
-                      />
+                      <MarkdownText content={data.rationale || ''} className="text-xs leading-relaxed text-slate-800" />
                     </div>
                   </CardContent>
                 </Card>
@@ -587,42 +513,36 @@ export function AICopilotPanel({
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <Card className="bg-slate-50 border-slate-200/80 shadow-none">
                       <CardContent className="p-3">
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">
-                          Moving Average
-                        </span>
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Moving Average</span>
                         <div className="mt-1 text-xs font-mono font-bold text-slate-800">
-                          MA20: Rp{" "}
-                          {formatNumber(Math.round(data.indicators?.ma20 || 0))}
+                          MA20: Rp {formatNumber(Math.round(data.indicators?.ma20 || 0))}
                         </div>
                         <div className="text-[11px] font-mono text-slate-500">
-                          MA50: Rp{" "}
-                          {formatNumber(Math.round(data.indicators?.ma50 || 0))}
+                          MA50: Rp {formatNumber(Math.round(data.indicators?.ma50 || 0))}
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="bg-slate-50 border-slate-200/80 shadow-none">
                       <CardContent className="p-3">
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">
-                          RSI (14 Hari)
-                        </span>
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">RSI (14 Hari)</span>
                         <div className="mt-1 text-sm font-mono font-bold text-slate-900 flex items-center gap-1.5">
                           {data.indicators?.rsi || 50}
                           <Badge
                             variant={
                               (data.indicators?.rsi || 50) > 70
-                                ? "destructive"
+                                ? 'destructive'
                                 : (data.indicators?.rsi || 50) < 30
-                                  ? "purple"
-                                  : "secondary"
+                                  ? 'purple'
+                                  : 'secondary'
                             }
                             className="text-[10px] py-0 px-1.5"
                           >
                             {(data.indicators?.rsi || 50) > 70
-                              ? "Overbought"
+                              ? 'Overbought'
                               : (data.indicators?.rsi || 50) < 30
-                                ? "Oversold"
-                                : "Netral"}
+                                ? 'Oversold'
+                                : 'Netral'}
                           </Badge>
                         </div>
                       </CardContent>
@@ -634,33 +554,22 @@ export function AICopilotPanel({
                           Support / Resistance
                         </span>
                         <div className="mt-1 text-xs font-mono text-emerald-700 font-bold">
-                          Supp: Rp{" "}
-                          {formatNumber(
-                            Math.round(data.indicators?.support || 0),
-                          )}
+                          Supp: Rp {formatNumber(Math.round(data.indicators?.support || 0))}
                         </div>
                         <div className="text-xs font-mono text-rose-600 font-bold">
-                          Res: Rp{" "}
-                          {formatNumber(
-                            Math.round(data.indicators?.resistance || 0),
-                          )}
+                          Res: Rp {formatNumber(Math.round(data.indicators?.resistance || 0))}
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="bg-slate-50 border-slate-200/80 shadow-none">
                       <CardContent className="p-3">
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">
-                          Tren & Volume
-                        </span>
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Tren & Volume</span>
                         <div className="mt-1 text-xs font-bold text-blue-700">
-                          {data.indicators?.trend || "SIDEWAYS"}
+                          {data.indicators?.trend || 'SIDEWAYS'}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          Volume:{" "}
-                          {data.indicators?.volume_status === "ABOVE_AVG"
-                            ? "Di Atas Rata-rata"
-                            : "Normal"}
+                          Volume: {data.indicators?.volume_status === 'ABOVE_AVG' ? 'Di Atas Rata-rata' : 'Normal'}
                         </div>
                       </CardContent>
                     </Card>
@@ -675,18 +584,12 @@ export function AICopilotPanel({
                     </h4>
                     <div className="space-y-2">
                       {data.actionItems.map((item: string, idx: number) => (
-                        <Card
-                          key={idx}
-                          className="bg-slate-50 border-slate-200/80 shadow-none"
-                        >
+                        <Card key={idx} className="bg-slate-50 border-slate-200/80 shadow-none">
                           <CardContent className="p-3 flex items-start gap-2.5 text-xs text-slate-700">
                             <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[11px] font-bold font-mono">
                               {idx + 1}
                             </div>
-                            <MarkdownText
-                              content={item}
-                              className="text-xs leading-relaxed flex-1 text-slate-800"
-                            />
+                            <MarkdownText content={item} className="text-xs leading-relaxed flex-1 text-slate-800" />
                           </CardContent>
                         </Card>
                       ))}
@@ -720,8 +623,8 @@ export function AICopilotPanel({
                   <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
                     <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>
-                      Riwayat diskusi tersimpan khusus sesi ini dan otomatis
-                      dibersihkan saat penutupan bursa EOD (17:30 WIB).
+                      Riwayat diskusi tersimpan khusus sesi ini dan otomatis dibersihkan saat penutupan bursa EOD (17:30
+                      WIB).
                     </span>
                   </div>
 
@@ -731,20 +634,18 @@ export function AICopilotPanel({
                       Pertanyaan Cepat Rekomendasi:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {getQuickQuestions(data.recommendation).map(
-                        (chip, idx) => (
-                          <Button
-                            key={idx}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSendChat(chip)}
-                            disabled={isSendingChat}
-                            className="bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 h-auto py-1 px-2.5 text-xs text-left"
-                          >
-                            💬 {chip}
-                          </Button>
-                        ),
-                      )}
+                      {getQuickQuestions(data.recommendation).map((chip, idx) => (
+                        <Button
+                          key={idx}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendChat(chip)}
+                          disabled={isSendingChat}
+                          className="bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 h-auto py-1 px-2.5 text-xs text-left"
+                        >
+                          💬 {chip}
+                        </Button>
+                      ))}
                     </div>
                   </div>
 
@@ -758,45 +659,37 @@ export function AICopilotPanel({
                         <div
                           key={idx}
                           className={`p-3 rounded-xl text-xs leading-relaxed ${
-                            msg.role === "user"
-                              ? "bg-emerald-100/70 text-emerald-950 ml-6 border border-emerald-200 shadow-2xs"
-                              : "bg-white text-slate-800 mr-4 border border-slate-200 shadow-2xs"
+                            msg.role === 'user'
+                              ? 'bg-emerald-100/70 text-emerald-950 ml-6 border border-emerald-200 shadow-2xs'
+                              : 'bg-white text-slate-800 mr-4 border border-slate-200 shadow-2xs'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1 pb-1 border-b border-slate-200/60">
                             <strong className="block text-[11px] uppercase font-mono font-bold opacity-80">
-                              {msg.role === "user"
-                                ? "Pertanyaan Anda"
-                                : "Jawaban AI Copilot"}
+                              {msg.role === 'user' ? 'Pertanyaan Anda' : 'Jawaban AI Copilot'}
                             </strong>
-                            {msg.role === "assistant" && (
+                            {msg.role === 'assistant' && (
                               <div className="flex items-center gap-1.5">
                                 <Badge
-                                  variant={
-                                    msg.source && msg.source !== "rule_based"
-                                      ? "emerald"
-                                      : "secondary"
-                                  }
+                                  variant={msg.source && msg.source !== 'rule_based' ? 'emerald' : 'secondary'}
                                   className="text-[10px] py-0 px-1.5 gap-1"
                                 >
-                                  {msg.source && msg.source !== "rule_based" ? (
+                                  {msg.source && msg.source !== 'rule_based' ? (
                                     <>
                                       <Sparkles className="w-3 h-3 text-emerald-600" />
-                                      <span>{msg.source === "9router" ? "9Router AI" : "AI Copilot"}</span>
+                                      <span>{msg.source === '9router' ? '9Router AI' : 'AI Copilot'}</span>
                                     </>
                                   ) : (
                                     <span>⚡ Rule-Based</span>
                                   )}
                                 </Badge>
 
-                                {msg.source === "rule_based" && (
+                                {msg.source === 'rule_based' && (
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleRetryChat(idx)}
-                                    disabled={
-                                      retryingChatIdx !== null || isSendingChat
-                                    }
+                                    disabled={retryingChatIdx !== null || isSendingChat}
                                     className="h-6 px-2 text-[10px] gap-1 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-900 border-emerald-200"
                                     title="Kirim ulang pertanyaan ke model AI"
                                   >
@@ -817,15 +710,10 @@ export function AICopilotPanel({
                             )}
                           </div>
 
-                          {msg.role === "user" ? (
-                            <div className="whitespace-pre-line font-medium text-xs">
-                              {msg.text}
-                            </div>
+                          {msg.role === 'user' ? (
+                            <div className="whitespace-pre-line font-medium text-xs">{msg.text}</div>
                           ) : (
-                            <MarkdownText
-                              content={msg.text}
-                              className="text-xs leading-relaxed text-slate-800"
-                            />
+                            <MarkdownText content={msg.text} className="text-xs leading-relaxed text-slate-800" />
                           )}
                         </div>
                       ))}
@@ -833,9 +721,7 @@ export function AICopilotPanel({
                       {isSendingChat && (
                         <div className="p-3 rounded-xl bg-white border border-slate-200 mr-6 shadow-2xs flex items-center gap-2.5 text-xs text-slate-600">
                           <div className="w-3.5 h-3.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0" />
-                          <span>
-                            AI Copilot sedang menganalisis pertanyaan Anda...
-                          </span>
+                          <span>AI Copilot sedang menganalisis pertanyaan Anda...</span>
                         </div>
                       )}
                     </div>
@@ -847,14 +733,14 @@ export function AICopilotPanel({
         </div>
 
         {/* 3. Fixed Bottom Chat Input Bar (shadcn/ui Input + Button pattern) */}
-        {!isLoading && data?.status === "success" && (
+        {!isLoading && data?.status === 'success' && (
           <div className="px-5 py-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-slate-50/80 backdrop-blur-xs shrink-0 z-10 flex items-center gap-2">
             <Input
               type="text"
               value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   handleSendChat(chatInput);
                 }

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
 interface MarkdownTextProps {
   content: string;
@@ -13,21 +13,21 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
   const parts = text.split(regex);
 
   return parts.map((part, index) => {
-    if ((part.startsWith("**") && part.endsWith("**")) || (part.startsWith("__") && part.endsWith("__"))) {
+    if ((part.startsWith('**') && part.endsWith('**')) || (part.startsWith('__') && part.endsWith('__'))) {
       return (
         <strong key={index} className="font-semibold text-slate-900">
           {part.slice(2, -2)}
         </strong>
       );
     }
-    if ((part.startsWith("*") && part.endsWith("*")) || (part.startsWith("_") && part.endsWith("_"))) {
+    if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
       return (
         <em key={index} className="italic text-slate-800">
           {part.slice(1, -1)}
         </em>
       );
     }
-    if (part.startsWith("`") && part.endsWith("`")) {
+    if (part.startsWith('`') && part.endsWith('`')) {
       return (
         <code
           key={index}
@@ -41,17 +41,17 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
   });
 }
 
-export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
+export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
   if (!content) return null;
 
   // Split by double line breaks or single line breaks with list items
-  const lines = content.split("\n");
+  const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
-  let currentList: { type: "ordered" | "unordered"; items: string[] } | null = null;
+  let currentList: { type: 'ordered' | 'unordered'; items: string[] } | null = null;
 
   const flushList = () => {
     if (!currentList) return;
-    if (currentList.type === "ordered") {
+    if (currentList.type === 'ordered') {
       elements.push(
         <ol key={`ol-${elements.length}`} className="space-y-1.5 my-2 pl-1">
           {currentList.items.map((item, i) => (
@@ -62,7 +62,7 @@ export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
               <span className="flex-1">{parseInlineFormatting(item)}</span>
             </li>
           ))}
-        </ol>
+        </ol>,
       );
     } else {
       elements.push(
@@ -73,7 +73,7 @@ export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
               <span className="flex-1">{parseInlineFormatting(item)}</span>
             </li>
           ))}
-        </ul>
+        </ul>,
       );
     }
     currentList = null;
@@ -90,9 +90,9 @@ export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
     // Numbered list item: e.g. "1. Item" or "1) Item"
     const orderedMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
     if (orderedMatch) {
-      if (!currentList || currentList.type !== "ordered") {
+      if (!currentList || currentList.type !== 'ordered') {
         flushList();
-        currentList = { type: "ordered", items: [] };
+        currentList = { type: 'ordered', items: [] };
       }
       currentList.items.push(orderedMatch[2]);
       return;
@@ -101,31 +101,31 @@ export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
     // Bullet list item: e.g. "- Item" or "* Item" or "• Item"
     const unorderedMatch = line.match(/^[-*•]\s+(.*)/);
     if (unorderedMatch) {
-      if (!currentList || currentList.type !== "unordered") {
+      if (!currentList || currentList.type !== 'unordered') {
         flushList();
-        currentList = { type: "unordered", items: [] };
+        currentList = { type: 'unordered', items: [] };
       }
       currentList.items.push(unorderedMatch[1]);
       return;
     }
 
     // Headers
-    if (line.startsWith("### ")) {
+    if (line.startsWith('### ')) {
       flushList();
       elements.push(
         <h4 key={`h4-${idx}`} className="text-sm font-bold text-slate-900 mt-3 mb-1">
           {parseInlineFormatting(line.slice(4))}
-        </h4>
+        </h4>,
       );
       return;
     }
 
-    if (line.startsWith("## ")) {
+    if (line.startsWith('## ')) {
       flushList();
       elements.push(
         <h3 key={`h3-${idx}`} className="text-base font-bold text-slate-900 mt-4 mb-1.5">
           {parseInlineFormatting(line.slice(3))}
-        </h3>
+        </h3>,
       );
       return;
     }
@@ -134,7 +134,7 @@ export function MarkdownText({ content, className = "" }: MarkdownTextProps) {
     elements.push(
       <p key={`p-${idx}`} className="leading-relaxed mb-2 last:mb-0 text-slate-700">
         {parseInlineFormatting(line)}
-      </p>
+      </p>,
     );
   });
 

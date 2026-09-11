@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ??
-  (typeof window !== "undefined" && (window.location.port === "8000" || window.location.port === "")
-    ? ""
-    : "http://localhost:8000");
+  (typeof window !== 'undefined' && (window.location.port === '8000' || window.location.port === '')
+    ? ''
+    : 'http://localhost:8000');
 
-export async function fetchApi<T>(
-  endpoint: string,
-  options?: RequestInit,
-): Promise<T> {
+export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   try {
     const res = await fetch(url, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...(options?.headers || {}),
       },
     });
@@ -32,19 +29,14 @@ export async function fetchApi<T>(
 
 // Portfolio & Dashboard API
 export const api = {
-  getDashboard: () =>
-    fetchApi<{ summary: any; holdings: any[] }>("/api/v1/dashboard"),
-  getCashBalance: () =>
-    fetchApi<{ cash_balance: number }>("/api/v1/portfolio/balance"),
+  getDashboard: () => fetchApi<{ summary: any; holdings: any[] }>('/api/v1/dashboard'),
+  getCashBalance: () => fetchApi<{ cash_balance: number }>('/api/v1/portfolio/balance'),
   updateCashBalance: (cash_balance: number) =>
-    fetchApi<{ status: string; cash_balance: number }>(
-      "/api/v1/portfolio/balance",
-      {
-        method: "POST",
-        body: JSON.stringify({ cash_balance }),
-      },
-    ),
-  getPortfolio: () => fetchApi<any[]>("/api/v1/portfolio"),
+    fetchApi<{ status: string; cash_balance: number }>('/api/v1/portfolio/balance', {
+      method: 'POST',
+      body: JSON.stringify({ cash_balance }),
+    }),
+  getPortfolio: () => fetchApi<any[]>('/api/v1/portfolio'),
   createHolding: (data: {
     ticker: string;
     avg_price: number;
@@ -53,14 +45,13 @@ export const api = {
     stop_loss?: number;
     sector?: string;
     buy_reason?: string;
-    jenis?: "trading" | "investasi";
+    jenis?: 'trading' | 'investasi';
   }) =>
-    fetchApi<any>("/api/v1/portfolio", {
-      method: "POST",
+    fetchApi<any>('/api/v1/portfolio', {
+      method: 'POST',
       body: JSON.stringify(data),
     }),
-  deleteHolding: (id: number) =>
-    fetchApi<any>(`/api/v1/portfolio/${id}`, { method: "DELETE" }),
+  deleteHolding: (id: number) => fetchApi<any>(`/api/v1/portfolio/${id}`, { method: 'DELETE' }),
   sellHolding: (data: {
     holding_id: number;
     sell_price: number;
@@ -69,7 +60,7 @@ export const api = {
     psychology_flag?: string;
   }) =>
     fetchApi<any>(`/api/v1/portfolio/${data.holding_id}/sell`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     }),
   importBatch: (
@@ -77,66 +68,51 @@ export const api = {
       ticker: string;
       avg_price: number;
       lot: number;
-      jenis?: "trading" | "investasi";
+      jenis?: 'trading' | 'investasi';
       buy_reason?: string;
       sector?: string;
     }>,
   ) =>
-    fetchApi<any>("/api/v1/portfolio/import-batch", {
-      method: "POST",
+    fetchApi<any>('/api/v1/portfolio/import-batch', {
+      method: 'POST',
       body: JSON.stringify(stocks),
     }),
-  getAiTpSl: (
-    ticker: string,
-    jenis: string = "trading",
-    avg_price?: number,
-  ) => {
+  getAiTpSl: (ticker: string, jenis: string = 'trading', avg_price?: number) => {
     const params = new URLSearchParams({ jenis });
-    if (avg_price) params.set("avg_price", avg_price.toString());
-    return fetchApi<any>(
-      `/api/v1/portfolio/recommend-tpsl/${ticker}?${params}`,
-    );
+    if (avg_price) params.set('avg_price', avg_price.toString());
+    return fetchApi<any>(`/api/v1/portfolio/recommend-tpsl/${ticker}?${params}`);
   },
 
   // Stock data & charts
-  getStockChart: (ticker: string) =>
-    fetchApi<{ ticker: string; candles: any[] }>(
-      `/api/v1/stocks/${ticker}/chart`,
-    ),
-  fetchAllEOD: () =>
-    fetchApi<any>("/api/v1/stocks/fetch-all", { method: "POST" }),
-  fetchStockEOD: (ticker: string) =>
-    fetchApi<any>(`/api/v1/stocks/fetch/${ticker}`, { method: "POST" }),
+  getStockChart: (ticker: string) => fetchApi<{ ticker: string; candles: any[] }>(`/api/v1/stocks/${ticker}/chart`),
+  fetchAllEOD: () => fetchApi<any>('/api/v1/stocks/fetch-all', { method: 'POST' }),
+  fetchStockEOD: (ticker: string) => fetchApi<any>(`/api/v1/stocks/fetch/${ticker}`, { method: 'POST' }),
 
   // AI Copilot & Provider Management
-  getAiProviders: () => fetchApi<any>("/api/v1/analysis/providers"),
+  getAiProviders: () => fetchApi<any>('/api/v1/analysis/providers'),
   setAiProvider: (provider: string) =>
-    fetchApi<{ status: string; active_provider: string }>(
-      "/api/v1/analysis/provider",
-      {
-        method: "POST",
-        body: JSON.stringify({ provider }),
-      },
-    ),
+    fetchApi<{ status: string; active_provider: string }>('/api/v1/analysis/provider', {
+      method: 'POST',
+      body: JSON.stringify({ provider }),
+    }),
   analyzeStock: (ticker: string, provider?: string, forceRefresh?: boolean) => {
     const params = new URLSearchParams();
-    if (provider) params.append("provider", provider);
-    if (forceRefresh) params.append("force_refresh", "true");
-    const query = params.toString() ? `?${params.toString()}` : "";
+    if (provider) params.append('provider', provider);
+    if (forceRefresh) params.append('force_refresh', 'true');
+    const query = params.toString() ? `?${params.toString()}` : '';
     return fetchApi<any>(`/api/v1/analysis/${ticker}${query}`, {
-      method: "POST",
+      method: 'POST',
     });
   },
-  getCopilotChatHistory: (ticker: string) =>
-    fetchApi<any[]>(`/api/v1/analysis/${ticker}/chat-history`),
+  getCopilotChatHistory: (ticker: string) => fetchApi<any[]>(`/api/v1/analysis/${ticker}/chat-history`),
   sendCopilotChat: (ticker: string, data: { question: string; force_refresh?: boolean }) =>
     fetchApi<any>(`/api/v1/analysis/${ticker}/chat`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     }),
   clearCopilotChatHistory: (ticker: string) =>
     fetchApi<any>(`/api/v1/analysis/${ticker}/chat-history`, {
-      method: "DELETE",
+      method: 'DELETE',
     }),
 
   // Recovery Engine
@@ -147,8 +123,8 @@ export const api = {
     target_buy_price: number;
     target_avg_price: number;
   }) =>
-    fetchApi<any>("/api/v1/recovery/calculate-avgdown", {
-      method: "POST",
+    fetchApi<any>('/api/v1/recovery/calculate-avgdown', {
+      method: 'POST',
       body: JSON.stringify(data),
     }),
   discussRecovery: (
@@ -156,46 +132,50 @@ export const api = {
     data: { scenario_id: string; user_question?: string; provider?: string; force_refresh?: boolean },
   ) =>
     fetchApi<any>(`/api/v1/recovery/${ticker}/discuss`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     }),
   getRecoveryChatHistory: (ticker: string, scenario_id?: string) => {
-    const params = scenario_id ? `?scenario_id=${scenario_id}` : "";
+    const params = scenario_id ? `?scenario_id=${scenario_id}` : '';
     return fetchApi<any[]>(`/api/v1/recovery/${ticker}/chat-history${params}`);
   },
   clearRecoveryChatHistory: (ticker: string, scenario_id?: string) => {
-    const params = scenario_id ? `?scenario_id=${scenario_id}` : "";
+    const params = scenario_id ? `?scenario_id=${scenario_id}` : '';
     return fetchApi<any>(`/api/v1/recovery/${ticker}/chat-history${params}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   },
 
   // Screener
-  getScreener: (strategy: string = "ALL") =>
-    fetchApi<any[]>(`/api/v1/screener?strategy=${strategy}`),
-  scanScreener: () =>
-    fetchApi<any[]>("/api/v1/screener/scan", { method: "POST" }),
+  getScreener: (strategy: string = 'ALL') => fetchApi<any[]>(`/api/v1/screener?strategy=${strategy}`),
+  scanScreener: () => fetchApi<any[]>('/api/v1/screener/scan', { method: 'POST' }),
   analyzeScreenerTicker: (ticker: string) =>
-    fetchApi<any>("/api/v1/screener/analyze", {
-      method: "POST",
+    fetchApi<any>('/api/v1/screener/analyze', {
+      method: 'POST',
       body: JSON.stringify({ ticker }),
+    }),
+  discussScreener: (ticker: string, data: { question?: string; provider?: string }) =>
+    fetchApi<any>(`/api/v1/screener/${encodeURIComponent(ticker)}/discuss`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getScreenerChatHistory: (ticker: string) =>
+    fetchApi<any[]>(`/api/v1/screener/${encodeURIComponent(ticker)}/chat-history`),
+  clearScreenerChatHistory: (ticker: string) =>
+    fetchApi<any>(`/api/v1/screener/${encodeURIComponent(ticker)}/chat-history`, {
+      method: 'DELETE',
     }),
 
   // Journal
-  getTrades: () => fetchApi<any[]>("/api/v1/journal/trades"),
+  getTrades: () => fetchApi<any[]>('/api/v1/journal/trades'),
   createTrade: (data: any) =>
-    fetchApi<any>("/api/v1/journal/trade", {
-      method: "POST",
+    fetchApi<any>('/api/v1/journal/trade', {
+      method: 'POST',
       body: JSON.stringify(data),
     }),
-  getPostMortem: () => fetchApi<any>("/api/v1/journal/post-mortem"),
+  getPostMortem: () => fetchApi<any>('/api/v1/journal/post-mortem'),
 
   // System & Market Calendar
-  getMarketStatus: () => fetchApi<any>("/api/v1/system/market-status"),
-  sendHeartbeat: () =>
-    fetchApi<{ status: string; timestamp: number }>(
-      "/api/v1/system/heartbeat",
-      { method: "POST" },
-    ),
+  getMarketStatus: () => fetchApi<any>('/api/v1/system/market-status'),
+  sendHeartbeat: () => fetchApi<{ status: string; timestamp: number }>('/api/v1/system/heartbeat', { method: 'POST' }),
 };
-

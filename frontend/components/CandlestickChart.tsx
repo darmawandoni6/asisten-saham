@@ -1,18 +1,13 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import { 
-  createChart, 
-  ColorType, 
-  IChartApi, 
-  CandlestickSeries, 
-  LineSeries,
-  LineStyle
-} from "lightweight-charts";
-import { PriceCandle, Holding } from "@/types";
-import { formatNumber } from "@/lib/utils";
-import { X, RefreshCw } from "lucide-react";
-import { api } from "@/lib/api";
+import React, { useEffect, useRef, useState } from 'react';
+
+import { CandlestickSeries, ColorType, IChartApi, LineSeries, LineStyle, createChart } from 'lightweight-charts';
+import { RefreshCw, X } from 'lucide-react';
+
+import { api } from '@/lib/api';
+import { formatNumber } from '@/lib/utils';
+import { Holding, PriceCandle } from '@/types';
 
 interface Props {
   candles: PriceCandle[];
@@ -41,27 +36,29 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
       }
     }
     loadChartData();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [ticker]);
 
   useEffect(() => {
     if (!chartContainerRef.current || candles.length === 0) return;
 
-    chartContainerRef.current.innerHTML = "";
+    chartContainerRef.current.innerHTML = '';
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: "#ffffff" },
-        textColor: "#64748b",
+        background: { type: ColorType.Solid, color: '#ffffff' },
+        textColor: '#64748b',
       },
       grid: {
-        vertLines: { color: "#f1f5f9" },
-        horzLines: { color: "#f1f5f9" },
+        vertLines: { color: '#f1f5f9' },
+        horzLines: { color: '#f1f5f9' },
       },
       width: chartContainerRef.current.clientWidth,
       height: 420,
       timeScale: {
-        borderColor: "#e2e8f0",
+        borderColor: '#e2e8f0',
         timeVisible: true,
       },
     });
@@ -70,47 +67,47 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
 
     // Candlestick Series (Stockbit Green & Red)
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#059669",
-      downColor: "#dc2626",
+      upColor: '#059669',
+      downColor: '#dc2626',
       borderVisible: false,
-      wickUpColor: "#059669",
-      wickDownColor: "#dc2626",
+      wickUpColor: '#059669',
+      wickDownColor: '#dc2626',
     });
 
     candleSeries.setData(
-      candles.map((c) => ({
+      candles.map(c => ({
         time: c.time,
         open: c.open,
         high: c.high,
         low: c.low,
         close: c.close,
-      }))
+      })),
     );
 
     // Overlay MA20 (Amber/Orange)
     const ma20Data = candles
-      .filter((c) => c.ma20 !== undefined && c.ma20 !== null)
-      .map((c) => ({ time: c.time, value: c.ma20 as number }));
+      .filter(c => c.ma20 !== undefined && c.ma20 !== null)
+      .map(c => ({ time: c.time, value: c.ma20 as number }));
 
     if (ma20Data.length > 0) {
       const ma20Series = chart.addSeries(LineSeries, {
-        color: "#d97706",
+        color: '#d97706',
         lineWidth: 2,
-        title: "MA20",
+        title: 'MA20',
       });
       ma20Series.setData(ma20Data);
     }
 
     // Overlay MA50 (Blue)
     const ma50Data = candles
-      .filter((c) => c.ma50 !== undefined && c.ma50 !== null)
-      .map((c) => ({ time: c.time, value: c.ma50 as number }));
+      .filter(c => c.ma50 !== undefined && c.ma50 !== null)
+      .map(c => ({ time: c.time, value: c.ma50 as number }));
 
     if (ma50Data.length > 0) {
       const ma50Series = chart.addSeries(LineSeries, {
-        color: "#0284c7",
+        color: '#0284c7',
         lineWidth: 2,
-        title: "MA50",
+        title: 'MA50',
       });
       ma50Series.setData(ma50Data);
     }
@@ -119,7 +116,7 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
     if (holding) {
       candleSeries.createPriceLine({
         price: holding.avgPrice,
-        color: "#64748b",
+        color: '#64748b',
         lineWidth: 2,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
@@ -128,7 +125,7 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
 
       candleSeries.createPriceLine({
         price: holding.targetPrice,
-        color: "#059669",
+        color: '#059669',
         lineWidth: 2,
         lineStyle: LineStyle.Solid,
         axisLabelVisible: true,
@@ -138,7 +135,7 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
       if (holding.stopLoss != null) {
         candleSeries.createPriceLine({
           price: holding.stopLoss,
-          color: "#dc2626",
+          color: '#dc2626',
           lineWidth: 2,
           lineStyle: LineStyle.Solid,
           axisLabelVisible: true,
@@ -155,10 +152,10 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
       chart.remove();
     };
   }, [candles, holding]);
