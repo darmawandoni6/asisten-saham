@@ -1,8 +1,8 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–5 Selesai (Fullstack Operasional) 🚀 | Tahap 6: Live AI & Chat Memory [PLANNED ⏳]**
-> Frontend: Next.js 16 + Stockbit Clean Light Mode (`http://localhost:3000`)
-> Backend: FastAPI + SQLite + yfinance + EOD Skill (`http://localhost:8000`)
+> Status: **Tahap 0–17 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Frontend: Next.js 16 Static Export + shadcn/ui + Stockbit Clean Light Mode (`http://localhost:8000`)
+> Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 
 ---
 
@@ -25,8 +25,8 @@
 - [x] 1.5 Halaman Recovery Engine (Diagnosis, 3 Skenario AI, Kalkulator Avg Down)
 - [x] 1.6 Fitur AI Copilot Panel (Modal Rekomendasi Terstruktur & Narasi EOD)
 - [x] 1.7 Halaman EOD Screener (Preset Tabs, Search, Tabel Sinyal)
-- [x] 1.8 Halaman Trading Journal (Performance Metrics, Post-Mortem AI, Trade Log)
-- [x] 1.9 Candlestick Chart (TradingView Light Mode dengan MA20/MA50 overlay)
+- [x] 1.8 Candlestick Chart (TradingView Light Mode dengan MA20/MA50 overlay)
+- [x] 1.9 Halaman Guide & SOP Trading (5 Tab Interaktif)
 
 ---
 
@@ -39,11 +39,10 @@
 - [x] 2.4 Router: Portfolio CRUD (`routers/portfolio.py` — GET, POST, PUT, DELETE holdings)
 - [x] 2.5 Service: Portfolio Engine (`services/portfolio_engine.py` — Rule status 5 kartu & tracking high watermark)
 - [x] 2.6 Router: Stocks & Chart (`routers/stocks.py` — GET /api/v1/dashboard, GET chart, manual fetch)
-- [x] 2.7 Service: AI Copilot (`services/ai_copilot.py` & `routers/analysis.py` — Gemini 2.0 Flash + rule-based fallback)
+- [x] 2.7 Service: AI Copilot (`services/ai_copilot.py` & `routers/analysis.py` — OpenAI-compatible gateway + rule-based fallback)
 - [x] 2.8 Service: Recovery Engine (`services/recovery_engine.py` & `routers/recovery.py` — Diagnosis & kalkulator avg down)
 - [x] 2.9 Service: Screener Engine (`services/screener_engine.py` & `routers/screener.py` — Filter Oversold, Breakout, Value)
 - [x] 2.10 Scheduler & Telegram Bot (`scheduler.py` & `services/telegram_bot.py` — Cron EOD 17:30 WIB)
-- [x] 2.11 Trading Journal BE (`routers/journal.py` — CRUD trade log & AI post-mortem)
 
 ---
 
@@ -57,8 +56,7 @@
 - [x] 3.5 AI Copilot Panel terhubung ke `/api/v1/analysis/{ticker}`
 - [x] 3.6 Recovery Engine & Kalkulator terhubung ke `/api/v1/recovery`
 - [x] 3.7 Screener terhubung ke `/api/v1/screener`
-- [x] 3.8 Trading Journal terhubung ke `/api/v1/journal`
-- [x] 3.9 Verifikasi seluruh alur kerja end-to-end (Backend port 8000 + Frontend port 3000)
+- [x] 3.8 Verifikasi seluruh alur kerja end-to-end (FastAPI port 8000 + Frontend Static Export)
 
 ---
 
@@ -84,7 +82,7 @@
 - [x] 5.5 Perbaikan Absolute Database Path SQLite (`backend/assiten_saham.db`)
 - [x] 5.6 Pemutakhiran dokumentasi `README.md` & `AGENTS.md`
 - [x] 5.7 Pemasangan Kamus Lengkap Badge & Glosarium (Pusat `/guide` Tab 3 + Quick Modal `[ℹ️ Kamus Badge]` di Screener)
-- [x] 5.8 EOD Screener Top 10 Rekomendasi Terkurasi & Analisis Saham Kustom On-Demand (`/screener`)
+- [x] 5.8 EOD Screener Top 25 Rekomendasi Terkurasi & Analisis Saham Kustom On-Demand (`/screener`)
 - [x] 5.9 3-Pilar Watchlist Intelijen Screener, Client-Side (FE-Only) Sorting & Edukasi Interaktif RRR / AI Score
 
 ---
@@ -126,17 +124,17 @@
 
 ---
 
-## 💰 TAHAP 9 — Manual Trading Balance, Lot Management & Trading Journal Sync [SELESAI ✅]
-> Pencatatan saldo kas RDN manual, manajemen pemangkasan lot saham di portofolio, dan pencatatan riwayat Realized PnL ke jurnal.
+## 💰 TAHAP 9 — Manual Trading Balance & Lot Management [SELESAI ✅]
+> Pencatatan saldo kas RDN manual dan manajemen pemangkasan lot saham di portofolio.
 
 - [x] 9.1 Saldo Kas RDN Manual: Diinput dan diedit mandiri oleh user via `EditBalanceModal.tsx` (`user_settings` key `cash_balance`).
 - [x] 9.2 Modal Jual / Pangkas Lot Saham (`SellHoldingModal.tsx`):
   - Dukungan hapus total (100%) atau pangkas sebagian lot (preset 25%, 50% TP1, 100%).
   - Kalkulasi *live* nilai transaksi, Realized PnL nominal & persentase, serta sisa lot di portofolio.
   - Tagging evaluasi psikologi (*Disiplin Plan*, *FOMO Buy*, *Panic Sell*) & catatan refleksi trader.
-- [x] 9.3 Pencatatan Otomatis ke AI Trading Journal (`/journal`):
-  - Setiap eksekusi jual (Gain / Loss) otomatis masuk ke `TradeLog` (`trade_log`).
-  - Rekalkulasi metrik performa Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*).
+
+---
+
 ## 📅 TAHAP 10 — IDX Market Calendar & Active Trading Cycle Chat Retention [SELESAI ✅]
 > Deteksi hari bursa aktif & libur nasional/cuti bersama BEI, serta retensi chat recovery berbasis siklus bursa (bukan hari kalender).
 
@@ -232,7 +230,7 @@
 ---
 
 ## 🎨 TAHAP 15 — Integrasi Komponen Resmi shadcn/ui & Radix UI Primitives [SELESAI ✅]
-> Mengintegrasikan registry komponen resmi standar shadcn/ui (berbasis `@radix-ui/react-*` dan `class-variance-authority`) pada antarmuka AI Copilot Panel dan Modal.
+> Mengintegrasikan registry komponen resmi standar shadcn/ui (berbasis `@radix-ui/react-*` dan `class-variance-authority`) pada seluruh UI.
 
 - [x] 15.1 Registry Komponen shadcn/ui di `frontend/components/ui/`:
   - [`button.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/button.tsx): Varian `default`, `destructive`, `outline`, `secondary`, `ghost`, `link`, `emerald`.
@@ -242,31 +240,30 @@
   - [`input.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/input.tsx): `Input` form control.
   - [`dialog.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/dialog.tsx): `Dialog`, `DialogPortal`, `DialogOverlay`, `DialogClose`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription` (Radix UI Dialog).
   - [`separator.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/separator.tsx): `Separator` (Radix UI).
-- [x] 15.2 Refactor Modal ke `<Dialog>` di [`AICopilotPanel.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/AICopilotPanel.tsx) & [`page.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/page.tsx):
-  - Mengganti pembungkus modal manual dengan `<Dialog>`, `<DialogContent>`, `<DialogHeader>`, `<DialogTitle>`, `<DialogDescription>` resmi shadcn/ui.
-  - Dukungan aksesibilitas lengkap (A11y, ARIA dialog, focus trap, ESC key close, click-outside-to-close, smooth animations).
-  - Pembatasan tinggi modal terpusat `max-h-[88vh] sm:max-h-[90vh]` dengan internal `ScrollArea`.
+  - [`label.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/label.tsx), [`select.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/select.tsx), [`alert.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/alert.tsx), [`sidebar.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/sidebar.tsx).
 
 ---
 
 ## 🧹 TAHAP 16 — Code Formatting & Prettier Integration [SELESAI ✅]
 > Menambahkan Prettier dan plugin sorting import otomatis untuk standarisasi format kode frontend.
 
-- [x] 16.1 Instalasi Prettier & Plugin:
-  - `prettier` dan `@trivago/prettier-plugin-sort-imports` di `frontend/devDependencies`.
-- [x] 16.2 Konfigurasi & Ignore Files:
-  - Konfigurasi [`.prettierrc`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierrc) dengan aturan single quote, semicolon, trailing comma all, print width 120, dan grup import Next.js/React.
-  - Pembuatan [`.prettierignore`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierignore) untuk direktori build (`.next`, `out`, `node_modules`, dll).
-- [x] 16.3 NPM Helper Scripts:
-  - `npm run format`: Format seluruh file frontend secara otomatis.
-  - `npm run format:check`: Validasi formatting pada CI/local.
-- [x] 16.4 Eksekusi & Format Seluruh Codebase:
-  - 40 file frontend diformat seragam dan lulus verifikasi `npm run format:check` & `make build`.
+- [x] 16.1 Instalasi Prettier & Plugin: `prettier` dan `@trivago/prettier-plugin-sort-imports`.
+- [x] 16.2 Konfigurasi & Ignore Files: [`.prettierrc`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierrc) & [`.prettierignore`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/.prettierignore).
+- [x] 16.3 NPM Helper Scripts: `npm run format` & `npm run format:check`.
 
+---
 
+## 🏗️ TAHAP 17 — Penghapusan Journal & Refaktorisasi Modular Frontend [SELESAI ✅]
+> Penghapusan halaman journal yang tidak esensial, refaktorisasi modular seluruh halaman utama (max 500 lines), pembuatan custom hooks & subkomponen shadcn/ui.
 
-
-
-
-
-
+- [x] 17.1 Penghapusan Halaman & Router Trading Journal:
+  - Penghapusan `frontend/app/journal/page.tsx`, `backend/routers/journal.py`, dan model/service terkait.
+  - Pembersihan link navigasi sidebar dan method API client.
+- [x] 17.2 Refaktorisasi Modular Screener Page (`frontend/app/screener/page.tsx` $\le$ 50 baris):
+  - Ekstraksi ke subkomponen `components/screener/` (`ScreenerToolbar`, `ScreenerCardView`, `ScreenerTableView`, `ScreenerCardItem`, `ScreenerAIDiscussion`, `ScreenerCustomAnalyzer`, `ScreenerEmptyState`, `ScreenerPhilosophyCard`, `ScreenerKamusModal`).
+  - Ekstraksi helper ke `screenerUtils.ts` dan custom hooks `useScreener.ts` & `useScreenerDiscussion.ts`.
+- [x] 17.3 Refaktorisasi Modular Guide Page (`frontend/app/guide/page.tsx` $\le$ 50 baris):
+  - Ekstraksi ke subkomponen `components/guide/` (`GuideHeroBanner`, `GuideTabNav`, `GuideFlowTab`, `GuideFeaturesTab`, `GuideStatusDictionaryTab`, `GuideRiskRulesTab`, `GuideChecklistTab`).
+  - Ekstraksi state & tabs ke custom hook `useGuide.ts`.
+- [x] 17.4 Verifikasi Kualitas & Build:
+  - 100% lolos `npm run format:check` dan `npm run build` static export.

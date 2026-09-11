@@ -27,6 +27,10 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 8. **STANDAR CODE FORMATTING & LINTING (PRETTIER & ESLINT)**:
    - Frontend menggunakan **Prettier** dengan plugin `@trivago/prettier-plugin-sort-imports` (`frontend/.prettierrc`).
    - Setiap perubahan file frontend wajib mematuhi aturan format (`npm run format` / `npm run format:check`) dan lolos build (`npm run build`).
+9. **MODULARITAS KOMPONEN & BATAS UKURAN FILE (MAX 500 LINES)**:
+   - Setiap file halaman frontend (`page.tsx`) dan komponen wajib **maksimal 500 baris kode**.
+   - Pecah logika kompleks menjadi **subkomponen modular**, **custom hooks** (`frontend/hooks/`), dan **helper function** terpisah.
+   - Selalu prioritaskan penggunaan komponen resmi **shadcn/ui** (`Card`, `Badge`, `Button`, `Dialog`, `Input`, `Label`, `Select`, `Alert`, `Separator`, `ScrollArea`, `Sidebar`).
 
 ---
 
@@ -34,10 +38,10 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 
 | Layer | Teknologi | Catatan Khusus |
 |---|---|---|
-| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS | Build statis di `frontend/out/`, disajikan via FastAPI di port `8000` |
+| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, shadcn/ui | Build statis di `frontend/out/`, disajikan via FastAPI di port `8000` |
 | **Interactive Chart** | TradingView Lightweight Charts v5 | Gunakan syntax `chart.addSeries(CandlestickSeries, ...)` |
 | **Backend & Web Server** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
-| **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `trade_log`, `ai_analysis`, `screener_results`, `recovery_chat_logs` |
+| **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `ai_analysis`, `screener_results`, `recovery_chat_logs`, `copilot_chat_logs`, `screener_chat_logs` |
 | **Data Pasar** | Yahoo Finance (`yfinance`) | EOD update pasca-closing market BEI (17:30 WIB) |
 | **AI LLM Engine** | **Custom OpenAI-Compatible AI Gateway** (`AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`) & Rule-Based Expert Engine | Bebas pilih provider (OpenAI, 9Router, Ollama, Groq, LiteLLM, vLLM, dll), failover transparan |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon | 0 MB RAM idle footprint (auto-shutdown 75s saat browser ditutup) |
@@ -121,7 +125,6 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - **Selalu Disimpan Permanen**: Seluruh percakapan AI (Copilot Dashboard, Recovery Discussion, dan Screener Discussion) selalu disimpan permanen di database lokal SQLite dan tidak terhapus oleh pergantian tanggal, navigasi halaman, atau restart browser.
   - **Dibersihkan (Reset) Hanya Saat Sinkronisasi (EOD Sync)**: Histori chat AI dan cache analisis (`AIAnalysis`, `RecoveryDeepDive`) otomatis di-reset saat sinkronisasi data pasar baru dijalankan (melalui tombol Sinkronisasi EOD `POST /api/v1/stocks/fetch-all`, CLI `sync_eod.py`, jadwal harian 17:30 WIB di `backend/scheduler.py`, atau tombol manual *Bersihkan Riwayat* di UI), sehingga siklus percakapan selalu relevan dengan data candle closing bursa terbaru.
   - Dilengkapi endpoint API lengkap: `GET`/`DELETE` untuk `/api/v1/analysis/{ticker}/chat-history`, `/api/v1/recovery/{ticker}/chat-history`, dan `/api/v1/screener/{ticker}/chat-history`.
-
 
 ### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
 - Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
@@ -256,7 +259,13 @@ assiten-saham/
     │   ├── recovery/          # Recovery Engine & Assessment
     │   ├── screener/          # EOD Stock Screener
     │   └── guide/             # Panduan Cara Pakai & SOP Trading
-    ├── components/            # Komponen UI Stockbit Style
+    ├── components/            # Komponen UI Stockbit Style & Subcomponents
+    │   ├── guide/             # Subkomponen Halaman Guide (Tabs, Hero, Glossary)
+    │   ├── portfolio/         # Subkomponen Portfolio (Tabel, Header, Modals)
+    │   ├── recovery/          # Subkomponen Recovery (Diagnosis, Scenarios, Calc)
+    │   ├── screener/          # Subkomponen Screener (Card, Table, Analyzer, Chat)
+    │   └── ui/                # Komponen Resmi shadcn/ui (Button, Card, Dialog, dll)
+    ├── hooks/                 # Custom React Hooks (useGuide, useScreener, usePortfolio, dll)
     ├── lib/api.ts             # REST client wrapper
     └── types/index.ts         # TypeScript Interfaces
 ```

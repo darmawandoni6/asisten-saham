@@ -32,7 +32,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * **Pangkas / Jual Lot Saham (`[ 🏷️ Jual ]`)**:
   - Modal interaktif untuk memangkas sebagian lot atau menutup seluruh posisi saham dengan preset cepat: **25%**, **50% (TP1 Kunci Profit)**, dan **100% (Exit Total)**.
   - Menghitung *real-time* total nilai transaksi, Realized PnL (nominal & %), dan sisa lot yang tersisa di portofolio.
-  - Otomatis mencatat transaksi yang ditutup ke Jurnal Trading lengkap dengan evaluasi psikologi (*Disiplin*, *FOMO*, *Panic Sell*).
+  - Otomatis memperbarui sisa posisi di portofolio dan menghitung laba/rugi terealisasi.
 * **Auto-Fetch Sektor**: Otomatis menarik data sektor & industri resmi emiten langsung dari Yahoo Finance.
 * **Money Management**: Visualisasi alokasi modal per sektor industri untuk memantau diversifikasi risiko.
 
@@ -81,12 +81,12 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * Modul kemampuan AI terintegrasi di folder `.agents/skills/idx-eod-sync/`.
 * Pengguna cukup mengetik di chat: *"Tolong update EOD hari ini"* atau *"Sync portofolio saya"*, AI secara otomatis akan menjalankan penarikan data Yahoo Finance, menghitung ulang indikator, dan memunculkan tabel evaluasi portofolio pasca-closing langsung di jendela chat.
 
-### 10. ⚡ Ultra-Light Architecture & Auto-Shutdown (0 MB RAM saat Idle)
+### 9. ⚡ Ultra-Light Architecture & Auto-Shutdown (0 MB RAM saat Idle)
 * **Single-Process FastAPI Port 8000**: Frontend Next.js di-export menjadi static web bundle (`frontend/out`) dan disajikan langsung oleh FastAPI. Server Node.js **tidak perlu berjalan di background** (hemat ~100MB RAM permanen).
 * **Auto-Shutdown Heartbeat Engine**: Tab browser mengirim sinyal detak jantung berkala (`/api/v1/system/heartbeat`). Ketika seluruh tab browser ditutup selama $\ge 75$ detik, server otomatis mati secara bersih sehingga memori RAM kembali **0 MB (0% CPU)**.
 * **macOS Desktop App Launcher (`Asisten Saham.app`)**: Aplikasi desktop 1-klik dengan ikon grafik candlestick Stockbit, siap disematkan di Dock atau Desktop untuk membuka aplikasi secara instan.
 
-### 11. 📅 Kalender Bursa BEI & Retensi Chat Berbasis Siklus Trading
+### 10. 📅 Kalender Bursa BEI & Retensi Chat Berbasis Siklus Trading
 * **3-Layer Dynamic Holiday Engine**:
   - *Layer 1 (Empirical Ground Truth)*: Mengecek transaksi riil IHSG (`^JKSE`) via Yahoo Finance pada 17:30 WIB. Jika 0 transaksi, bursa otomatis terdeteksi libur walau ada revisi SKB 3 Menteri dadakan.
   - *Layer 2 (Dynamic Online Sync)*: Menyinkronkan kalender libur nasional terbaru dari feed API publik secara background.
@@ -96,11 +96,11 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Chat otomatis di-reset **hanya saat penutupan sesi pasar bursa aktif (17:30 WIB)**.
 * **Live Market Status di Topbar**: Menampilkan badge status pasar BEI secara *real-time* (`🟢 Market Open (Sesi 1/2)`, `🟡 Istirahat Siang`, `⚪ Weekend (Pasar Tutup)`, atau `⚪ Libur: [Nama Libur]`).
 
-
 ---
 
 ## 🎨 Filosofi Desain UI
 * **Stockbit Clean Light Mode**: Latar putih bersih (`bg-slate-50` & `bg-white`), border abu-abu tipis presisi (`border-slate-200`), tipografi font mono untuk angka bursa, dan warna aksi tegas yang elegan tanpa neon.
+* **shadcn/ui Standards**: Menggunakan komponen UI resmi shadcn (`Card`, `Badge`, `Button`, `Dialog`, `Input`, `Label`, `Select`, `Alert`, `Separator`, `ScrollArea`, `Sidebar`).
 
 ---
 
@@ -108,7 +108,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 
 | Layer | Teknologi |
 |---|---|
-| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, Lucide Icons |
+| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, shadcn/ui, Lucide Icons |
 | **Code Formatting** | Prettier & `@trivago/prettier-plugin-sort-imports` |
 | **Charts** | TradingView Lightweight Charts (v5) |
 | **Backend & Web Server** | Python FastAPI, Uvicorn (Port `8000`) |
@@ -119,7 +119,6 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 | **Market Calendar** | 3-Layer Holiday Engine (BEI Calendar, Online API Sync & Empirical IHSG Check) |
 | **Scheduler** | APScheduler (Senin–Jumat pukul 17:30 WIB holiday-aware) |
 | **Memory Optimization** | Heartbeat Auto-Shutdown Daemon (0 MB RAM idle footprint) |
-
 
 ---
 
@@ -203,7 +202,6 @@ TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 ```
 
 *(Catatan: Tanpa memasukkan API Key atau jika service AI belum berjalan, seluruh analisis teknikal, chart, portofolio, dan kalkulator recovery tetap beroperasi 100% secara lokal dan transparan melalui Rule-Based Expert Engine).*
-
 
 ---
 
