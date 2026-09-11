@@ -168,7 +168,7 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Disinkronkan ke `~/Desktop/Asisten Saham.app` dan `/Applications/Asisten Saham.app` (Dock) dengan detached process (`nohup`) sehingga dapat langsung diklik ganda dari Desktop maupun Dock tanpa terminal window.
   - Skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
 
-### L. Manual Trading Balance, Lot Management & Trading Journal Sync
+### L. Manual Trading Balance & Lot Management
 - **Pencatatan Saldo Kas RDN Manual**:
   - Saldo kas RDN diinput dan diperbarui secara manual oleh pengguna sesuai kenyataan rekening sekuritas via modal `[ ✏️ Edit ]` (`EditBalanceModal.tsx`).
   - Aplikasi bertindak sebagai asisten pencatatan personal dan tidak memotong/menambah saldo kas secara otomatis di belakang layar.
@@ -177,10 +177,6 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Pilihan cepat preset lot: `25%`, `50%` (TP1 Kunci Profit), dan `100%` (Tutup Posisi Total).
   - Kalkulasi *real-time*: Total Nilai Penjualan, Realized PnL nominal & persentase, serta sisa lot di portofolio.
   - Jika `sell_lot < holding.lot`, jumlah lot holding diperbarui dengan sisa lot. Jika `sell_lot == holding.lot`, holding dihapus dari daftar aktif.
-- **Pencatatan ke AI Trading Journal (`/journal`)**:
-  - Transaksi penjualan otomatis dicatat ke tabel `trade_log` dengan aksi `SELL` (untung) atau `CUT_LOSS` (rugi).
-  - Menyimpan evaluasi psikologi (`DISCIPLINED`, `FOMO_BUY`, `PANIC_SELL`) & catatan refleksi trader.
-  - Metrik Post-Mortem (*Win Rate %*, *Total Realized PnL*, *Profit Factor*) dihitung dari transaksi yang ditutup.
 
 ### M. IDX Market Calendar, Holiday Engine & Live Session Status (`backend/services/market_calendar.py`)
 - **Kalender Resmi BEI & Libur Nasional**:
@@ -244,7 +240,7 @@ assiten-saham/
 │   ├── database.py            # SQLite engine & session
 │   ├── models.py              # Model SQLAlchemy
 │   ├── scheduler.py           # APScheduler cron job 17:30 WIB
-│   ├── routers/               # API Routers (stocks, portfolio, recovery, screener, journal, analysis)
+│   ├── routers/               # API Routers (stocks, portfolio, recovery, screener, analysis, system)
 │   └── services/
 │       ├── data_fetcher.py    # Yahoo Finance puller & auto-profile
 │       ├── technical.py       # Indikator teknikal (native pandas)
@@ -259,7 +255,6 @@ assiten-saham/
     │   ├── portfolio/         # Portfolio & Trading Plan Management
     │   ├── recovery/          # Recovery Engine & Assessment
     │   ├── screener/          # EOD Stock Screener
-    │   ├── journal/           # Trading Journal & Post-Mortem
     │   └── guide/             # Panduan Cara Pakai & SOP Trading
     ├── components/            # Komponen UI Stockbit Style
     ├── lib/api.ts             # REST client wrapper

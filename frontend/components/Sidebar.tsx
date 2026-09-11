@@ -44,11 +44,6 @@ const NAV_ITEMS = [
     icon: Search,
   },
   {
-    label: 'Trading Journal',
-    href: '/journal',
-    icon: BookOpen,
-  },
-  {
     label: 'Panduan Cara Pakai',
     href: '/guide',
     icon: HelpCircle,

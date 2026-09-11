@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 import os
 from database import engine, Base
 import models
-from routers import portfolio, stocks, analysis, recovery, screener, journal, system
+from routers import portfolio, stocks, analysis, recovery, screener, system
 from scheduler import start_scheduler
 
 # Create database tables
@@ -32,7 +32,6 @@ app.include_router(stocks.router)
 app.include_router(analysis.router)
 app.include_router(recovery.router)
 app.include_router(screener.router)
-app.include_router(journal.router)
 app.include_router(system.router)
 
 @app.on_event("startup")

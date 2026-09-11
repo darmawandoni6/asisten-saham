@@ -6,11 +6,9 @@ import {
   BatchImportResponse,
   CopilotChatMessage,
   CopilotChatResponse,
-  CreateTradeRequest,
   DashboardResponse,
   Holding,
   MarketStatus,
-  PostMortemSummary,
   RecommendTpSlResponse,
   RecoveryChatMessage,
   RecoveryDiagnosis,
@@ -19,7 +17,6 @@ import {
   ScreenerDiscussionResponse,
   ScreenerItem,
   StockChartResponse,
-  TradeLogItem,
 } from '@/types';
 
 const API_BASE_URL =
@@ -188,15 +185,6 @@ export const api = {
     fetchApi<ApiStatusResponse>(`/api/v1/screener/${encodeURIComponent(ticker)}/chat-history`, {
       method: 'DELETE',
     }),
-
-  // Journal
-  getTrades: () => fetchApi<TradeLogItem[]>('/api/v1/journal/trades'),
-  createTrade: (data: CreateTradeRequest) =>
-    fetchApi<TradeLogItem>('/api/v1/journal/trade', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  getPostMortem: () => fetchApi<PostMortemSummary>('/api/v1/journal/post-mortem'),
 
   // System & Market Calendar
   getMarketStatus: () => fetchApi<MarketStatus>('/api/v1/system/market-status'),

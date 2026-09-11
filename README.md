@@ -65,24 +65,19 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 * **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung dianalisis kondisi teknikalnya dan dimasukkan ke daftar screener.
 * **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 2.0)**, dan arti tingkatan **AI Score (0–100)** secara instan.
 
-### 6. 📔 AI Trading Journal & Post-Mortem (`/journal`)
-* **Pencatatan Otomatis dari Portofolio**: Setiap eksekusi jual (Take Profit maupun Cut Loss) dari tabel portofolio otomatis masuk ke riwayat jurnal transaksi tanpa perlu input manual ulang.
-* **Metrik Performa Realized**: Akumulasi *Total Realized PnL*, *Win Rate %*, dan *Profit Factor* dihitung otomatis secara akurat.
-* **Post-Mortem AI Diagnosis**: Deteksi bias kebiasaan psikologis trader (*FOMO Buy, Panic Sell, Disiplin Plan*).
-
-### 7. 📈 Interactive Candlestick Chart
+### 6. 📈 Interactive Candlestick Chart
 * Grafik candlestick harian berbasis **TradingView Lightweight Charts v5**.
 * Overlay garis teknikal **MA20** (amber), **MA50** (biru), garis **Avg Beli** (dashed grey), **Target Price** (solid green), dan **Stop Loss** (solid red).
 
-### 8. 🧭 Panduan Cara Pakai & SOP Trading (`/guide`)
+### 7. 🧭 Panduan Cara Pakai & SOP Trading (`/guide`)
 * Halaman panduan terintegrasi dengan 5 tab interaktif:
   - *Tab 1*: Siklus Rutinitas 17:30 WIB (Alur sore hingga jam buka bursa).
-  - *Tab 2*: **Panduan 5 Fitur Utama & SOP 4 Langkah Memilih Saham di Screener** (Filter Anggaran, Pilih Strategi, 3 Pilar Intelijen, Order Disiplin di Sekuritas).
+  - *Tab 2*: **Panduan 4 Fitur Utama & SOP 4 Langkah Memilih Saham di Screener** (Filter Anggaran, Pilih Strategi, 3 Pilar Intelijen, Order Disiplin di Sekuritas).
   - *Tab 3*: **Kamus Lengkap Badge & Glosarium** (Badge Screener, Kelayakan Recovery, 5 Warna Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
   - *Tab 4*: SOP Anti-Nyangkut (4 Aturan Emas Manajemen Risiko).
   - *Tab 5*: Checklist Interaktif Pemula.
 
-### 9. 🤖 Workspace Skill: `idx-eod-sync` (Antigravity Customization)
+### 8. 🤖 Workspace Skill: `idx-eod-sync` (Antigravity Customization)
 * Modul kemampuan AI terintegrasi di folder `.agents/skills/idx-eod-sync/`.
 * Pengguna cukup mengetik di chat: *"Tolong update EOD hari ini"* atau *"Sync portofolio saya"*, AI secara otomatis akan menjalankan penarikan data Yahoo Finance, menghitung ulang indikator, dan memunculkan tabel evaluasi portofolio pasca-closing langsung di jendela chat.
 
