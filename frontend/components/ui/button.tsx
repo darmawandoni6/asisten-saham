@@ -1,8 +1,11 @@
+'use client';
+
 import * as React from 'react';
 
 import { type VariantProps, cva } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
+import { Button as BaseButton } from '@base-ui/react';
 import { Slot } from '@radix-ui/react-slot';
 
 const buttonVariants = cva(
@@ -39,8 +42,10 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    if (asChild) {
+      return <Slot className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    }
+    return <BaseButton className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
   },
 );
 Button.displayName = 'Button';

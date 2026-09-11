@@ -267,7 +267,7 @@ export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingMod
                   Sektor Saham{' '}
                   <span className="font-normal text-slate-400">(Opsional — Auto-detect jika dikosongkan)</span>
                 </label>
-                <Select value={sector || 'AUTO'} onValueChange={val => setSector(val === 'AUTO' ? '' : val)}>
+                <Select value={sector || 'AUTO'} onValueChange={val => setSector(val && val !== 'AUTO' ? val : '')}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih sektor saham..." />
                   </SelectTrigger>
