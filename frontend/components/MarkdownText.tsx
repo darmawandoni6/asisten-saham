@@ -22,7 +22,7 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
     }
     if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
       return (
-        <em key={index} className="italic text-slate-800">
+        <em key={index} className="text-slate-800 italic">
           {part.slice(1, -1)}
         </em>
       );
@@ -31,7 +31,7 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
       return (
         <code
           key={index}
-          className="px-1.5 py-0.5 rounded-md bg-slate-100 font-mono text-purple-700 text-[11px] font-medium border border-slate-200"
+          className="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-purple-700"
         >
           {part.slice(1, -1)}
         </code>
@@ -53,10 +53,10 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     if (!currentList) return;
     if (currentList.type === 'ordered') {
       elements.push(
-        <ol key={`ol-${elements.length}`} className="space-y-1.5 my-2 pl-1">
+        <ol key={`ol-${elements.length}`} className="my-2 space-y-1.5 pl-1">
           {currentList.items.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-slate-700 leading-relaxed">
-              <span className="w-4 h-4 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-bold flex items-center justify-center shrink-0 text-[10px] mt-0.5 font-mono">
+            <li key={i} className="flex items-start gap-2 leading-relaxed text-slate-700">
+              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 font-mono text-[10px] font-bold text-slate-700">
                 {i + 1}
               </span>
               <span className="flex-1">{parseInlineFormatting(item)}</span>
@@ -66,10 +66,10 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
       );
     } else {
       elements.push(
-        <ul key={`ul-${elements.length}`} className="space-y-1.5 my-2 pl-1">
+        <ul key={`ul-${elements.length}`} className="my-2 space-y-1.5 pl-1">
           {currentList.items.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-slate-700 leading-relaxed">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0 mt-2" />
+            <li key={i} className="flex items-start gap-2 leading-relaxed text-slate-700">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-500" />
               <span className="flex-1">{parseInlineFormatting(item)}</span>
             </li>
           ))}
@@ -113,7 +113,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     if (line.startsWith('### ')) {
       flushList();
       elements.push(
-        <h4 key={`h4-${idx}`} className="text-sm font-bold text-slate-900 mt-3 mb-1">
+        <h4 key={`h4-${idx}`} className="mt-3 mb-1 text-sm font-bold text-slate-900">
           {parseInlineFormatting(line.slice(4))}
         </h4>,
       );
@@ -123,7 +123,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     if (line.startsWith('## ')) {
       flushList();
       elements.push(
-        <h3 key={`h3-${idx}`} className="text-base font-bold text-slate-900 mt-4 mb-1.5">
+        <h3 key={`h3-${idx}`} className="mt-4 mb-1.5 text-base font-bold text-slate-900">
           {parseInlineFormatting(line.slice(3))}
         </h3>,
       );
@@ -132,7 +132,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
 
     flushList();
     elements.push(
-      <p key={`p-${idx}`} className="leading-relaxed mb-2 last:mb-0 text-slate-700">
+      <p key={`p-${idx}`} className="mb-2 leading-relaxed text-slate-700 last:mb-0">
         {parseInlineFormatting(line)}
       </p>,
     );

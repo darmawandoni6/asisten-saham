@@ -79,26 +79,26 @@ function SellHoldingModalContent({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-xs">
+      <div className="animate-in fade-in zoom-in-95 my-6 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl duration-150">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-6 py-4">
           <div className="flex items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${
+              className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold ${
                 isGain ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
               }`}
             >
-              {isGain ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              {isGain ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-900 text-base">{holding.ticker}</h3>
+                <h3 className="text-base font-bold text-slate-900">{holding.ticker}</h3>
                 <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
+                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                     holding.jenis === 'investasi'
-                      ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                      ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                      : 'border-amber-200 bg-amber-50 text-amber-700'
                   }`}
                 >
                   {holding.jenis === 'investasi' ? 'Investasi' : 'Trading'}
@@ -114,17 +114,17 @@ function SellHoldingModalContent({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 p-6">
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -132,9 +132,9 @@ function SellHoldingModalContent({
           {/* Price & Lot Inputs */}
           <div className="grid grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Harga Jual Riil (Rp)</label>
+              <label className="mb-1 block text-xs font-semibold text-slate-700">Harga Jual Riil (Rp)</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-slate-400 text-xs">
+                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-semibold text-slate-400">
                   Rp
                 </span>
                 <input
@@ -147,15 +147,15 @@ function SellHoldingModalContent({
                   }}
                   required
                   placeholder="0"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-2 pr-3 pl-9 font-mono text-sm font-bold text-slate-900 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="mb-1 flex items-center justify-between">
                 <label className="block text-xs font-semibold text-slate-700">Jumlah Lot Dijual</label>
-                <span className="text-[10px] text-slate-400 font-mono">Tersedia: {holding.lot} Lot</span>
+                <span className="font-mono text-[10px] text-slate-400">Tersedia: {holding.lot} Lot</span>
               </div>
               <input
                 type="number"
@@ -164,24 +164,24 @@ function SellHoldingModalContent({
                 value={sellLot || ''}
                 onChange={e => setSellLot(parseInt(e.target.value, 10) || 0)}
                 required
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono text-sm font-bold text-slate-900 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Quick Lot Scale-Out Presets */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="mb-1.5 flex items-center justify-between">
               <span className="text-[11px] font-medium text-slate-500">Pilihan Cepat (Scale-Out):</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handlePresetLot(25)}
-                className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition-all ${
+                className={`rounded-lg border px-2 py-1.5 text-xs font-semibold transition-all ${
                   lotNum === Math.max(1, Math.round(holding.lot * 0.25)) && lotNum !== holding.lot
-                    ? 'bg-slate-800 text-white border-slate-800 shadow-2xs'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    ? 'border-slate-800 bg-slate-800 text-white shadow-2xs'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 25% Posisi
@@ -189,10 +189,10 @@ function SellHoldingModalContent({
               <button
                 type="button"
                 onClick={() => handlePresetLot(50)}
-                className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition-all ${
+                className={`rounded-lg border px-2 py-1.5 text-xs font-semibold transition-all ${
                   lotNum === Math.max(1, Math.round(holding.lot * 0.5)) && lotNum !== holding.lot
-                    ? 'bg-slate-800 text-white border-slate-800 shadow-2xs'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    ? 'border-slate-800 bg-slate-800 text-white shadow-2xs'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 50% (TP1 Scale-Out)
@@ -200,10 +200,10 @@ function SellHoldingModalContent({
               <button
                 type="button"
                 onClick={() => handlePresetLot(100)}
-                className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition-all ${
+                className={`rounded-lg border px-2 py-1.5 text-xs font-semibold transition-all ${
                   lotNum === holding.lot
-                    ? 'bg-slate-800 text-white border-slate-800 shadow-2xs'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    ? 'border-slate-800 bg-slate-800 text-white shadow-2xs'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 100% (Semua Lot)
@@ -212,26 +212,26 @@ function SellHoldingModalContent({
           </div>
 
           {/* Live Outcome Calculation Box */}
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+          <div className="space-y-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <span className="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">
               Kalkulasi Hasil Transaksi
             </span>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <span className="text-[11px] text-slate-500 block">Total Nilai Penjualan</span>
-                <span className="font-mono font-bold text-sm text-slate-900">{formatRupiah(totalSaleValue)}</span>
+                <span className="block text-[11px] text-slate-500">Total Nilai Penjualan</span>
+                <span className="font-mono text-sm font-bold text-slate-900">{formatRupiah(totalSaleValue)}</span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-500 block">Realized Profit / Loss</span>
+                <span className="block text-[11px] text-slate-500">Realized Profit / Loss</span>
                 <div className="flex items-baseline gap-1.5">
-                  <span className={`font-mono font-bold text-sm ${isGain ? 'text-emerald-700' : 'text-rose-600'}`}>
+                  <span className={`font-mono text-sm font-bold ${isGain ? 'text-emerald-700' : 'text-rose-600'}`}>
                     {isGain ? '+' : ''}
                     {formatRupiah(realizedPnl)}
                   </span>
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.2 rounded font-mono ${
+                    className={`py-0.2 rounded px-1.5 font-mono text-[10px] font-bold ${
                       isGain ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                     }`}
                   >
@@ -242,27 +242,27 @@ function SellHoldingModalContent({
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
-              <span className="text-slate-500 text-[11px]">Sisa di Portofolio:</span>
-              <span className="font-mono font-semibold text-slate-700 text-[11px]">
+            <div className="flex items-center justify-between border-t border-slate-200/60 pt-2 text-xs">
+              <span className="text-[11px] text-slate-500">Sisa di Portofolio:</span>
+              <span className="font-mono text-[11px] font-semibold text-slate-700">
                 {remainingLot > 0 ? `${remainingLot} Lot tersisa` : 'Posisi ditutup total (100%)'}
               </span>
             </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting || lotNum <= 0}
-              className={`inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 ${
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all disabled:opacity-50 ${
                 isGain
                   ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
                   : 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800'
@@ -272,12 +272,12 @@ function SellHoldingModalContent({
                 'Memproses...'
               ) : isGain ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="h-4 w-4" />
                   <span>Konfirmasi Take Profit (+{formatRupiah(realizedPnl)})</span>
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="w-4 h-4" />
+                  <AlertTriangle className="h-4 w-4" />
                   <span>Konfirmasi Cut Loss ({formatRupiah(realizedPnl)})</span>
                 </>
               )}

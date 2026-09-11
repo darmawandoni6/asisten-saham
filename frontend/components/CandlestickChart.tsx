@@ -161,31 +161,31 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
   }, [candles, holding]);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xl relative">
+    <div className="relative rounded-xl border border-slate-200 bg-white p-5 shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono font-bold text-base text-slate-900">{ticker}</span>
+          <span className="font-mono text-base font-bold text-slate-900">{ticker}</span>
           <span className="text-xs text-slate-500">TradingView Daily Chart (EOD)</span>
 
           {/* Indicators Legend */}
-          <div className="hidden sm:flex items-center gap-3 ml-4 text-[11px] font-mono">
-            <span className="flex items-center gap-1 text-amber-700 font-bold">
-              <span className="w-2.5 h-0.5 bg-amber-600" /> MA20
+          <div className="ml-4 hidden items-center gap-3 font-mono text-[11px] sm:flex">
+            <span className="flex items-center gap-1 font-bold text-amber-700">
+              <span className="h-0.5 w-2.5 bg-amber-600" /> MA20
             </span>
-            <span className="flex items-center gap-1 text-sky-700 font-bold">
-              <span className="w-2.5 h-0.5 bg-sky-600" /> MA50
+            <span className="flex items-center gap-1 font-bold text-sky-700">
+              <span className="h-0.5 w-2.5 bg-sky-600" /> MA50
             </span>
             {holding && (
               <>
                 <span className="flex items-center gap-1 text-slate-600">
-                  <span className="w-2.5 h-0.5 bg-slate-500 border-t border-dashed" /> Avg ({holding.avgPrice})
+                  <span className="h-0.5 w-2.5 border-t border-dashed bg-slate-500" /> Avg ({holding.avgPrice})
                 </span>
-                <span className="flex items-center gap-1 text-emerald-700 font-bold">
-                  <span className="w-2.5 h-0.5 bg-emerald-600" /> TP ({holding.targetPrice})
+                <span className="flex items-center gap-1 font-bold text-emerald-700">
+                  <span className="h-0.5 w-2.5 bg-emerald-600" /> TP ({holding.targetPrice})
                 </span>
-                <span className="flex items-center gap-1 text-rose-700 font-bold">
-                  <span className="w-2.5 h-0.5 bg-rose-600" /> SL ({holding.stopLoss})
+                <span className="flex items-center gap-1 font-bold text-rose-700">
+                  <span className="h-0.5 w-2.5 bg-rose-600" /> SL ({holding.stopLoss})
                 </span>
               </>
             )}
@@ -196,15 +196,15 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-800"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
       {/* Chart Canvas */}
-      <div ref={chartContainerRef} className="w-full mt-4" />
+      <div ref={chartContainerRef} className="mt-4 w-full" />
     </div>
   );
 }

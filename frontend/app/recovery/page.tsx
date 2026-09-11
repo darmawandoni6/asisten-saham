@@ -299,33 +299,33 @@ export default function RecoveryPage() {
   const calcResult = calculateAverageDown();
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
+    <main className="flex min-h-screen flex-1 flex-col bg-slate-50 pb-16">
       <Topbar
         title="Recovery Engine (Floating Loss Assessment)"
         subtitle="Analisis penyelamatan saham floating loss & kalkulator average down presisi"
         onRefresh={loadData}
       />
 
-      <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="mx-auto w-full max-w-7xl space-y-8 p-6">
         {/* Ticker Selector & Kas Summary */}
         {holdings.length > 0 ? (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs sm:flex-row sm:items-center">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-sm text-slate-600 font-semibold">Pilih Saham Floating Loss:</span>
+              <span className="text-sm font-semibold text-slate-600">Pilih Saham Floating Loss:</span>
               {holdings.map(h => (
                 <button
                   key={h.ticker}
                   type="button"
                   onClick={() => handleSelectStock(h)}
-                  className={`px-4 py-2 rounded-xl text-sm font-mono font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2 font-mono text-sm font-bold transition-all ${
                     selectedTicker === h.ticker
-                      ? 'bg-purple-50 text-purple-800 border-purple-300 shadow-2xs'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'border-purple-300 bg-purple-50 text-purple-800 shadow-2xs'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <LifeBuoy className="w-4 h-4 text-purple-600" />
+                  <LifeBuoy className="h-4 w-4 text-purple-600" />
                   <span>{h.ticker}</span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold">
+                  <span className="rounded bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800">
                     {formatPercent(h.floatingPnlPct)}
                   </span>
                 </button>
@@ -333,31 +333,31 @@ export default function RecoveryPage() {
             </div>
 
             {data?.cashBalance !== undefined && (
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm self-start sm:self-auto">
-                <Wallet className="w-4.5 h-4.5 text-slate-500" />
-                <span className="text-slate-600 font-medium">Sisa Kas Tersedia:</span>
-                <span className="font-mono font-bold text-base text-slate-900">{formatRupiah(data.cashBalance)}</span>
+              <div className="flex items-center gap-2.5 self-start rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm sm:self-auto">
+                <Wallet className="h-4.5 w-4.5 text-slate-500" />
+                <span className="font-medium text-slate-600">Sisa Kas Tersedia:</span>
+                <span className="font-mono text-base font-bold text-slate-900">{formatRupiah(data.cashBalance)}</span>
               </div>
             )}
           </div>
         ) : (
           !isLoading && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-2xs flex flex-col items-center justify-center max-w-lg mx-auto mt-6">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-                <ShieldCheck className="w-7 h-7" />
+            <div className="mx-auto mt-6 flex max-w-lg flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-2xs">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                <ShieldCheck className="h-7 w-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1.5">Semua Posisi Portofolio Terpantau Aman</h3>
-              <p className="text-sm text-slate-500 max-w-sm leading-relaxed mb-6">
+              <h3 className="mb-1.5 text-base font-bold text-slate-900">Semua Posisi Portofolio Terpantau Aman</h3>
+              <p className="mb-6 max-w-sm text-sm leading-relaxed text-slate-500">
                 Tidak ada saham yang mengalami floating loss dalam atau memerlukan Recovery Mode (&gt;10% floating
                 loss). Fitur kalkulator average down presisi dan diagnosa penyelamatan modal akan otomatis aktif saat
                 ada saham yang membutuhkan evaluasi recovery.
               </p>
               <Link
                 href="/portfolio"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold shadow-2xs transition-colors"
+                className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-2xs transition-colors hover:bg-slate-800"
               >
                 <span>Buka Portofolio &amp; Trading Plan</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           )
@@ -367,45 +367,45 @@ export default function RecoveryPage() {
           <>
             {/* 1. Diagnosis Kerugian Card */}
             <div className="rounded-2xl border border-purple-200 bg-white p-6 shadow-2xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
+              <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
-                    <ShieldAlert className="w-5 h-5" />
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
+                    <ShieldAlert className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5">
-                      <h3 className="text-lg font-bold text-slate-900 font-mono">{data.ticker}</h3>
-                      <span className="text-sm font-sans text-slate-500">({data.name})</span>
+                      <h3 className="font-mono text-lg font-bold text-slate-900">{data.ticker}</h3>
+                      <span className="font-sans text-sm text-slate-500">({data.name})</span>
                       {data.jenis && (
                         <span
-                          className={`text-xs font-bold px-2.5 py-0.5 rounded uppercase tracking-wider ${
+                          className={`rounded px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase ${
                             data.jenis === 'investasi'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
+                              ? 'border border-emerald-200 bg-emerald-100 text-emerald-800'
+                              : 'border border-blue-200 bg-blue-100 text-blue-800'
                           }`}
                         >
                           {data.jenis}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-slate-500 mt-0.5">{data.trendStatus}</p>
+                    <p className="mt-0.5 text-sm text-slate-500">{data.trendStatus}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6 sm:text-right">
                   <div>
-                    <span className="text-xs text-slate-400 uppercase tracking-wider block font-semibold">
+                    <span className="block text-xs font-semibold tracking-wider text-slate-400 uppercase">
                       Bobot di Portofolio
                     </span>
-                    <span className="text-base font-bold font-mono text-slate-800">
+                    <span className="font-mono text-base font-bold text-slate-800">
                       {formatPercent(data.portfolioWeightPct)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400 uppercase tracking-wider block font-semibold">
+                    <span className="block text-xs font-semibold tracking-wider text-slate-400 uppercase">
                       Dampak ke Total Portofolio
                     </span>
-                    <span className="text-base font-bold font-mono text-rose-600">
+                    <span className="font-mono text-base font-bold text-rose-600">
                       {formatPercent(data.portfolioImpactPct)}
                     </span>
                   </div>
@@ -413,43 +413,43 @@ export default function RecoveryPage() {
               </div>
 
               {/* Assessment Metrics Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 mt-5">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 block uppercase font-semibold">Harga EOD</span>
-                  <span className="text-base font-mono font-bold text-slate-900">
+              <div className="mt-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-5">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <span className="block text-xs font-semibold text-slate-500 uppercase">Harga EOD</span>
+                  <span className="font-mono text-base font-bold text-slate-900">
                     Rp {formatNumber(Math.round(data.currentPrice))}
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 block uppercase font-semibold">Avg Price Beli</span>
-                  <span className="text-base font-mono font-bold text-slate-800">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <span className="block text-xs font-semibold text-slate-500 uppercase">Avg Price Beli</span>
+                  <span className="font-mono text-base font-bold text-slate-800">
                     Rp {formatNumber(Math.round(data.avgPrice))}
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 block uppercase font-semibold">Floating Loss</span>
-                  <div className="text-base font-mono font-bold text-rose-600">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <span className="block text-xs font-semibold text-slate-500 uppercase">Floating Loss</span>
+                  <div className="font-mono text-base font-bold text-rose-600">
                     {formatPercent(data.floatingLossPct)}
                   </div>
-                  <span className="text-xs text-rose-500 font-mono font-medium">
+                  <span className="font-mono text-xs font-medium text-rose-500">
                     ({formatRupiah(Math.round(data.floatingLossNominal))})
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 block uppercase font-semibold">Major Support</span>
-                  <span className="text-base font-mono font-bold text-emerald-700">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <span className="block text-xs font-semibold text-slate-500 uppercase">Major Support</span>
+                  <span className="font-mono text-base font-bold text-emerald-700">
                     Rp {formatNumber(Math.round(data.supportMajor))}
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 block uppercase font-semibold">RSI Harian</span>
-                  <div className="text-base font-mono font-bold text-purple-700 flex items-center gap-1.5">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                  <span className="block text-xs font-semibold text-slate-500 uppercase">RSI Harian</span>
+                  <div className="flex items-center gap-1.5 font-mono text-base font-bold text-purple-700">
                     {data.rsi}
-                    <span className="text-xs text-purple-800 font-sans font-medium">
+                    <span className="font-sans text-xs font-medium text-purple-800">
                       {data.rsi <= 35 ? '(Oversold)' : '(Netral)'}
                     </span>
                   </div>
@@ -459,39 +459,39 @@ export default function RecoveryPage() {
               {/* 1.B Snapshot Fundamental & Dividen */}
               {data.fundamentals &&
                 (data.fundamentals.dividendYield !== null || data.fundamentals.peRatio !== null) && (
-                  <div className="mt-5 p-4.5 rounded-xl bg-slate-50/80 border border-slate-200">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/80 p-4.5">
+                    <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                       <div className="flex items-center gap-2">
-                        <Coins className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
-                        <span className="text-sm font-bold text-slate-800 uppercase tracking-wide">
+                        <Coins className="h-4.5 w-4.5 shrink-0 text-emerald-600" />
+                        <span className="text-sm font-bold tracking-wide text-slate-800 uppercase">
                           Kondisi Fundamental &amp; Dividen{' '}
                           {data.jenis === 'investasi' ? '(Acuan Utama Saham Investasi)' : ''}
                         </span>
                       </div>
                       {data.fundamentals.dividendYieldText && (
-                        <span className="text-sm font-bold font-mono px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
+                        <span className="self-start rounded-full border border-emerald-200 bg-emerald-100 px-3 py-0.5 font-mono text-sm font-bold text-emerald-800 sm:self-auto">
                           Dividend Yield: {data.fundamentals.dividendYieldText}
                         </span>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 mb-3">
-                      <div className="p-3 rounded-lg bg-white border border-slate-200">
-                        <span className="text-xs text-slate-500 block uppercase font-medium">P/E Ratio (Valuasi)</span>
-                        <span className="text-base font-mono font-bold text-slate-800">
+                    <div className="mb-3 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+                      <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <span className="block text-xs font-medium text-slate-500 uppercase">P/E Ratio (Valuasi)</span>
+                        <span className="font-mono text-base font-bold text-slate-800">
                           {data.fundamentals.peRatio ? `${data.fundamentals.peRatio.toFixed(1)}x` : 'N/A'}
                         </span>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-white border border-slate-200">
-                        <span className="text-xs text-slate-500 block uppercase font-medium">PBV (Price to Book)</span>
-                        <span className="text-base font-mono font-bold text-slate-800">
+                      <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <span className="block text-xs font-medium text-slate-500 uppercase">PBV (Price to Book)</span>
+                        <span className="font-mono text-base font-bold text-slate-800">
                           {data.fundamentals.pbv ? `${data.fundamentals.pbv.toFixed(1)}x` : 'N/A'}
                         </span>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-white border border-slate-200 col-span-2 sm:col-span-1">
-                        <span className="text-xs text-slate-500 block uppercase font-medium">Peran Dividen</span>
+                      <div className="col-span-2 rounded-lg border border-slate-200 bg-white p-3 sm:col-span-1">
+                        <span className="block text-xs font-medium text-slate-500 uppercase">Peran Dividen</span>
                         <span className="text-sm font-semibold text-emerald-700">
                           {data.fundamentals.dividendYield && data.fundamentals.dividendYield > 0.05
                             ? 'Penyerap Floating Loss Pasif'
@@ -501,8 +501,8 @@ export default function RecoveryPage() {
                     </div>
 
                     {data.fundamentals.verdict && (
-                      <div className="text-sm text-slate-700 bg-white p-3.5 rounded-lg border border-slate-200 leading-relaxed flex items-start gap-2.5">
-                        <Info className="w-4.5 h-4.5 text-purple-600 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2.5 rounded-lg border border-slate-200 bg-white p-3.5 text-sm leading-relaxed text-slate-700">
+                        <Info className="mt-0.5 h-4.5 w-4.5 shrink-0 text-purple-600" />
                         <div>
                           <strong className="text-slate-900">Analisis Nilai: </strong>
                           <span>{data.fundamentals.verdict}</span>
@@ -515,27 +515,27 @@ export default function RecoveryPage() {
 
             {/* 2. Skenario Penyelamatan AI */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4.5 h-4.5 text-emerald-600" />
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-base font-bold tracking-wider text-slate-900 uppercase">
+                  <Sparkles className="h-4.5 w-4.5 text-emerald-600" />
                   <span>3 Skenario Penyelamatan AI (Pilih Sesuai Tipe &amp; Kas Anda)</span>
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                 {/* Option A: Cut Loss / Trim */}
                 <div
-                  className={`p-5 rounded-2xl border bg-white flex flex-col justify-between transition-all ${
+                  className={`flex flex-col justify-between rounded-2xl border bg-white p-5 transition-all ${
                     data.scenarios.cutLoss.actionRecommended
-                      ? 'border-rose-300 ring-2 ring-rose-100 shadow-sm'
+                      ? 'border-rose-300 shadow-sm ring-2 ring-rose-100'
                       : 'border-slate-200 shadow-2xs'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-xs font-bold text-rose-700 uppercase tracking-wide">Skenario A</span>
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <span className="text-xs font-bold tracking-wide text-rose-700 uppercase">Skenario A</span>
                       {data.scenarios.cutLoss.actionRecommended && (
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">
+                        <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800">
                           Disarankan AI
                         </span>
                       )}
@@ -544,34 +544,34 @@ export default function RecoveryPage() {
                     {/* Kesesuaian Tipe Badge */}
                     {data.scenarios.cutLoss.suitabilityTitle && (
                       <div
-                        className={`mb-3 p-3 rounded-xl border ${
-                          data.scenarios.cutLoss.suitabilityColor || 'bg-amber-50 border-amber-200 text-amber-800'
+                        className={`mb-3 rounded-xl border p-3 ${
+                          data.scenarios.cutLoss.suitabilityColor || 'border-amber-200 bg-amber-50 text-amber-800'
                         }`}
                       >
-                        <span className="font-bold block text-xs tracking-wide">
+                        <span className="block text-xs font-bold tracking-wide">
                           {data.scenarios.cutLoss.suitabilityTitle}
                         </span>
-                        <span className="text-xs opacity-90 leading-snug block mt-1">
+                        <span className="mt-1 block text-xs leading-snug opacity-90">
                           {data.scenarios.cutLoss.suitabilityReason}
                         </span>
                       </div>
                     )}
 
-                    <h4 className="text-base font-bold text-slate-900 mb-2">{data.scenarios.cutLoss.title}</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-3.5">
+                    <h4 className="mb-2 text-base font-bold text-slate-900">{data.scenarios.cutLoss.title}</h4>
+                    <p className="mb-3.5 text-sm leading-relaxed text-slate-600">
                       {data.scenarios.cutLoss.description}
                     </p>
 
                     {/* Checklist Panduan Memilih */}
                     {data.scenarios.cutLoss.checklist && data.scenarios.cutLoss.checklist.length > 0 && (
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 mb-3.5">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                      <div className="mb-3.5 rounded-xl border border-slate-200/80 bg-slate-50 p-3.5">
+                        <span className="mb-2 block text-xs font-bold tracking-wider text-slate-500 uppercase">
                           Pilih Opsi Ini Jika:
                         </span>
                         <ul className="space-y-1.5">
                           {data.scenarios.cutLoss.checklist.map((item, idx) => (
-                            <li key={idx} className="text-xs text-slate-700 flex items-start gap-2 leading-relaxed">
-                              <span className="text-rose-500 font-bold mt-0.5">•</span>
+                            <li key={idx} className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
+                              <span className="mt-0.5 font-bold text-rose-500">•</span>
                               <span>{item}</span>
                             </li>
                           ))}
@@ -580,16 +580,16 @@ export default function RecoveryPage() {
                     )}
                   </div>
 
-                  <div className="mt-2 pt-3.5 border-t border-slate-100 flex flex-col gap-2.5">
-                    <div className="text-xs font-mono text-rose-600 font-bold">
+                  <div className="mt-2 flex flex-col gap-2.5 border-t border-slate-100 pt-3.5">
+                    <div className="font-mono text-xs font-bold text-rose-600">
                       Potensi modal terselamatkan: {formatRupiah(data.scenarios.cutLoss.lossSavedIfSupportBroken)}
                     </div>
                     <button
                       type="button"
                       onClick={() => handleOpenDiscussion('cutLoss')}
-                      className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-800 text-sm font-semibold flex items-center justify-center gap-2 transition-all border border-slate-200 hover:border-rose-200 cursor-pointer"
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-800"
                     >
-                      <MessageSquare className="w-4 h-4 text-rose-600" />
+                      <MessageSquare className="h-4 w-4 text-rose-600" />
                       <span>Bedah Logika &amp; Diskusi AI</span>
                     </button>
                   </div>
@@ -597,17 +597,17 @@ export default function RecoveryPage() {
 
                 {/* Option B: Precision Average Down */}
                 <div
-                  className={`p-5 rounded-2xl border bg-white flex flex-col justify-between transition-all ${
+                  className={`flex flex-col justify-between rounded-2xl border bg-white p-5 transition-all ${
                     data.scenarios.averageDown.actionRecommended
-                      ? 'border-purple-300 ring-2 ring-purple-100 shadow-sm'
+                      ? 'border-purple-300 shadow-sm ring-2 ring-purple-100'
                       : 'border-slate-200 shadow-2xs'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">Skenario B</span>
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <span className="text-xs font-bold tracking-wide text-purple-700 uppercase">Skenario B</span>
                       {data.scenarios.averageDown.actionRecommended && (
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold">
+                        <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-800">
                           Disarankan AI
                         </span>
                       )}
@@ -616,39 +616,39 @@ export default function RecoveryPage() {
                     {/* Kesesuaian Tipe Badge */}
                     {data.scenarios.averageDown.suitabilityTitle && (
                       <div
-                        className={`mb-3 p-3 rounded-xl border ${
+                        className={`mb-3 rounded-xl border p-3 ${
                           data.scenarios.averageDown.suitabilityColor ||
-                          'bg-purple-50 border-purple-200 text-purple-800'
+                          'border-purple-200 bg-purple-50 text-purple-800'
                         }`}
                       >
-                        <span className="font-bold block text-xs tracking-wide">
+                        <span className="block text-xs font-bold tracking-wide">
                           {data.scenarios.averageDown.suitabilityTitle}
                         </span>
-                        <span className="text-xs opacity-90 leading-snug block mt-1">
+                        <span className="mt-1 block text-xs leading-snug opacity-90">
                           {data.scenarios.averageDown.suitabilityReason}
                         </span>
                       </div>
                     )}
 
-                    <h4 className="text-base font-bold text-slate-900 mb-2">{data.scenarios.averageDown.title}</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-3.5">
+                    <h4 className="mb-2 text-base font-bold text-slate-900">{data.scenarios.averageDown.title}</h4>
+                    <p className="mb-3.5 text-sm leading-relaxed text-slate-600">
                       {data.scenarios.averageDown.description}
                     </p>
 
                     {/* Cash Feasibility Check Alert */}
                     {data.scenarios.averageDown.cashStatusNote && (
                       <div
-                        className={`p-3.5 rounded-xl border mb-3.5 text-xs ${
+                        className={`mb-3.5 rounded-xl border p-3.5 text-xs ${
                           data.scenarios.averageDown.cashSufficient
-                            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                            : 'bg-amber-50 border-amber-200 text-amber-900'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                            : 'border-amber-200 bg-amber-50 text-amber-900'
                         }`}
                       >
-                        <div className="flex items-center gap-1.5 font-bold mb-1 text-sm">
+                        <div className="mb-1 flex items-center gap-1.5 text-sm font-bold">
                           {data.scenarios.averageDown.cashSufficient ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                           ) : (
-                            <AlertTriangle className="w-4 h-4 text-amber-600" />
+                            <AlertTriangle className="h-4 w-4 text-amber-600" />
                           )}
                           <span>
                             {data.scenarios.averageDown.cashSufficient
@@ -662,14 +662,14 @@ export default function RecoveryPage() {
 
                     {/* Checklist Panduan Memilih */}
                     {data.scenarios.averageDown.checklist && data.scenarios.averageDown.checklist.length > 0 && (
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 mb-3.5">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                      <div className="mb-3.5 rounded-xl border border-slate-200/80 bg-slate-50 p-3.5">
+                        <span className="mb-2 block text-xs font-bold tracking-wider text-slate-500 uppercase">
                           Pilih Opsi Ini Jika:
                         </span>
                         <ul className="space-y-1.5">
                           {data.scenarios.averageDown.checklist.map((item, idx) => (
-                            <li key={idx} className="text-xs text-slate-700 flex items-start gap-2 leading-relaxed">
-                              <span className="text-purple-600 font-bold mt-0.5">•</span>
+                            <li key={idx} className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
+                              <span className="mt-0.5 font-bold text-purple-600">•</span>
                               <span>{item}</span>
                             </li>
                           ))}
@@ -678,8 +678,8 @@ export default function RecoveryPage() {
                     )}
                   </div>
 
-                  <div className="mt-2 pt-3.5 border-t border-slate-100 flex flex-col gap-2.5">
-                    <div className="text-xs font-mono text-purple-800 font-bold">
+                  <div className="mt-2 flex flex-col gap-2.5 border-t border-slate-100 pt-3.5">
+                    <div className="font-mono text-xs font-bold text-purple-800">
                       Kebutuhan: Beli {data.scenarios.averageDown.minRequiredLot} Lot @ Rp{' '}
                       {formatNumber(Math.round(data.scenarios.averageDown.suggestedEntryPrice))} (
                       {formatRupiah(Math.round(data.scenarios.averageDown.capitalRequired))})
@@ -687,9 +687,9 @@ export default function RecoveryPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenDiscussion('averageDown')}
-                      className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-800 text-sm font-semibold flex items-center justify-center gap-2 transition-all border border-slate-200 hover:border-purple-200 cursor-pointer"
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:border-purple-200 hover:bg-purple-50 hover:text-purple-800"
                     >
-                      <MessageSquare className="w-4 h-4 text-purple-600" />
+                      <MessageSquare className="h-4 w-4 text-purple-600" />
                       <span>Bedah Logika &amp; Diskusi AI</span>
                     </button>
                   </div>
@@ -697,17 +697,17 @@ export default function RecoveryPage() {
 
                 {/* Option C: Hold for BEP Rebound */}
                 <div
-                  className={`p-5 rounded-2xl border bg-white flex flex-col justify-between transition-all ${
+                  className={`flex flex-col justify-between rounded-2xl border bg-white p-5 transition-all ${
                     data.scenarios.holdForBep.actionRecommended
-                      ? 'border-amber-300 ring-2 ring-amber-100 shadow-sm'
+                      ? 'border-amber-300 shadow-sm ring-2 ring-amber-100'
                       : 'border-slate-200 shadow-2xs'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-xs font-bold text-amber-800 uppercase tracking-wide">Skenario C</span>
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <span className="text-xs font-bold tracking-wide text-amber-800 uppercase">Skenario C</span>
                       {data.scenarios.holdForBep.actionRecommended && (
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
+                        <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                           Disarankan AI
                         </span>
                       )}
@@ -716,34 +716,34 @@ export default function RecoveryPage() {
                     {/* Kesesuaian Tipe Badge */}
                     {data.scenarios.holdForBep.suitabilityTitle && (
                       <div
-                        className={`mb-3 p-3 rounded-xl border ${
-                          data.scenarios.holdForBep.suitabilityColor || 'bg-blue-50 border-blue-200 text-blue-800'
+                        className={`mb-3 rounded-xl border p-3 ${
+                          data.scenarios.holdForBep.suitabilityColor || 'border-blue-200 bg-blue-50 text-blue-800'
                         }`}
                       >
-                        <span className="font-bold block text-xs tracking-wide">
+                        <span className="block text-xs font-bold tracking-wide">
                           {data.scenarios.holdForBep.suitabilityTitle}
                         </span>
-                        <span className="text-xs opacity-90 leading-snug block mt-1">
+                        <span className="mt-1 block text-xs leading-snug opacity-90">
                           {data.scenarios.holdForBep.suitabilityReason}
                         </span>
                       </div>
                     )}
 
-                    <h4 className="text-base font-bold text-slate-900 mb-2">{data.scenarios.holdForBep.title}</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-3.5">
+                    <h4 className="mb-2 text-base font-bold text-slate-900">{data.scenarios.holdForBep.title}</h4>
+                    <p className="mb-3.5 text-sm leading-relaxed text-slate-600">
                       {data.scenarios.holdForBep.description}
                     </p>
 
                     {/* Checklist Panduan Memilih */}
                     {data.scenarios.holdForBep.checklist && data.scenarios.holdForBep.checklist.length > 0 && (
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 mb-3.5">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                      <div className="mb-3.5 rounded-xl border border-slate-200/80 bg-slate-50 p-3.5">
+                        <span className="mb-2 block text-xs font-bold tracking-wider text-slate-500 uppercase">
                           Pilih Opsi Ini Jika:
                         </span>
                         <ul className="space-y-1.5">
                           {data.scenarios.holdForBep.checklist.map((item, idx) => (
-                            <li key={idx} className="text-xs text-slate-700 flex items-start gap-2 leading-relaxed">
-                              <span className="text-amber-600 font-bold mt-0.5">•</span>
+                            <li key={idx} className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
+                              <span className="mt-0.5 font-bold text-amber-600">•</span>
                               <span>{item}</span>
                             </li>
                           ))}
@@ -752,17 +752,17 @@ export default function RecoveryPage() {
                     )}
                   </div>
 
-                  <div className="mt-2 pt-3.5 border-t border-slate-100 flex flex-col gap-2.5">
-                    <div className="text-xs font-mono text-amber-800 font-bold">
+                  <div className="mt-2 flex flex-col gap-2.5 border-t border-slate-100 pt-3.5">
+                    <div className="font-mono text-xs font-bold text-amber-800">
                       Target Exit Rebound: Rp {formatNumber(Math.round(data.scenarios.holdForBep.realisticExitPrice))} (
                       {data.scenarios.holdForBep.expectedDays})
                     </div>
                     <button
                       type="button"
                       onClick={() => handleOpenDiscussion('holdForBep')}
-                      className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-sm font-semibold flex items-center justify-center gap-2 transition-all border border-slate-200 hover:border-amber-200 cursor-pointer"
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
                     >
-                      <MessageSquare className="w-4 h-4 text-amber-600" />
+                      <MessageSquare className="h-4 w-4 text-amber-600" />
                       <span>Bedah Logika &amp; Diskusi AI</span>
                     </button>
                   </div>
@@ -772,9 +772,9 @@ export default function RecoveryPage() {
 
             {/* 3. Kalkulator Average Down Presisi */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                  <Calculator className="w-4 h-4" />
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                  <Calculator className="h-4 w-4" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Kalkulator Average Down Presisi</h3>
@@ -784,40 +784,40 @@ export default function RecoveryPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Inputs */}
                 <div className="space-y-4 text-sm md:col-span-1">
                   <div>
-                    <label className="block text-slate-700 font-medium mb-1">Harga Rencana Cicil Bawah (Rp)</label>
+                    <label className="mb-1 block font-medium text-slate-700">Harga Rencana Cicil Bawah (Rp)</label>
                     <input
                       type="number"
                       value={targetBuyPrice}
                       onChange={e => setTargetBuyPrice(parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono text-sm focus:outline-none focus:border-purple-600"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900 focus:border-purple-600 focus:outline-none"
                     />
-                    <span className="text-xs text-slate-500 mt-1 block">
+                    <span className="mt-1 block text-xs text-slate-500">
                       Disarankan di Major Support: Rp {formatNumber(Math.round(data.supportMajor))}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-medium mb-1">
+                    <label className="mb-1 block font-medium text-slate-700">
                       Target Avg Price Baru Yang Diinginkan (Rp)
                     </label>
                     <input
                       type="number"
                       value={targetAvgPrice}
                       onChange={e => setTargetAvgPrice(parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono text-sm focus:outline-none focus:border-purple-600"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900 focus:border-purple-600 focus:outline-none"
                     />
-                    <span className="text-xs text-slate-500 mt-1 block">
+                    <span className="mt-1 block text-xs text-slate-500">
                       Avg saat ini: Rp {formatNumber(Math.round(data.avgPrice))}
                     </span>
                   </div>
 
                   {/* SOP Panduan Eksekusi */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
-                    <span className="font-bold text-slate-800 text-xs block">📌 Kapan Tombol Ditekan?</span>
+                  <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-600">
+                    <span className="block text-xs font-bold text-slate-800">📌 Kapan Tombol Ditekan?</span>
                     <p className="leading-relaxed">
                       Tekan tombol &quot;Terapkan ke Trading Plan&quot; <strong>hanya jika</strong> harga sudah
                       menyentuh level support dan terkonfirmasi rebound (candle hijau/hammer), serta kas tersedia telah
@@ -827,50 +827,50 @@ export default function RecoveryPage() {
                 </div>
 
                 {/* Calculation Outputs */}
-                <div className="md:col-span-2 bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col justify-between">
+                <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-5 md:col-span-2">
                   <div>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">
+                    <span className="mb-3 block text-xs font-bold tracking-wider text-slate-500 uppercase">
                       Hasil Simulasi Kalkulasi
                     </span>
 
                     {calcResult.error ? (
-                      <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
+                      <div className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-sm text-rose-700">
                         {calcResult.error}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                          <span className="text-xs text-slate-500 uppercase block font-semibold mb-1">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+                          <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">
                             Lot Tambahan
                           </span>
-                          <span className="text-2xl font-mono font-bold text-purple-700">
+                          <span className="font-mono text-2xl font-bold text-purple-700">
                             +{formatNumber(calcResult.addLot)} Lot
                           </span>
-                          <span className="text-xs text-slate-500 block mt-1">
+                          <span className="mt-1 block text-xs text-slate-500">
                             Total lot jadi: {data.lot + calcResult.addLot} Lot
                           </span>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                          <span className="text-xs text-slate-500 uppercase block font-semibold mb-1">
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+                          <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">
                             Modal Tambahan
                           </span>
-                          <span className="text-xl font-mono font-bold text-slate-900">
+                          <span className="font-mono text-xl font-bold text-slate-900">
                             {formatRupiah(calcResult.capital)}
                           </span>
-                          <span className="text-xs text-slate-500 block mt-1">
+                          <span className="mt-1 block text-xs text-slate-500">
                             Di harga Rp {formatNumber(targetBuyPrice)}
                           </span>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                          <span className="text-xs text-slate-500 uppercase block font-semibold mb-1">
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+                          <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">
                             Avg Price Baru
                           </span>
-                          <span className="text-2xl font-mono font-bold text-emerald-700">
+                          <span className="font-mono text-2xl font-bold text-emerald-700">
                             Rp {formatNumber(calcResult.newAvg)}
                           </span>
-                          <span className="text-xs text-emerald-600 font-medium block mt-1">
+                          <span className="mt-1 block text-xs font-medium text-emerald-600">
                             Turun {data.avgPrice - calcResult.newAvg} Poin!
                           </span>
                         </div>
@@ -878,15 +878,15 @@ export default function RecoveryPage() {
                     )}
                   </div>
 
-                  <div className="mt-4 pt-3.5 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                  <div className="mt-4 flex flex-col justify-between gap-3 border-t border-slate-200 pt-3.5 text-sm sm:flex-row sm:items-center">
                     <div>
                       <span className="text-slate-600">
                         Break-even Price (BEP):{' '}
                         <strong className="font-mono text-slate-900">Rp {formatNumber(calcResult.newAvg)}</strong>
                       </span>
                       {data.cashBalance !== undefined && calcResult.capital > data.cashBalance && (
-                        <div className="text-xs text-amber-700 font-semibold mt-1 flex items-center gap-1.5">
-                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                          <AlertTriangle className="h-4 w-4 shrink-0" />
                           <span>
                             Modal butuh {formatRupiah(calcResult.capital)}, kas tersedia{' '}
                             {formatRupiah(data.cashBalance)} (Kurang{' '}
@@ -902,7 +902,7 @@ export default function RecoveryPage() {
                           `Simulasi average down ${calcResult.addLot} lot pada ${data.ticker} siap diaplikasikan ke trading plan!`,
                         )
                       }
-                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-xs"
+                      className="shrink-0 cursor-pointer rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-emerald-500"
                     >
                       Terapkan ke Trading Plan
                     </button>
@@ -916,42 +916,42 @@ export default function RecoveryPage() {
 
       {/* Modal Diskusi / Bedah Logika Skenario AI */}
       {activeScenarioModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
+          <div className="animate-in fade-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl duration-150">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+            <div className="flex flex-col justify-between gap-3 border-b border-slate-100 bg-slate-50/50 p-4 sm:flex-row sm:items-center sm:p-5">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+                  <Sparkles className="h-4 w-4" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900 font-mono">
+                    <h3 className="font-mono text-base font-bold text-slate-900">
                       {selectedTicker} — {discussionData?.scenarioTitle || 'Bedah Skenario'}
                     </h3>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-2">
                     {discussionData?.source && discussionData.source !== 'rule_based' ? (
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 shadow-2xs">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />{' '}
+                      <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 shadow-2xs">
+                        <Sparkles className="h-3.5 w-3.5 text-emerald-600" />{' '}
                         {discussionData.source === '9router' ? '9Router AI' : 'AI Copilot'}
                       </span>
                     ) : (
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 shadow-2xs">
+                      <span className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 shadow-2xs">
                         ⚡ Rule-Based Expert Engine
                       </span>
                     )}
 
                     {discussionData?.fromDb ? (
                       <span
-                        className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-2xs"
+                        className="flex items-center gap-1 rounded-full border border-purple-200 bg-purple-100 px-2.5 py-0.5 text-[11px] font-semibold text-purple-800 shadow-2xs"
                         title="Data hasil analisis diambil dari cache database lokal (0 Token AI terpakai)"
                       >
-                        <Database className="w-3 h-3 text-purple-600" /> Tersimpan di Database (0 Token)
+                        <Database className="h-3 w-3 text-purple-600" /> Tersimpan di Database (0 Token)
                       </span>
                     ) : discussionData?.source && discussionData.source !== 'rule_based' ? (
-                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-emerald-600" /> Live AI Analysis
+                      <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 shadow-2xs">
+                        <Sparkles className="h-3 w-3 text-emerald-600" /> Live AI Analysis
                       </span>
                     ) : null}
 
@@ -964,19 +964,19 @@ export default function RecoveryPage() {
                 <button
                   type="button"
                   onClick={handleCloseDiscussion}
-                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
             {/* Modal Body (Scrollable) */}
-            <div className="p-5 overflow-y-auto space-y-5 flex-1 text-sm">
+            <div className="flex-1 space-y-5 overflow-y-auto p-5 text-sm">
               {isDiscussionLoading ? (
-                <div className="py-16 text-center text-slate-500 flex flex-col items-center justify-center space-y-3">
-                  <div className="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="font-medium text-sm text-slate-600">
+                <div className="flex flex-col items-center justify-center space-y-3 py-16 text-center text-slate-500">
+                  <div className="h-8 w-8 animate-spin rounded-full border-3 border-purple-600 border-t-transparent"></div>
+                  <p className="text-sm font-medium text-slate-600">
                     Sedang membedah logika finansial &amp; risiko skenario...
                   </p>
                 </div>
@@ -984,9 +984,9 @@ export default function RecoveryPage() {
                 <>
                   {/* Alert Banner if result is Rule-Based with Retry button */}
                   {discussionData?.source === 'rule_based' && (
-                    <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
+                    <div className="flex flex-col justify-between gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-2xs sm:flex-row sm:items-center">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                         <span>
                           Analisis saat ini menggunakan <strong>Expert Rule-Based Engine</strong>. Anda dapat mencoba
                           analisis ulang dengan AI.
@@ -996,9 +996,9 @@ export default function RecoveryPage() {
                         type="button"
                         onClick={handleRetryDeepDive}
                         disabled={isDiscussionLoading}
-                        className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-2xs self-start sm:self-auto"
+                        className="flex shrink-0 cursor-pointer items-center gap-1.5 self-start rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs transition-colors hover:bg-amber-500 disabled:opacity-50 sm:self-auto"
                       >
-                        <RotateCw className={`w-3.5 h-3.5 ${isDiscussionLoading ? 'animate-spin' : ''}`} />
+                        <RotateCw className={`h-3.5 w-3.5 ${isDiscussionLoading ? 'animate-spin' : ''}`} />
                         <span>Coba Ulang dengan AI</span>
                       </button>
                     </div>
@@ -1007,51 +1007,51 @@ export default function RecoveryPage() {
                   {/* 4 Deep Dive Cards */}
                   <div className="space-y-3">
                     {/* Core Logic */}
-                    <div className="p-4 rounded-xl bg-purple-50/50 border border-purple-100">
-                      <div className="flex items-center gap-2 text-purple-900 font-bold text-sm mb-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
+                    <div className="rounded-xl border border-purple-100 bg-purple-50/50 p-4">
+                      <div className="mb-1.5 flex items-center gap-2 text-sm font-bold text-purple-900">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-purple-600" />
                         <span>Logika Utama: Mengapa Opsi Ini Terpilih?</span>
                       </div>
                       <MarkdownText
                         content={discussionData.deepDive.coreLogic}
-                        className="text-slate-700 leading-relaxed text-sm"
+                        className="text-sm leading-relaxed text-slate-700"
                       />
                     </div>
 
                     {/* Invalidation Risk */}
-                    <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200">
-                      <div className="flex items-center gap-2 text-amber-900 font-bold text-sm mb-1.5">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+                      <div className="mb-1.5 flex items-center gap-2 text-sm font-bold text-amber-900">
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                         <span>Kondisi Risiko &amp; Batas Invalidasi (Plan B):</span>
                       </div>
                       <MarkdownText
                         content={discussionData.deepDive.invalidationRisk}
-                        className="text-slate-700 leading-relaxed text-sm"
+                        className="text-sm leading-relaxed text-slate-700"
                       />
                     </div>
 
                     {/* Cashflow & Timeline */}
-                    <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100">
-                      <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm mb-1.5">
-                        <Coins className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+                      <div className="mb-1.5 flex items-center gap-2 text-sm font-bold text-emerald-900">
+                        <Coins className="h-4 w-4 shrink-0 text-emerald-600" />
                         <span>Kalkulasi Arus Kas &amp; Estimasi Waktu:</span>
                       </div>
                       <MarkdownText
                         content={discussionData.deepDive.cashflowAndTimeline}
-                        className="text-slate-700 leading-relaxed text-sm"
+                        className="text-sm leading-relaxed text-slate-700"
                       />
                     </div>
 
                     {/* Tomorrow Action Plan */}
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <div className="flex items-center gap-2 text-slate-900 font-bold text-sm mb-2">
-                        <Clock className="w-4 h-4 text-slate-700 shrink-0" />
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-900">
+                        <Clock className="h-4 w-4 shrink-0 text-slate-700" />
                         <span>Rencana Aksi Konkret Sebelum Jam 09:00 WIB Besok:</span>
                       </div>
                       <div className="space-y-1.5">
                         {discussionData.deepDive.tomorrowActionPlan?.map((plan, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-slate-700 text-sm">
-                            <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                          <div key={idx} className="flex items-start gap-2 text-sm text-slate-700">
+                            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">
                               {idx + 1}
                             </span>
                             <span className="flex-1">
@@ -1064,10 +1064,10 @@ export default function RecoveryPage() {
                   </div>
 
                   {/* Section 2: Interactive Q&A */}
-                  <div className="pt-4 border-t border-slate-100 space-y-3">
+                  <div className="space-y-3 border-t border-slate-100 pt-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                        <Bot className="w-4 h-4 text-purple-600 shrink-0" />
+                      <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                        <Bot className="h-4 w-4 shrink-0 text-purple-600" />
                         <span>Tanya Jawab Lanjutan dengan AI Copilot</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1075,10 +1075,10 @@ export default function RecoveryPage() {
                           <button
                             type="button"
                             onClick={handleClearChatHistory}
-                            className="text-[11px] font-medium text-slate-500 hover:text-rose-600 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
+                            className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
                             title="Bersihkan riwayat chat sesi hari ini"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="h-3.5 w-3.5" />
                             <span>Bersihkan Riwayat</span>
                           </button>
                         )}
@@ -1086,8 +1086,8 @@ export default function RecoveryPage() {
                     </div>
 
                     {/* Expiry / Session Info Banner */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
-                      <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500">
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                       <span>
                         Riwayat chat tersimpan khusus sesi hari ini (otomatis dihapus saat market close 17:30 WIB).
                       </span>
@@ -1095,32 +1095,32 @@ export default function RecoveryPage() {
 
                     {/* Chat history */}
                     {chatHistory.length > 0 && (
-                      <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                      <div className="max-h-56 space-y-2.5 overflow-y-auto pr-1">
                         {chatHistory.map((item, idx) => (
                           <div
                             key={idx}
-                            className={`p-3.5 rounded-xl text-xs leading-relaxed ${
+                            className={`rounded-xl p-3.5 text-xs leading-relaxed ${
                               item.role === 'user'
-                                ? 'bg-purple-100/70 text-purple-900 ml-8 border border-purple-200 shadow-2xs'
-                                : 'bg-slate-100/90 text-slate-800 mr-4 border border-slate-200 shadow-2xs'
+                                ? 'ml-8 border border-purple-200 bg-purple-100/70 text-purple-900 shadow-2xs'
+                                : 'mr-4 border border-slate-200 bg-slate-100/90 text-slate-800 shadow-2xs'
                             }`}
                           >
-                            <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200/50">
-                              <strong className="block text-xs uppercase font-mono font-bold opacity-80">
+                            <div className="mb-1.5 flex items-center justify-between border-b border-slate-200/50 pb-1">
+                              <strong className="block font-mono text-xs font-bold uppercase opacity-80">
                                 {item.role === 'user' ? 'Pertanyaan Anda' : 'Jawaban AI Copilot'}
                               </strong>
                               {item.role === 'assistant' && (
                                 <div className="flex items-center gap-1.5">
                                   <span
-                                    className={`text-[10px] px-2 py-0.5 rounded-md font-sans font-bold flex items-center gap-1 border shadow-2xs ${
+                                    className={`flex items-center gap-1 rounded-md border px-2 py-0.5 font-sans text-[10px] font-bold shadow-2xs ${
                                       item.source && item.source !== 'rule_based'
-                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                        : 'bg-slate-200/80 text-slate-700 border-slate-300'
+                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                        : 'border-slate-300 bg-slate-200/80 text-slate-700'
                                     }`}
                                   >
                                     {item.source && item.source !== 'rule_based' ? (
                                       <>
-                                        <Sparkles className="w-3 h-3 text-emerald-600" />
+                                        <Sparkles className="h-3 w-3 text-emerald-600" />
                                         <span>
                                           {item.source === '9router'
                                             ? 'Dibalas oleh 9Router AI'
@@ -1139,17 +1139,17 @@ export default function RecoveryPage() {
                                       type="button"
                                       onClick={() => handleRetryQuestion(idx)}
                                       disabled={retryingIndex !== null || isSubmittingQuestion}
-                                      className="text-[10px] px-2 py-0.5 rounded-md font-sans font-bold flex items-center gap-1 bg-white hover:bg-purple-50 text-purple-700 hover:text-purple-900 border border-purple-200 transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                                      className="flex cursor-pointer items-center gap-1 rounded-md border border-purple-200 bg-white px-2 py-0.5 font-sans text-[10px] font-bold text-purple-700 shadow-2xs transition-colors hover:bg-purple-50 hover:text-purple-900 disabled:opacity-50"
                                       title="Kirim ulang pertanyaan ke model AI"
                                     >
                                       {retryingIndex === idx ? (
                                         <>
-                                          <div className="w-2.5 h-2.5 border-1.5 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                                          <div className="border-1.5 h-2.5 w-2.5 animate-spin rounded-full border-purple-600 border-t-transparent"></div>
                                           <span>Mencoba AI...</span>
                                         </>
                                       ) : (
                                         <>
-                                          <RotateCw className="w-2.5 h-2.5 text-purple-600" />
+                                          <RotateCw className="h-2.5 w-2.5 text-purple-600" />
                                           <span>Coba Lagi dengan AI</span>
                                         </>
                                       )}
@@ -1159,15 +1159,15 @@ export default function RecoveryPage() {
                               )}
                             </div>
                             {item.role === 'user' ? (
-                              <div className="whitespace-pre-line font-medium">{item.text}</div>
+                              <div className="font-medium whitespace-pre-line">{item.text}</div>
                             ) : (
                               <MarkdownText content={item.text} className="text-xs leading-relaxed text-slate-800" />
                             )}
                           </div>
                         ))}
                         {isSubmittingQuestion && (
-                          <div className="p-3.5 rounded-xl bg-slate-100 text-slate-500 mr-4 border border-slate-200 text-xs flex items-center gap-2">
-                            <div className="w-3.5 h-3.5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="mr-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 p-3.5 text-xs text-slate-500">
+                            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
                             <span>Menyusun jawaban objektif...</span>
                           </div>
                         )}
@@ -1177,7 +1177,7 @@ export default function RecoveryPage() {
                     {/* Quick Question Chips */}
                     {discussionData.suggestedQuestions && discussionData.suggestedQuestions.length > 0 && (
                       <div>
-                        <span className="text-xs text-slate-500 block mb-1.5 font-medium">
+                        <span className="mb-1.5 block text-xs font-medium text-slate-500">
                           Pertanyaan Cepat Rekomendasi:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -1187,7 +1187,7 @@ export default function RecoveryPage() {
                               type="button"
                               onClick={() => handleAskQuestion(q)}
                               disabled={isSubmittingQuestion}
-                              className="text-xs text-slate-700 bg-white hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 px-3 py-1.5 rounded-lg border border-slate-200 text-left transition-colors cursor-pointer"
+                              className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left text-xs text-slate-700 transition-colors hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700"
                             >
                               💬 {q}
                             </button>
@@ -1202,7 +1202,7 @@ export default function RecoveryPage() {
                         e.preventDefault();
                         if (customQuestion.trim()) handleAskQuestion(customQuestion);
                       }}
-                      className="flex items-center gap-2 mt-2"
+                      className="mt-2 flex items-center gap-2"
                     >
                       <input
                         type="text"
@@ -1210,33 +1210,33 @@ export default function RecoveryPage() {
                         onChange={e => setCustomQuestion(e.target.value)}
                         placeholder="Ketik pertanyaan lanjutan untuk skenario ini..."
                         disabled={isSubmittingQuestion}
-                        className="flex-1 px-3.5 py-2.5 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-purple-600 focus:bg-white text-slate-900 transition-colors"
+                        className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 transition-colors focus:border-purple-600 focus:bg-white focus:outline-none"
                       />
                       <button
                         type="submit"
                         disabled={!customQuestion.trim() || isSubmittingQuestion}
-                        className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                        className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:opacity-40"
                       >
-                        <Send className="w-4 h-4" />
+                        <Send className="h-4 w-4" />
                         <span>Kirim</span>
                       </button>
                     </form>
                   </div>
                 </>
               ) : (
-                <div className="py-12 text-center text-slate-400 text-sm">
+                <div className="py-12 text-center text-sm text-slate-400">
                   Tidak ada data analisis skenario yang tersedia.
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-3.5 px-5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50 p-3.5 px-5 text-xs text-slate-500">
               <span>Gunakan panduan ini secara objektif sebelum jam bursa buka.</span>
               <button
                 type="button"
                 onClick={handleCloseDiscussion}
-                className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors cursor-pointer"
+                className="cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
               >
                 Tutup
               </button>

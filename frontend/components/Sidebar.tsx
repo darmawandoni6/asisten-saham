@@ -61,21 +61,21 @@ export function Sidebar() {
   return (
     <BaseSidebar
       collapsible="none"
-      className="w-64 h-screen max-h-screen sticky top-0 bg-white border-r border-slate-200 shrink-0 shadow-xs z-20 flex flex-col justify-between"
+      className="sticky top-0 z-20 flex h-screen max-h-screen w-64 shrink-0 flex-col justify-between border-r border-slate-200 bg-white shadow-xs"
     >
       {/* 1. Header (Brand Logo & Name) */}
-      <SidebarHeader className="h-16 px-5 flex flex-row items-center gap-3 bg-white shrink-0 space-y-0">
-        <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-2xs text-white shrink-0">
-          <TrendingUp className="w-5 h-5" />
+      <SidebarHeader className="flex h-16 shrink-0 flex-row items-center gap-3 space-y-0 bg-white px-5">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-2xs">
+          <TrendingUp className="h-5 w-5" />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h1 className="font-bold text-slate-900 text-sm tracking-tight truncate">Asisten Saham</h1>
-            <Badge variant="emerald" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase shrink-0">
+            <h1 className="truncate text-sm font-bold tracking-tight text-slate-900">Asisten Saham</h1>
+            <Badge variant="emerald" className="h-4 shrink-0 px-1.5 py-0 text-[9px] font-bold uppercase">
               IDX
             </Badge>
           </div>
-          <p className="text-[11px] text-slate-500 font-medium truncate">EOD Decision Copilot</p>
+          <p className="truncate text-[11px] font-medium text-slate-500">EOD Decision Copilot</p>
         </div>
       </SidebarHeader>
 
@@ -83,9 +83,9 @@ export function Sidebar() {
 
       {/* 2. Scrollable Navigation Content */}
       <SidebarContent className="px-3 py-4">
-        <SidebarGroup className="p-0 space-y-4">
+        <SidebarGroup className="space-y-4 p-0">
           <div>
-            <SidebarGroupLabel className="px-3 mb-1">Menu Utama</SidebarGroupLabel>
+            <SidebarGroupLabel className="mb-1 px-3">Menu Utama</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {NAV_ITEMS.map(item => {
@@ -100,7 +100,7 @@ export function Sidebar() {
                         <Link href={item.href}>
                           <Icon
                             className={cn(
-                              'w-4 h-4 transition-colors shrink-0',
+                              'h-4 w-4 shrink-0 transition-colors',
                               isActive ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600',
                             )}
                           />
@@ -115,13 +115,13 @@ export function Sidebar() {
           </div>
 
           {/* EOD Session Schedule Card */}
-          <Card className="bg-slate-50/80 border-slate-200/80 shadow-none">
+          <Card className="border-slate-200/80 bg-slate-50/80 shadow-none">
             <CardContent className="p-3">
-              <div className="flex items-center gap-2 text-slate-700 text-xs font-bold mb-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="mb-1.5 flex items-center gap-2 text-xs font-bold text-slate-700">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
                 <span>Siklus Kerja EOD</span>
               </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
+              <p className="text-[11px] leading-relaxed text-slate-500">
                 Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah
                 penutupan bursa IDX untuk aksi esok hari.
               </p>
@@ -133,19 +133,19 @@ export function Sidebar() {
       <SidebarSeparator />
 
       {/* 3. Footer (AI Copilot Status) */}
-      <SidebarFooter className="p-3 bg-white shrink-0">
-        <Card className="bg-slate-50/80 border-slate-200/80 shadow-none">
+      <SidebarFooter className="shrink-0 bg-white p-3">
+        <Card className="border-slate-200/80 bg-slate-50/80 shadow-none">
           <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5 text-slate-800 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div className="mb-1.5 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                <Sparkles className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                 <span>AI Copilot</span>
               </div>
-              <Badge variant="emerald" className="text-[9px] px-1.5 py-0 h-4 font-semibold">
+              <Badge variant="emerald" className="h-4 px-1.5 py-0 text-[9px] font-semibold">
                 Aktif
               </Badge>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <p className="text-[11px] leading-relaxed text-slate-500">
               Mengevaluasi closing bursa jam 17:30 WIB secara objektif.
             </p>
           </CardContent>

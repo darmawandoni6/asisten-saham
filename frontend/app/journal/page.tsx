@@ -99,20 +99,20 @@ export default function JournalPage() {
     switch (flag) {
       case 'DISCIPLINED':
         return (
-          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Disiplin Plan
+          <span className="flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+            <CheckCircle2 className="h-3 w-3" /> Disiplin Plan
           </span>
         );
       case 'FOMO_BUY':
         return (
-          <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold flex items-center gap-1">
-            <Flame className="w-3 h-3" /> FOMO Buy
+          <span className="flex items-center gap-1 rounded border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+            <Flame className="h-3 w-3" /> FOMO Buy
           </span>
         );
       case 'PANIC_SELL':
         return (
-          <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" /> Panic Sell
+          <span className="flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+            <AlertCircle className="h-3 w-3" /> Panic Sell
           </span>
         );
       default:
@@ -121,59 +121,59 @@ export default function JournalPage() {
   };
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
+    <main className="flex min-h-screen flex-1 flex-col bg-slate-50 pb-16">
       <Topbar
         title="AI Trading Journal & Post-Mortem"
         subtitle="Evaluasi transaksi selesai (Realized PnL) untuk mendeteksi kebiasaan psikologis & emosi"
         onRefresh={loadJournal}
       />
 
-      <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="mx-auto w-full max-w-7xl space-y-8 p-6">
         {/* Performance Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+            <span className="text-xs text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
               Total Realized PnL
             </span>
-            <div className="mt-2 text-xl font-bold font-mono text-emerald-700">
+            <div className="mt-2 font-mono text-xl font-bold text-emerald-700">
               {formatRupiah(postMortem.totalRealizedPnl)}
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">Akumulasi laba/rugi terealisasi</p>
+            <p className="mt-1 text-[11px] text-slate-500">Akumulasi laba/rugi terealisasi</p>
           </div>
 
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Win Rate</span>
-            <div className="mt-2 text-xl font-bold font-mono text-slate-900">{postMortem.winRatePct}%</div>
-            <p className="text-[11px] text-slate-500 mt-1">Dihitung dari {tradeLogs.length} transaksi</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+            <span className="text-xs text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Win Rate</span>
+            <div className="mt-2 font-mono text-xl font-bold text-slate-900">{postMortem.winRatePct}%</div>
+            <p className="mt-1 text-[11px] text-slate-500">Dihitung dari {tradeLogs.length} transaksi</p>
           </div>
 
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+            <span className="text-xs text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
               Profit Factor
             </span>
-            <div className="mt-2 text-xl font-bold font-mono text-slate-900">{postMortem.profitFactor}x</div>
-            <p className="text-[11px] text-slate-500 mt-1">Rasio gross profit vs gross loss</p>
+            <div className="mt-2 font-mono text-xl font-bold text-slate-900">{postMortem.profitFactor}x</div>
+            <p className="mt-1 text-[11px] text-slate-500">Rasio gross profit vs gross loss</p>
           </div>
 
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+            <span className="text-xs text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
               Evaluasi Dominan
             </span>
-            <div className="mt-2 text-xs font-bold text-amber-700 truncate">{postMortem.dominantPattern}</div>
-            <p className="text-[11px] text-slate-500 mt-1">Terdeteksi oleh AI post-mortem</p>
+            <div className="mt-2 truncate text-xs font-bold text-amber-700">{postMortem.dominantPattern}</div>
+            <p className="mt-1 text-[11px] text-slate-500">Terdeteksi oleh AI post-mortem</p>
           </div>
         </div>
 
         {/* AI Post-Mortem Analysis Box */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <Brain className="w-5 h-5" />
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <Brain className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
                 Post-Mortem AI Diagnosis
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                   Evaluasi Psikologis
                 </span>
               </h3>
@@ -183,18 +183,18 @@ export default function JournalPage() {
             </div>
           </div>
 
-          <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700">
             {postMortem.aiFeedback}
           </div>
 
           {/* Prescriptive recommendations */}
           <div className="mt-4 space-y-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+            <span className="block text-[11px] font-bold tracking-wider text-slate-400 uppercase">
               Saran Perbaikan Kebiasaan Trading:
             </span>
             {postMortem.recommendations.map((rec: string, i: number) => (
               <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                 <span>{rec}</span>
               </div>
             ))}
@@ -202,8 +202,8 @@ export default function JournalPage() {
         </div>
 
         {/* Trade Log Table */}
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-100 p-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900">Riwayat Transaksi Realized</h3>
               <p className="text-xs text-slate-500">Daftar posisi yang telah ditutup beserta catatan psikologis</p>
@@ -212,9 +212,9 @@ export default function JournalPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-2xs transition-colors"
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs transition-colors hover:bg-emerald-500"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="h-3.5 w-3.5" />
               <span>Catat Transaksi</span>
             </button>
           </div>
@@ -222,16 +222,16 @@ export default function JournalPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-3">Tanggal</th>
-                  <th className="py-3 px-3">Ticker</th>
-                  <th className="py-3 px-3">Aksi</th>
-                  <th className="py-3 px-3">Harga</th>
-                  <th className="py-3 px-3">Lot</th>
-                  <th className="py-3 px-3">Total Nilai</th>
-                  <th className="py-3 px-3">Realized PnL</th>
-                  <th className="py-3 px-3">Evaluasi Emosi</th>
-                  <th className="py-3 px-3">Catatan Trader</th>
+                <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                  <th className="px-3 py-3">Tanggal</th>
+                  <th className="px-3 py-3">Ticker</th>
+                  <th className="px-3 py-3">Aksi</th>
+                  <th className="px-3 py-3">Harga</th>
+                  <th className="px-3 py-3">Lot</th>
+                  <th className="px-3 py-3">Total Nilai</th>
+                  <th className="px-3 py-3">Realized PnL</th>
+                  <th className="px-3 py-3">Evaluasi Emosi</th>
+                  <th className="px-3 py-3">Catatan Trader</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -239,26 +239,26 @@ export default function JournalPage() {
                   tradeLogs.map(log => {
                     const isProfit = (log.realizedPnl || 0) >= 0;
                     return (
-                      <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3.5 px-3 font-mono text-slate-500 text-[11px]">{log.date}</td>
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">{log.ticker}</td>
-                        <td className="py-3.5 px-3">
+                      <tr key={log.id} className="transition-colors hover:bg-slate-50/80">
+                        <td className="px-3 py-3.5 font-mono text-[11px] text-slate-500">{log.date}</td>
+                        <td className="px-3 py-3.5 font-mono font-bold text-slate-900">{log.ticker}</td>
+                        <td className="px-3 py-3.5">
                           <span
-                            className={`text-[10px] px-2 py-0.5 rounded font-bold font-mono border ${
+                            className={`rounded border px-2 py-0.5 font-mono text-[10px] font-bold ${
                               log.action === 'SELL'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                                 : log.action === 'BUY'
-                                  ? 'bg-sky-50 text-sky-700 border-sky-200'
-                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                                  ? 'border-sky-200 bg-sky-50 text-sky-700'
+                                  : 'border-rose-200 bg-rose-50 text-rose-700'
                             }`}
                           >
                             {log.action}
                           </span>
                         </td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">Rp {formatNumber(log.price)}</td>
-                        <td className="py-3.5 px-3 font-mono text-slate-700">{log.lot} Lot</td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">{formatRupiah(log.totalValue)}</td>
-                        <td className="py-3.5 px-3 font-mono font-bold">
+                        <td className="px-3 py-3.5 font-mono text-slate-800">Rp {formatNumber(log.price)}</td>
+                        <td className="px-3 py-3.5 font-mono text-slate-700">{log.lot} Lot</td>
+                        <td className="px-3 py-3.5 font-mono text-slate-800">{formatRupiah(log.totalValue)}</td>
+                        <td className="px-3 py-3.5 font-mono font-bold">
                           {log.realizedPnl !== undefined && log.realizedPnl !== null && log.action !== 'BUY' ? (
                             <div className={isProfit ? 'text-emerald-700' : 'text-rose-600'}>
                               {isProfit ? '+' : ''}
@@ -266,11 +266,11 @@ export default function JournalPage() {
                               {formatPercent(log.realizedPnlPct || 0)})
                             </div>
                           ) : (
-                            <span className="text-slate-400 font-normal text-xs">-</span>
+                            <span className="text-xs font-normal text-slate-400">-</span>
                           )}
                         </td>
-                        <td className="py-3.5 px-3">{getFlagBadge(log.psychologyFlag)}</td>
-                        <td className="py-3.5 px-3 text-slate-600 text-[11px] max-w-xs leading-relaxed">
+                        <td className="px-3 py-3.5">{getFlagBadge(log.psychologyFlag)}</td>
+                        <td className="max-w-xs px-3 py-3.5 text-[11px] leading-relaxed text-slate-600">
                           {log.notes || '-'}
                         </td>
                       </tr>
@@ -279,9 +279,9 @@ export default function JournalPage() {
                 ) : (
                   <tr>
                     <td colSpan={9} className="py-12 text-center text-slate-400">
-                      <Inbox className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                      <p className="font-semibold text-slate-700 text-xs">Belum Ada Riwayat Transaksi</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <Inbox className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                      <p className="text-xs font-semibold text-slate-700">Belum Ada Riwayat Transaksi</p>
+                      <p className="mt-0.5 text-[11px] text-slate-400">
                         Catat hasil penjualan atau cut loss Anda dengan mengklik tombol &quot;Catat Transaksi&quot;.
                       </p>
                     </td>
@@ -295,50 +295,50 @@ export default function JournalPage() {
 
       {/* Modal Add Trade */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center"
+              className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-slate-800"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
 
-            <h3 className="text-base font-bold text-slate-900 mb-1">Catat Transaksi Realized</h3>
-            <p className="text-xs text-slate-500 mb-4">Input hasil transaksi untuk dievaluasi AI</p>
+            <h3 className="mb-1 text-base font-bold text-slate-900">Catat Transaksi Realized</h3>
+            <p className="mb-4 text-xs text-slate-500">Input hasil transaksi untuk dievaluasi AI</p>
 
             <form onSubmit={handleAddTrade} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Ticker Saham</label>
+                <label className="mb-1 block font-medium text-slate-700">Ticker Saham</label>
                 <input
                   type="text"
                   placeholder="Contoh: BBRI.JK"
                   value={ticker}
                   onChange={e => setTicker(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono uppercase focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 uppercase focus:border-emerald-600 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Aksi</label>
+                  <label className="mb-1 block font-medium text-slate-700">Aksi</label>
                   <select
                     value={action}
                     onChange={e => setAction(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                   >
                     <option value="SELL">SELL (Take Profit)</option>
                     <option value="CUT_LOSS">CUT LOSS</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Evaluasi Psikologi</label>
+                  <label className="mb-1 block font-medium text-slate-700">Evaluasi Psikologi</label>
                   <select
                     value={flag}
                     onChange={e => setFlag(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                   >
                     <option value="DISCIPLINED">Disiplin Trading Plan</option>
                     <option value="FOMO_BUY">FOMO (Ikut-ikutan)</option>
@@ -349,54 +349,54 @@ export default function JournalPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Harga Transaksi (Rp)</label>
+                  <label className="mb-1 block font-medium text-slate-700">Harga Transaksi (Rp)</label>
                   <input
                     type="number"
                     placeholder="5100"
                     value={price}
                     onChange={e => setPrice(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Jumlah Lot</label>
+                  <label className="mb-1 block font-medium text-slate-700">Jumlah Lot</label>
                   <input
                     type="number"
                     placeholder="50"
                     value={lot}
                     onChange={e => setLot(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Realized PnL Nominal (Rp)</label>
+                <label className="mb-1 block font-medium text-slate-700">Realized PnL Nominal (Rp)</label>
                 <input
                   type="number"
                   placeholder="Contoh: 1500000 (jika profit) atau -500000 (jika rugi)"
                   value={realizedPnl}
                   onChange={e => setRealizedPnl(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Catatan Evaluasi / Pembelajaran</label>
+                <label className="mb-1 block font-medium text-slate-700">Catatan Evaluasi / Pembelajaran</label>
                 <textarea
                   rows={2}
                   placeholder="Apa yang dipelajari dari transaksi ini..."
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors"
+                className="w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
               >
                 Simpan Transaksi
               </button>

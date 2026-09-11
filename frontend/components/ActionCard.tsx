@@ -109,48 +109,48 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
 
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-white ${config.topBorder} p-5 shadow-2xs hover:shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between`}
+      className={`rounded-xl border border-slate-200 bg-white ${config.topBorder} flex flex-col justify-between p-5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs`}
     >
       <div>
         {/* Header: Ticker, Name, Status Badge */}
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-lg text-slate-900 tracking-tight">{holding.ticker}</span>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+              <span className="font-mono text-lg font-bold tracking-tight text-slate-900">{holding.ticker}</span>
+              <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
                 {holding.sector}
               </span>
             </div>
-            <p className="text-xs text-slate-500 truncate max-w-[210px] mt-0.5" title={holding.name}>
+            <p className="mt-0.5 max-w-[210px] truncate text-xs text-slate-500" title={holding.name}>
               {holding.name}
             </p>
           </div>
 
           <span
-            className={`text-[10px] font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${config.badgeBg}`}
+            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-bold ${config.badgeBg}`}
           >
-            <span className={`w-1.5 h-1.5 rounded-full ${config.indicatorDot}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${config.indicatorDot}`} />
             {config.title}
           </span>
         </div>
 
         {/* Pricing Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-slate-100">
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
           <div>
-            <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">Closing EOD</span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-lg font-bold font-mono text-slate-900">
+            <span className="block text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Closing EOD</span>
+            <div className="mt-0.5 flex items-baseline gap-1.5">
+              <span className="font-mono text-lg font-bold text-slate-900">
                 Rp {formatNumber(holding.currentPrice)}
               </span>
               <span
-                className={`text-[11px] font-semibold flex items-center ${
+                className={`flex items-center text-[11px] font-semibold ${
                   holding.currentPrice >= holding.previousClose ? 'text-emerald-700' : 'text-rose-600'
                 }`}
               >
                 {holding.currentPrice >= holding.previousClose ? (
-                  <ArrowUpRight className="w-3 h-3" />
+                  <ArrowUpRight className="h-3 w-3" />
                 ) : (
-                  <ArrowDownRight className="w-3 h-3" />
+                  <ArrowDownRight className="h-3 w-3" />
                 )}
                 {formatPercent(((holding.currentPrice - holding.previousClose) / holding.previousClose) * 100)}
               </span>
@@ -158,14 +158,14 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
           </div>
 
           <div>
-            <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">
+            <span className="block text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
               Floating PnL
             </span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className={`text-base font-bold font-mono ${isProfit ? 'text-emerald-700' : 'text-rose-600'}`}>
+            <div className="mt-0.5 flex items-baseline gap-1.5">
+              <span className={`font-mono text-base font-bold ${isProfit ? 'text-emerald-700' : 'text-rose-600'}`}>
                 {formatPercent(holding.floatingPnlPct)}
               </span>
-              <span className={`text-[11px] font-mono ${isProfit ? 'text-emerald-600' : 'text-rose-500'}`}>
+              <span className={`font-mono text-[11px] ${isProfit ? 'text-emerald-600' : 'text-rose-500'}`}>
                 ({formatRupiah(holding.floatingPnl)})
               </span>
             </div>
@@ -173,21 +173,21 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
         </div>
 
         {/* Trading Plan Parameters */}
-        <div className="mt-3 grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px]">
+        <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-[11px]">
           <div>
-            <span className="text-slate-500 block text-[10px]">Avg Price</span>
-            <span className="font-mono text-slate-800 font-bold">Rp {formatNumber(holding.avgPrice)}</span>
+            <span className="block text-[10px] text-slate-500">Avg Price</span>
+            <span className="font-mono font-bold text-slate-800">Rp {formatNumber(holding.avgPrice)}</span>
           </div>
           <div>
-            <span className="text-slate-500 block text-[10px]">Target (TP)</span>
-            <span className="font-mono text-emerald-700 font-bold">Rp {formatNumber(holding.targetPrice)}</span>
+            <span className="block text-[10px] text-slate-500">Target (TP)</span>
+            <span className="font-mono font-bold text-emerald-700">Rp {formatNumber(holding.targetPrice)}</span>
           </div>
           <div>
-            <span className="text-slate-500 block text-[10px]">Stop Loss</span>
+            <span className="block text-[10px] text-slate-500">Stop Loss</span>
             {holding.stopLoss ? (
-              <span className="font-mono text-rose-600 font-bold">Rp {formatNumber(holding.stopLoss)}</span>
+              <span className="font-mono font-bold text-rose-600">Rp {formatNumber(holding.stopLoss)}</span>
             ) : (
-              <span className="font-mono text-indigo-500 font-bold text-[10px]">
+              <span className="font-mono text-[10px] font-bold text-indigo-500">
                 No Hard SL
                 <br />
                 <span className="text-slate-400">Investasi</span>
@@ -197,32 +197,32 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
         </div>
 
         {/* Action Reason Box */}
-        <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-slate-800 mb-1">
-            <StatusIcon className={`w-3.5 h-3.5 ${config.accentColor}`} />
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-xs">
+          <div className="mb-1 flex items-center gap-1.5 font-bold text-slate-800">
+            <StatusIcon className={`h-3.5 w-3.5 ${config.accentColor}`} />
             <span>Instruksi Aksi:</span>
           </div>
-          <p className="text-[11px] text-slate-600 leading-relaxed">{holding.actionReason}</p>
+          <p className="text-[11px] leading-relaxed text-slate-600">{holding.actionReason}</p>
         </div>
       </div>
 
       {/* Footer Action Buttons */}
-      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
         <button
           type="button"
           onClick={() => onSelectStock?.(holding)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
         >
-          <LineChart className="w-3.5 h-3.5 text-slate-500" />
+          <LineChart className="h-3.5 w-3.5 text-slate-500" />
           <span>Buka Chart</span>
         </button>
 
         <button
           type="button"
           onClick={() => onOpenAI?.(holding)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-colors border border-emerald-200"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
         >
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
           <span>AI Copilot</span>
         </button>
       </div>

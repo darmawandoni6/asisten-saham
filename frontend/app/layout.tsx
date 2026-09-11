@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className="bg-slate-50 text-slate-900 flex h-screen overflow-hidden selection:bg-emerald-600 selection:text-white antialiased">
+      <body className="flex h-screen overflow-hidden bg-slate-50 text-slate-900 antialiased selection:bg-emerald-600 selection:text-white">
         <HeartbeatSender />
         <SidebarProvider defaultOpen={true} className="flex h-screen w-full overflow-hidden">
           <Sidebar />
-          <SidebarInset className="flex-1 flex flex-col min-w-0 w-full max-w-full h-screen overflow-y-auto overflow-x-hidden bg-slate-50">
+          <SidebarInset className="flex h-screen w-full max-w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto bg-slate-50">
             {children}
           </SidebarInset>
         </SidebarProvider>

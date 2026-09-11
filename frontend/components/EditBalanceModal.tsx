@@ -54,42 +54,42 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs">
+      <div className="animate-in fade-in zoom-in-95 w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl duration-150">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-              <Wallet className="w-5 h-5" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600">
+              <Wallet className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 text-base">Update Saldo Kas RDN</h3>
+              <h3 className="text-base font-semibold text-slate-900">Update Saldo Kas RDN</h3>
               <p className="text-xs text-slate-500">Saldo kas aktif untuk trading & averaging down</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSave} className="p-6 space-y-4">
+        <form onSubmit={handleSave} className="space-y-4 p-6">
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold tracking-wider text-slate-500 uppercase">
               Nominal Saldo Kas (Rp)
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-semibold text-slate-400 text-sm">
+              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-sm font-semibold text-slate-400">
                 Rp
               </span>
               <input
@@ -101,7 +101,7 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
                   setBalanceInput(val);
                 }}
                 placeholder="0"
-                className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-medium text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pr-4 pl-11 font-mono text-lg font-medium text-slate-900 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none"
                 autoFocus
               />
             </div>
@@ -109,26 +109,26 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
 
           {/* Quick Preset Buttons */}
           <div>
-            <p className="text-[11px] font-medium text-slate-400 mb-2">Tambah Cepat:</p>
+            <p className="mb-2 text-[11px] font-medium text-slate-400">Tambah Cepat:</p>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => addAmount(1000000)}
-                className="px-2.5 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-center"
+                className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-center text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200"
               >
                 +1 Juta
               </button>
               <button
                 type="button"
                 onClick={() => addAmount(5000000)}
-                className="px-2.5 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-center"
+                className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-center text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200"
               >
                 +5 Juta
               </button>
               <button
                 type="button"
                 onClick={() => addAmount(10000000)}
-                className="px-2.5 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-center"
+                className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-center text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200"
               >
                 +10 Juta
               </button>
@@ -136,20 +136,20 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 rounded-xl shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="h-3.5 w-3.5" />
               {isSaving ? 'Menyimpan...' : 'Simpan Saldo'}
             </button>
           </div>

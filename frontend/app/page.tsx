@@ -99,20 +99,20 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-slate-50 pb-16">
+    <div className="flex min-h-0 flex-1 flex-col bg-slate-50 pb-16">
       <Topbar
         title="Smart Decision Dashboard (EOD Analysis)"
         subtitle="Rekomendasi objektif Hold / Sell / Buy berdasarkan data closing 17:30 WIB"
         onRefresh={loadDashboard}
       />
 
-      <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="mx-auto w-full max-w-7xl space-y-8 p-6">
         {/* Top Summary Metrics */}
         <PortfolioSummaryCards summary={summary} onEditCashBalance={() => setIsBalanceModalOpen(true)} />
 
         {/* 1. Core Feature: Smart Action Cards */}
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2.5">
                 <h2 className="text-base font-bold text-slate-900">Smart Action Cards</h2>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                   {holdings.length} Saham Terpantau
                 </Badge>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="mt-0.5 text-xs text-slate-500">
                 Kartu ringkasan status harian dengan 5 indikator warna tegas (Cut Loss, Take Profit, Hold, Trailing
                 Stop, Recovery)
               </p>
@@ -128,26 +128,26 @@ export default function DashboardPage() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map(idx => (
-                <Card key={idx} className="p-5 animate-pulse border-slate-200">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div className="h-6 w-24 bg-slate-200 rounded" />
-                    <div className="h-5 w-20 bg-slate-200 rounded" />
+                <Card key={idx} className="animate-pulse border-slate-200 p-5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="h-6 w-24 rounded bg-slate-200" />
+                    <div className="h-5 w-20 rounded bg-slate-200" />
                   </div>
-                  <div className="py-6 space-y-3">
-                    <div className="h-4 w-32 bg-slate-200 rounded" />
-                    <div className="h-8 w-48 bg-slate-200 rounded" />
+                  <div className="space-y-3 py-6">
+                    <div className="h-4 w-32 rounded bg-slate-200" />
+                    <div className="h-8 w-48 rounded bg-slate-200" />
                   </div>
-                  <div className="pt-3 border-t border-slate-100 flex gap-2">
-                    <div className="h-8 flex-1 bg-slate-200 rounded-lg" />
-                    <div className="h-8 flex-1 bg-slate-200 rounded-lg" />
+                  <div className="flex gap-2 border-t border-slate-100 pt-3">
+                    <div className="h-8 flex-1 rounded-lg bg-slate-200" />
+                    <div className="h-8 flex-1 rounded-lg bg-slate-200" />
                   </div>
                 </Card>
               ))}
             </div>
           ) : holdings.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {holdings.map(holding => (
                 <ActionCard
                   key={holding.id}
@@ -158,15 +158,15 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <Card className="border-slate-200 bg-white p-10 text-center shadow-2xs flex flex-col items-center justify-center">
-              <CardHeader className="p-0 pb-3 flex flex-col items-center">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-                  <TrendingUp className="w-6 h-6" />
+            <Card className="flex flex-col items-center justify-center border-slate-200 bg-white p-10 text-center shadow-2xs">
+              <CardHeader className="flex flex-col items-center p-0 pb-3">
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <TrendingUp className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-sm font-bold text-slate-900 normal-case tracking-normal">
+                <CardTitle className="text-sm font-bold tracking-normal text-slate-900 normal-case">
                   Belum Ada Saham di Portofolio
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 max-w-sm">
+                <CardDescription className="max-w-sm text-xs text-slate-500">
                   Mulai masukkan trading plan pertama Anda (Ticker, Avg Price Beli, Lot, Target Price, dan Stop Loss)
                   untuk memantau status aksi harian.
                 </CardDescription>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
               <CardContent className="p-0 pt-4">
                 <Button asChild variant="emerald" size="sm" className="gap-2 rounded-xl">
                   <Link href="/portfolio">
-                    <PlusCircle className="w-4 h-4" />
+                    <PlusCircle className="h-4 w-4" />
                     <span>Tambah Saham Pertama</span>
                   </Link>
                 </Button>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
 
       {/* Modal / Dialog for Candlestick Chart (shadcn/ui Dialog) */}
       <Dialog open={activeModal === 'chart' && !!selectedHolding} onOpenChange={open => !open && closeModal()}>
-        <DialogContent className="max-w-4xl p-0 border-none bg-transparent shadow-none [&>button]:hidden">
+        <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none [&>button]:hidden">
           <DialogHeader className="sr-only">
             <DialogTitle>Grafik Candlestick {selectedHolding?.ticker}</DialogTitle>
             <DialogDescription>

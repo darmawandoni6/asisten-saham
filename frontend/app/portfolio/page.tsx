@@ -212,38 +212,38 @@ export default function PortfolioPage() {
   });
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen bg-slate-50 pb-16">
+    <main className="flex min-h-screen flex-1 flex-col bg-slate-50 pb-16">
       <Topbar
         title="Portofolio & Trading Plan Management"
         subtitle="Kelola kepemilikan, target profit, stop loss dinamis, dan alokasi risiko"
         onRefresh={loadPortfolio}
       />
 
-      <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="mx-auto w-full max-w-7xl space-y-8 p-6">
         {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Daftar Trading Plan Aktif</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="mt-0.5 text-xs text-slate-500">
               Setiap posisi diproteksi dengan batas risiko terukur dan trailing stop otomatis
             </p>
           </div>
 
           <div className="flex items-center gap-3 self-start sm:self-auto">
-            <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
-              <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <Wallet className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-2xs">
+              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <Wallet className="h-3.5 w-3.5" />
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 font-semibold block leading-tight">Saldo Kas RDN</span>
-                <span className="text-xs font-mono font-bold text-slate-800 leading-tight">
+                <span className="block text-[10px] leading-tight font-semibold text-slate-400">Saldo Kas RDN</span>
+                <span className="font-mono text-xs leading-tight font-bold text-slate-800">
                   {formatRupiah(cashBalance)}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsBalanceModalOpen(true)}
-                className="ml-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                className="ml-1 cursor-pointer rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
               >
                 ✏️ Edit
               </button>
@@ -252,32 +252,32 @@ export default function PortfolioPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-2xs transition-all"
+              className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-2xs transition-all hover:bg-emerald-500"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               <span>Tambah Saham Baru</span>
             </button>
           </div>
         </div>
 
         {/* Portfolio Table */}
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-3">Ticker</th>
-                  <th className="py-3 px-3">Jenis</th>
-                  <th className="py-3 px-3">Sektor</th>
-                  <th className="py-3 px-3">Avg Beli</th>
-                  <th className="py-3 px-3">Jumlah Lot</th>
-                  <th className="py-3 px-3">Modal Beli</th>
-                  <th className="py-3 px-3">Close EOD</th>
-                  <th className="py-3 px-3">Floating PnL</th>
-                  <th className="py-3 px-3">Target (TP)</th>
-                  <th className="py-3 px-3">Stop Loss</th>
-                  <th className="py-3 px-3 text-center">Chart</th>
-                  <th className="py-3 px-3 text-right">Aksi</th>
+                <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                  <th className="px-3 py-3">Ticker</th>
+                  <th className="px-3 py-3">Jenis</th>
+                  <th className="px-3 py-3">Sektor</th>
+                  <th className="px-3 py-3">Avg Beli</th>
+                  <th className="px-3 py-3">Jumlah Lot</th>
+                  <th className="px-3 py-3">Modal Beli</th>
+                  <th className="px-3 py-3">Close EOD</th>
+                  <th className="px-3 py-3">Floating PnL</th>
+                  <th className="px-3 py-3">Target (TP)</th>
+                  <th className="px-3 py-3">Stop Loss</th>
+                  <th className="px-3 py-3 text-center">Chart</th>
+                  <th className="px-3 py-3 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -287,27 +287,27 @@ export default function PortfolioPage() {
                     const isProfit = h.floatingPnl >= 0;
 
                     return (
-                      <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">{h.ticker}</td>
-                        <td className="py-3.5 px-3">
+                      <tr key={h.id} className="transition-colors hover:bg-slate-50/80">
+                        <td className="px-3 py-3.5 font-mono font-bold text-slate-900">{h.ticker}</td>
+                        <td className="px-3 py-3.5">
                           {h.jenis === 'investasi' ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
+                            <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
                               📈 Investasi
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                               ⚡ Trading
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-3 text-slate-500 text-[11px]">{h.sector || '—'}</td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">Rp {formatNumber(h.avgPrice)}</td>
-                        <td className="py-3.5 px-3 font-mono text-slate-700">{formatNumber(h.lot)} Lot</td>
-                        <td className="py-3.5 px-3 font-mono text-slate-800">{formatRupiah(cost)}</td>
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900">
+                        <td className="px-3 py-3.5 text-[11px] text-slate-500">{h.sector || '—'}</td>
+                        <td className="px-3 py-3.5 font-mono text-slate-800">Rp {formatNumber(h.avgPrice)}</td>
+                        <td className="px-3 py-3.5 font-mono text-slate-700">{formatNumber(h.lot)} Lot</td>
+                        <td className="px-3 py-3.5 font-mono text-slate-800">{formatRupiah(cost)}</td>
+                        <td className="px-3 py-3.5 font-mono font-bold text-slate-900">
                           Rp {formatNumber(h.currentPrice)}
                         </td>
-                        <td className="py-3.5 px-3 font-mono font-bold">
+                        <td className="px-3 py-3.5 font-mono font-bold">
                           <div className={isProfit ? 'text-emerald-700' : 'text-rose-600'}>
                             {formatPercent(h.floatingPnlPct)}
                           </div>
@@ -315,31 +315,31 @@ export default function PortfolioPage() {
                             {formatRupiah(h.floatingPnl)}
                           </div>
                         </td>
-                        <td className="py-3.5 px-3 font-mono text-emerald-700 font-bold">
+                        <td className="px-3 py-3.5 font-mono font-bold text-emerald-700">
                           Rp {formatNumber(h.targetPrice)}
                         </td>
-                        <td className="py-3.5 px-3 font-mono font-bold">
+                        <td className="px-3 py-3.5 font-mono font-bold">
                           {h.stopLoss ? (
                             <span className="text-rose-600">Rp {formatNumber(h.stopLoss)}</span>
                           ) : (
-                            <span className="text-indigo-500 text-[10px] font-medium">
+                            <span className="text-[10px] font-medium text-indigo-500">
                               No Hard SL
                               <br />
                               <span className="text-slate-400">Avg Down</span>
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-3 text-center">
+                        <td className="px-3 py-3.5 text-center">
                           <button
                             type="button"
                             onClick={() => setChartStock(h)}
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                            className="rounded-lg bg-slate-100 p-1.5 text-slate-700 transition-colors hover:bg-slate-200"
                             title="Buka Chart"
                           >
-                            <LineChart className="w-4 h-4" />
+                            <LineChart className="h-4 w-4" />
                           </button>
                         </td>
-                        <td className="py-3.5 px-3 text-right">
+                        <td className="px-3 py-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
@@ -347,19 +347,19 @@ export default function PortfolioPage() {
                                 setSellingHolding(h);
                                 setIsSellModalOpen(true);
                               }}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-colors cursor-pointer"
+                              className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
                               title="Jual saham / Take Profit / Cut Loss"
                             >
-                              <Tag className="w-3 h-3" />
+                              <Tag className="h-3 w-3" />
                               <span>Jual</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDelete(h.id)}
-                              className="p-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-colors cursor-pointer"
+                              className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 p-1.5 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                               title="Hapus manual dari pencatatan"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </td>
@@ -369,9 +369,9 @@ export default function PortfolioPage() {
                 ) : (
                   <tr>
                     <td colSpan={12} className="py-12 text-center text-slate-400">
-                      <Inbox className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                      <p className="font-semibold text-slate-700 text-xs">Belum Ada Saham di Portofolio</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <Inbox className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                      <p className="text-xs font-semibold text-slate-700">Belum Ada Saham di Portofolio</p>
+                      <p className="mt-0.5 text-[11px] text-slate-400">
                         Klik tombol &quot;Tambah Saham Baru&quot; di atas untuk mencatat trading plan pertama Anda.
                       </p>
                     </td>
@@ -383,11 +383,11 @@ export default function PortfolioPage() {
         </div>
 
         {/* Money Management & Pyramiding Matrix */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Sektor Alokasi */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
-            <div className="flex items-center gap-2 text-slate-900 text-xs font-bold uppercase tracking-wider mb-4">
-              <PieChart className="w-4 h-4 text-emerald-600" />
+            <div className="mb-4 flex items-center gap-2 text-xs font-bold tracking-wider text-slate-900 uppercase">
+              <PieChart className="h-4 w-4 text-emerald-600" />
               <span>Money Management: Alokasi Sektor</span>
             </div>
             {holdings.length > 0 ? (
@@ -396,19 +396,19 @@ export default function PortfolioPage() {
                   const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
                   return (
                     <div key={sec}>
-                      <div className="flex justify-between text-xs mb-1">
+                      <div className="mb-1 flex justify-between text-xs">
                         <span className="text-slate-700">{sec}</span>
-                        <span className="text-emerald-700 font-mono font-bold">{pct.toFixed(1)}%</span>
+                        <span className="font-mono font-bold text-emerald-700">{pct.toFixed(1)}%</span>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full bg-emerald-600" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 py-6 text-center">
+              <p className="py-6 text-center text-xs text-slate-400">
                 Belum ada saham untuk dihitung alokasi sektornya.
               </p>
             )}
@@ -416,37 +416,37 @@ export default function PortfolioPage() {
 
           {/* Pyramiding & Scale-Out Matrix */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
-            <div className="flex items-center gap-2 text-slate-900 text-xs font-bold uppercase tracking-wider mb-4">
-              <Calculator className="w-4 h-4 text-emerald-600" />
+            <div className="mb-4 flex items-center gap-2 text-xs font-bold tracking-wider text-slate-900 uppercase">
+              <Calculator className="h-4 w-4 text-emerald-600" />
               <span>Selling Engine: Scale-Out Matrix</span>
             </div>
             <div className="space-y-2.5 text-xs">
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <div>
-                  <span className="text-emerald-700 font-bold block">TP1 (Target Profit 1)</span>
+                  <span className="block font-bold text-emerald-700">TP1 (Target Profit 1)</span>
                   <span className="text-[11px] text-slate-500">Jual 50% Posisi</span>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 font-mono font-bold border border-emerald-200 text-[11px]">
+                <span className="rounded border border-emerald-200 bg-emerald-100 px-2.5 py-1 font-mono text-[11px] font-bold text-emerald-800">
                   Kunci Profit 50%
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <div>
-                  <span className="text-slate-800 font-bold block">TP2 (Target Profit 2)</span>
+                  <span className="block font-bold text-slate-800">TP2 (Target Profit 2)</span>
                   <span className="text-[11px] text-slate-500">Jual 25% Posisi</span>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-slate-200 text-slate-700 font-mono font-bold text-[11px]">
+                <span className="rounded bg-slate-200 px-2.5 py-1 font-mono text-[11px] font-bold text-slate-700">
                   Amankan 25%
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <div>
-                  <span className="text-orange-700 font-bold block">Sisa 25% Posisi (Trailing Stop)</span>
+                  <span className="block font-bold text-orange-700">Sisa 25% Posisi (Trailing Stop)</span>
                   <span className="text-[11px] text-slate-500">Batas Proteksi: 7% dari High Watermark</span>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-orange-100 text-orange-800 font-mono font-bold border border-orange-200 text-[11px]">
+                <span className="rounded border border-orange-200 bg-orange-100 px-2.5 py-1 font-mono text-[11px] font-bold text-orange-800">
                   Ride The Trend
                 </span>
               </div>
@@ -457,19 +457,19 @@ export default function PortfolioPage() {
 
       {/* Modal Add Holding Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center"
+              className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-slate-800"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
 
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700">
-                <Plus className="w-5 h-5" />
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <Plus className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-slate-900">Input Trading Plan Baru</h3>
@@ -480,15 +480,15 @@ export default function PortfolioPage() {
             <form onSubmit={handleAddHolding} className="space-y-4 text-xs">
               {/* Jenis Saham Toggle */}
               <div>
-                <label className="block text-slate-700 font-medium mb-2">Jenis Saham</label>
+                <label className="mb-2 block font-medium text-slate-700">Jenis Saham</label>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setJenis('trading')}
-                    className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-all ${
+                    className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
                       jenis === 'trading'
-                        ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
-                        : 'bg-white border-slate-300 text-slate-600 hover:border-amber-400'
+                        ? 'border-amber-500 bg-amber-500 text-white shadow-sm'
+                        : 'border-slate-300 bg-white text-slate-600 hover:border-amber-400'
                     }`}
                   >
                     ⚡ Trading
@@ -496,17 +496,17 @@ export default function PortfolioPage() {
                   <button
                     type="button"
                     onClick={() => setJenis('investasi')}
-                    className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-all ${
+                    className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
                       jenis === 'investasi'
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
-                        : 'bg-white border-slate-300 text-slate-600 hover:border-indigo-400'
+                        ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+                        : 'border-slate-300 bg-white text-slate-600 hover:border-indigo-400'
                     }`}
                   >
                     📈 Investasi
                   </button>
                 </div>
                 {jenis === 'investasi' && (
-                  <p className="mt-1.5 text-[10px] text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-2.5 py-1.5">
+                  <p className="mt-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-[10px] text-indigo-600">
                     Mode Investasi: Tidak ada Hard Stop Loss. Strategi fokus pada averaging down dan hold jangka
                     panjang.
                   </p>
@@ -514,38 +514,38 @@ export default function PortfolioPage() {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Ticker Saham (IDX)</label>
+                <label className="mb-1 block font-medium text-slate-700">Ticker Saham (IDX)</label>
                 <input
                   type="text"
                   placeholder="Contoh: BBRI atau BBRI.JK"
                   value={ticker}
                   onChange={e => setTicker(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono uppercase focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 uppercase focus:border-emerald-600 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Avg Price (Rp)</label>
+                  <label className="mb-1 block font-medium text-slate-700">Avg Price (Rp)</label>
                   <input
                     type="number"
                     placeholder="4850"
                     value={avgPrice}
                     onChange={e => setAvgPrice(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Jumlah Lot</label>
+                  <label className="mb-1 block font-medium text-slate-700">Jumlah Lot</label>
                   <input
                     type="number"
                     placeholder="50"
                     value={lot}
                     onChange={e => setLot(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
               </div>
@@ -557,23 +557,23 @@ export default function PortfolioPage() {
                   type="button"
                   onClick={handleFetchAiRecommendation}
                   disabled={!ticker || isFetchingAi}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[11px] font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50"
                   title="Gunakan algoritma teknikal AI untuk menghitung TP & SL otomatis dari data 200 hari bursa"
                 >
-                  <Sparkles className={`w-3.5 h-3.5 ${isFetchingAi ? 'animate-spin text-emerald-600' : ''}`} />
+                  <Sparkles className={`h-3.5 w-3.5 ${isFetchingAi ? 'animate-spin text-emerald-600' : ''}`} />
                   <span>{isFetchingAi ? 'Menghitung...' : '⚡ Hitung Rekomendasi AI'}</span>
                 </button>
               </div>
 
               {aiNote && (
-                <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200 text-[11px] text-emerald-800 font-medium leading-relaxed">
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-2.5 text-[11px] leading-relaxed font-medium text-emerald-800">
                   {aiNote}
                 </div>
               )}
 
               <div className={jenis === 'investasi' ? '' : 'grid grid-cols-2 gap-3'}>
                 <div>
-                  <label className="block text-emerald-700 font-medium mb-1">
+                  <label className="mb-1 block font-medium text-emerald-700">
                     Target Price (TP){jenis === 'investasi' ? ' — Kosongkan = Auto AI' : ' — Kosongkan = Auto AI'}
                   </label>
                   <input
@@ -583,35 +583,35 @@ export default function PortfolioPage() {
                     }
                     value={targetPrice}
                     onChange={e => setTargetPrice(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
 
                 {jenis === 'trading' && (
                   <div>
-                    <label className="block text-rose-600 font-medium mb-1">
-                      Stop Loss (SL) <span className="text-slate-400 font-normal">— Kosongkan = Auto AI</span>
+                    <label className="mb-1 block font-medium text-rose-600">
+                      Stop Loss (SL) <span className="font-normal text-slate-400">— Kosongkan = Auto AI</span>
                     </label>
                     <input
                       type="number"
                       placeholder="Auto-calculate AI (Support -3%)"
                       value={stopLoss}
                       onChange={e => setStopLoss(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-mono focus:outline-none focus:border-rose-500"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900 focus:border-rose-500 focus:outline-none"
                     />
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">
+                <label className="mb-1 block font-medium text-slate-700">
                   Sektor Saham{' '}
-                  <span className="text-slate-400 font-normal">(Opsional — Auto-detect jika dikosongkan)</span>
+                  <span className="font-normal text-slate-400">(Opsional — Auto-detect jika dikosongkan)</span>
                 </label>
                 <select
                   value={sector}
                   onChange={e => setSector(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                 >
                   <option value="">⚡ Auto-detect dari Yahoo Finance (Rekomendasi)</option>
                   <option value="Energy">Energy</option>
@@ -628,20 +628,20 @@ export default function PortfolioPage() {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Alasan Beli (Catatan Plan)</label>
+                <label className="mb-1 block font-medium text-slate-700">Alasan Beli (Catatan Plan)</label>
                 <textarea
                   rows={2}
                   placeholder="Misal: Rebound MA50 dengan volume akumulasi..."
                   value={buyReason}
                   onChange={e => setBuyReason(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-emerald-600 focus:outline-none"
                 />
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-2xs"
+                  className="w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-2xs transition-colors hover:bg-emerald-500"
                 >
                   Simpan ke Portofolio
                 </button>
@@ -653,8 +653,8 @@ export default function PortfolioPage() {
 
       {/* Modal Chart */}
       {chartStock && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="max-w-4xl w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-4xl">
             <CandlestickChart
               ticker={chartStock.ticker}
               candles={[]}
