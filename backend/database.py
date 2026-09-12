@@ -4,9 +4,13 @@ from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+if os.path.exists(ENV_PATH):
+    load_dotenv(dotenv_path=ENV_PATH, override=True)
+else:
+    load_dotenv(override=True)
+
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "assiten_saham.db")
 env_db_url = os.getenv("DATABASE_URL")
 if not env_db_url or "sqlite:///." in env_db_url:

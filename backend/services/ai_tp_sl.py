@@ -32,12 +32,12 @@ def recommend_tp_sl(ticker: str, jenis: str = "trading", avg_price: float = None
         ma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) >= 50 else ma20
         ma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else ma50
         
-        # RSI (14)
+        # RSI (14 Wilder's RMA)
         delta = close.diff()
         gain = delta.clip(lower=0)
         loss = -delta.clip(upper=0)
-        avg_gain = gain.rolling(14).mean().iloc[-1]
-        avg_loss = loss.rolling(14).mean().iloc[-1]
+        avg_gain = gain.ewm(alpha=1/14, min_periods=14, adjust=False).mean().iloc[-1]
+        avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean().iloc[-1]
         rsi = float(100 - (100 / (1 + avg_gain / avg_loss))) if avg_loss and avg_loss > 0 else 50.0
         
         # Support = max(20d low, MA50 * 0.97)

@@ -20,16 +20,17 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["ma50"] = df["close"].rolling(window=50, min_periods=1).mean()
     df["ma200"] = df["close"].rolling(window=200, min_periods=1).mean()
 
-    # 2. RSI (14-day standard)
+    # 2. RSI (14-day standard Wilder's Smoothing / RMA)
     delta = df["close"].diff()
     gain = delta.where(delta > 0, 0.0)
     loss = -delta.where(delta < 0, 0.0)
     
-    avg_gain = gain.rolling(window=14, min_periods=1).mean()
-    avg_loss = loss.rolling(window=14, min_periods=1).mean()
+    # Wilder's exponential smoothing (alpha = 1/14, equivalent to com = 13)
+    avg_gain = gain.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
     
     rs = avg_gain / avg_loss.replace(0, np.nan)
-    rsi = 100 - (100 / (1 + rs))
+    rsi = 100.0 - (100.0 / (1.0 + rs))
     df["rsi"] = rsi.fillna(50.0).round(1)
 
     # 3. Support & Resistance (Rolling 20-day Low & High)

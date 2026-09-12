@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import signal
 import threading
 from fastapi import APIRouter
 
@@ -9,9 +10,25 @@ router = APIRouter(prefix="/api/v1/system", tags=["System"])
 # Global state
 STARTUP_TIME = time.time()
 LAST_HEARTBEAT_TIME = time.time()
-AUTO_SHUTDOWN_ENABLED = True
+
+# Auto shutdown is disabled in development / reload mode to prevent hanging reload supervisors
+is_dev_mode = "--reload" in sys.argv or os.getenv("ENVIRONMENT") == "development" or os.getenv("AUTO_SHUTDOWN", "true").lower() in ("0", "false", "no")
+AUTO_SHUTDOWN_ENABLED = not is_dev_mode
 GRACE_PERIOD_SECONDS = 90  # 90 seconds after boot to allow browser launch
 IDLE_TIMEOUT_SECONDS = 75  # 75 seconds without any heartbeat from browser tabs
+
+def safe_exit():
+    """Safely terminate the server process and its parent supervisor if any."""
+    try:
+        ppid = os.getppid()
+        if ppid > 1:
+            try:
+                os.kill(ppid, signal.SIGTERM)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    os._exit(0)
 
 def monitor_idle_heartbeat():
     """Background daemon thread checking for active browser tab heartbeats."""
@@ -32,7 +49,7 @@ def monitor_idle_heartbeat():
             print("[AutoShutdown] Mematikan server secara otomatis untuk menghemat RAM (0 MB idle mode)...")
             sys.stdout.flush()
             # Clean exit
-            os._exit(0)
+            safe_exit()
 
 # Start monitor thread on module load
 thread = threading.Thread(target=monitor_idle_heartbeat, daemon=True)
@@ -50,7 +67,7 @@ def receive_heartbeat():
 def trigger_shutdown():
     def delayed_exit():
         time.sleep(0.5)
-        os._exit(0)
+        safe_exit()
     threading.Thread(target=delayed_exit, daemon=True).start()
     return {"status": "shutting_down"}
 

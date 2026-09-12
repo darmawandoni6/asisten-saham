@@ -15,7 +15,7 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
    - Tidak boleh ada data tiruan (mock data) statis yang disamarkan sebagai data asli. Seluruh data berasal dari input portofolio nyata dan data live Yahoo Finance (`yfinance`).
 4. **KOMPATIBILITAS PYTHON 3.14 (macOS)**:
    - Dilarang menggunakan library yang bergantung pada `numba` atau C-extensions lawas (seperti `pandas-ta`).
-   - Gunakan **Native Pandas** untuk seluruh kalkulasi teknikal (MA, RSI, Support, Resistance).
+   - Gunakan **Native Pandas** untuk seluruh kalkulasi teknikal (MA, RSI standar Wilder's Exponential Smoothing `ewm(alpha=1/14)`, Support, Resistance).
 5. **SUFFIX EMITEN BURSA EFEK INDONESIA**:
    - Semua ticker IDX di Yahoo Finance wajib memiliki suffix `.JK` (contoh: `BBRI.JK`, `SIDO.JK`, `DEWA.JK`). Gunakan helper `normalize_ticker(ticker)`.
 6. **TRANSPARANSI AI**:

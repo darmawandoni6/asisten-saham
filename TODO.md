@@ -1,6 +1,6 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–23 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Status: **Tahap 0–24 Selesai (Fullstack Operasional & Wilder's RSI Calibrated) 🚀**
 > Frontend: Next.js 16 Static Export + shadcn/ui (@base-ui/react) + Stockbit Clean Light Mode (`http://localhost:8000`)
 > Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 
@@ -390,5 +390,22 @@
 - [x] 23.7 Tipografi Global & Perbaikan Hidrasi DOM ([`globals.css`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/globals.css) & [`badge.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/badge.tsx)):
   - Pengaturan basis font root `html { font-size: 18px; }` sehingga `1rem = 18px` untuk skala tampilan yang lebih jelas dan nyaman dibaca (+12.5%).
   - Refactoring elemen komponen `Badge` dari `<div>` ke `<span>` semantik untuk mencegah React Hydration Error (*In HTML, <div> cannot be a descendant of <p>*).
+
+---
+
+## 🔬 TAHAP 24 — Kalibrasi RSI Wilder, Resilience Launcher & Unified 9Router Config [SELESAI ✅]
+> Kalibrasi standar perhitungan RSI 14-hari menggunakan J. Welles Wilder's Exponential Smoothing (RMA), ketahanan peluncur aplikasi desktop macOS terhadap proses zombie, serta unifikasi konfigurasi environment ke `backend/.env`.
+
+- [x] 24.1 Kalibrasi RSI Wilder's Smoothing ([`technical.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/technical.py) & [`ai_tp_sl.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/ai_tp_sl.py)):
+  - Menggantikan Simple Moving Average (SMA) dengan Exponential Moving Average berbobot Wilder (`ewm(alpha=1/14, min_periods=14, adjust=False)`) agar sesuai dengan standar industri TradingView, Yahoo Finance, dan Google Finance.
+- [x] 24.2 Ketahanan Launcher & Auto-Shutdown Cleanup ([`start_app.sh`](file:///Users/donidarmawan/Documents/me/assiten-saham/start_app.sh) & [`system.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/routers/system.py)):
+  - Penambahan parameter `--connect-timeout 2 --max-time 3` pada health check `curl` agar launcher tidak menggantung (*hang*) saat ada proses zombie.
+  - Implementasi fungsi `safe_exit()` yang secara aman menghentikan seluruh grup proses supervisor Uvicorn saat auto-shutdown aktif.
+- [x] 24.3 Unifikasi Konfigurasi Environment ([`database.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/database.py) & [`backend/.env`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/.env)):
+  - Menjadikan `backend/.env` sebagai *single source of truth* konfigurasi aplikasi dan menghapus file duplikat `.env` di root folder.
+- [x] 24.4 Peningkatan Antarmuka Screener & Aset Aplikasi:
+  - Peningkatan ukuran teks respons percakapan AI di [`ScreenerAIDiscussion.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/screener/ScreenerAIDiscussion.tsx) dan *sticky header* pada kartu screener [`ScreenerCardItem.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/screener/ScreenerCardItem.tsx).
+  - Pemasangan dan penelusuran aset ikon aplikasi resmi macOS retina di `scripts/app.icns`.
+
 
 

@@ -42,7 +42,7 @@ export function ScreenerCardItem({
   return (
     <Card className="space-y-4 rounded-2xl border-slate-200 bg-white p-5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs">
       {/* Card Header: Ticker, Name, Sector (Jenis Saham), Price, Change, RSI & AI Score */}
-      <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
+      <div className="sticky top-0 flex flex-col justify-between gap-3 border-b border-slate-100 bg-white pb-3 sm:flex-row sm:items-center">
         <div className="flex items-start gap-3">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 font-mono text-xs font-bold text-slate-600">
             #{index + 1}

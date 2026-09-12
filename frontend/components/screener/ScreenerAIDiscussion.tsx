@@ -360,7 +360,7 @@ export function ScreenerAIDiscussion({
               return (
                 <div key={mIdx} className={`flex items-start gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
                   {!isUser && (
-                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs text-emerald-800">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm text-emerald-800">
                       <Bot className="h-3.5 w-3.5" />
                     </div>
                   )}
@@ -372,7 +372,11 @@ export function ScreenerAIDiscussion({
                         : 'rounded-tl-xs border border-slate-200 bg-slate-50 text-slate-800 shadow-2xs'
                     }`}
                   >
-                    {isUser ? <p>{msg.message}</p> : <MarkdownText content={msg.message} className="text-xs" />}
+                    {isUser ? (
+                      <p className="text-base">{msg.message}</p>
+                    ) : (
+                      <MarkdownText content={msg.message} className="text-base" />
+                    )}
                   </div>
 
                   {isUser && (

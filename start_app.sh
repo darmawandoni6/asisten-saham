@@ -32,10 +32,10 @@ is_port_open() {
     lsof -i :$port -sTCP:LISTEN >/dev/null 2>&1
 }
 
-# Function to check HTTP 200
+# Function to check HTTP 200 with strict timeout (prevents hanging on zombie processes)
 is_http_ready() {
     local url=$1
-    local code=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null)
+    local code=$(curl -s --connect-timeout 2 --max-time 3 -o /dev/null -w "%{http_code}" "$url" 2>/dev/null)
     [ "$code" = "200" ] || [ "$code" = "304" ]
 }
 
@@ -81,17 +81,19 @@ start_9router_if_needed
 # STEP 2: Run Backend and Frontend
 # ==============================================================================
 if [ "$MODE" == "prod" ]; then
-    # Check if backend is already running on 8000
+    # Check if backend is already running and healthy on 8000
     if is_http_ready "http://127.0.0.1:8000/api/v1/health"; then
-        echo "ℹ️  Server backend sudah aktif."
+        echo "ℹ️  Server backend sudah aktif dan sehat."
         echo "🌐 Membuka browser: http://localhost:8000"
         open "http://localhost:8000"
         exit 0
     fi
 
-    # Cleanup stuck port 8000
+    # Cleanup stuck/unresponsive port 8000
     if is_port_open 8000; then
+        echo "⚠️  Port 8000 terisi tetapi tidak merespons, membersihkan proses lama..."
         kill -9 $(lsof -ti :8000) 2>/dev/null
+        sleep 0.5
     fi
 
     # Build static export if missing
