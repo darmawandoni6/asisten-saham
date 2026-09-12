@@ -41,21 +41,24 @@ export function GuideFeaturesTab() {
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 text-xs md:grid-cols-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Portfolio Summary Cards</strong>
+                <strong className="mb-1 block text-slate-900">View Switcher (Kartu ⊞ / Tabel ☰)</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Memantau total equity pasar, floating PnL (Rp &amp; %), serta rasio alokasi saham vs cash cadangan.
+                  Pilih mode tampilan fleksibel antara kartu visual komprehensif atau tabel padat dengan pengurutan
+                  urgensi aksi otomatis (#1 Cut Loss s/d #8 Hold).
                 </p>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Smart Action Cards</strong>
+                <strong className="mb-1 block text-slate-900">Smart Action Cards &amp; Exit Rebound</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Kartu status harian saham Anda dengan warna tegas (Cut Loss, TP, Hold, Trailing Stop, Recovery).
+                  Status harian adaptif (Cut Loss, TP, Exit Rebound, Siaga Proximity, Hold, Trailing Stop) lengkap
+                  dengan instruksi konkret sebelum market buka.
                 </p>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Daily Action Sheet</strong>
+                <strong className="mb-1 block text-slate-900">Akses Cepat Chart &amp; AI Copilot</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Daftar aksi yang diurutkan dari yang paling darurat (Cut Loss) hingga rekomendasi santai (Hold).
+                  Buka candlestick chart interaktif atau konsultasikan rencana tindakan langsung dengan asisten AI dari
+                  setiap kartu dan baris aksi.
                 </p>
               </div>
             </div>
@@ -72,7 +75,7 @@ export function GuideFeaturesTab() {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900">2. Portofolio &amp; Trading Plan</h4>
-                  <p className="text-xs text-slate-500">Pencatatan posisi riil, kas RDN manual, &amp; eksekusi lot</p>
+                  <p className="text-xs text-slate-500">Pencatatan posisi riil, sinkronisasi kas, &amp; bantuan AI</p>
                 </div>
               </div>
               <Button asChild variant="ghost" size="sm" className="h-auto p-0 text-blue-700 hover:text-blue-800">
@@ -84,24 +87,24 @@ export function GuideFeaturesTab() {
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 text-xs md:grid-cols-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Input Plan &amp; Saldo Kas Manual</strong>
+                <strong className="mb-1 block text-slate-900">Bantuan AI TP/SL &amp; Exit Rebound</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Tentukan Avg Beli, TP, dan SL. Saldo Kas RDN dapat diedit mandiri via tombol <em>[ ✏️ Edit ]</em>{' '}
-                  sesuai rekening sekuritas Anda.
+                  Hitung otomatis resisten &amp; support 200 hari. Otomatis membedakan Target Profit (TP) vs Exit
+                  Rebound untuk meminimalkan kerugian saat nyangkut.
                 </p>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Pangkas / Jual Lot Saham</strong>
+                <strong className="mb-1 block text-slate-900">Smart Averaging &amp; Auto-Sync Kas</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Tombol <em>[ 🏷️ Jual ]</em> memungkinkan Anda melepas sebagian lot (preset 25%, 50% TP1) atau menutup
-                  total posisi dengan kalkulasi Realized PnL instan.
+                  Tambah lot melebur harga rata-rata secara otomatis. Pembelian otomatis memotong kas RDN dan penjualan
+                  otomatis menambah kas RDN.
                 </p>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <strong className="mb-1 block text-slate-900">Money Management Sektor</strong>
+                <strong className="mb-1 block text-slate-900">Dropdown Aksi &amp; Scale-Out Matrix</strong>
                 <p className="leading-relaxed text-slate-600">
-                  Visualisasi alokasi modal per sektor industri untuk menjaga diversifikasi risiko portofolio tetap
-                  sehat (&le; 25–30% per sektor).
+                  Kelola posisi via dropdown menu (Beli Lagi, Pangkas Lot, Edit Plan, Chart) dan simulasikan nilai take
+                  profit bertahap secara interaktif.
                 </p>
               </div>
             </div>

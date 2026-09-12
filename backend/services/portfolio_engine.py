@@ -78,6 +78,8 @@ def evaluate_holding_status(holding: Holding, latest_candle: dict, db: Session) 
         dist_sl = ((close - stop_loss) / close * 100) if close > 0 else 999
         dist_tp = ((target_price - close) / target_price * 100) if target_price > 0 else 999
 
+        is_target_below_avg = target_price < avg_price
+
         if close <= stop_loss:
             action_status = "SELL_CUT_LOSS"
             action_reason = f"JUAL 100% LOT — Disiplin! Harga closing (Rp {close:,.0f}) menembus Stop Loss (Rp {stop_loss:,.0f}). Pasang order jual pada pembukaan market besok pagi."
@@ -85,11 +87,19 @@ def evaluate_holding_status(holding: Holding, latest_candle: dict, db: Session) 
             action_status = "SL_PROXIMITY_WARNING"
             action_reason = f"SIAGA 1 (DEKAT STOP LOSS) — Harga Rp {close:,.0f} mendekati Stop Loss Rp {stop_loss:,.0f} (jarak {dist_sl:.1f}%). Pasang Stop Order di sekuritas untuk antisipasi breakdown."
         elif close >= target_price:
-            action_status = "TAKE_PROFIT"
-            action_reason = f"AMBIL UNTUNG (SCALE-OUT) — Harga Rp {close:,.0f} mencapai Target Profit Rp {target_price:,.0f}. Pasang Sell Limit 50% Lot untuk kunci laba, sisa pasang trailing stop."
+            if is_target_below_avg:
+                action_status = "EXIT_REBOUND"
+                action_reason = f"EXIT REBOUND — Harga Rp {close:,.0f} mencapai Target Exit Rebound Rp {target_price:,.0f}. Pasang order jual untuk meminimalkan kerugian saat pantulan harga terjadi."
+            else:
+                action_status = "TAKE_PROFIT"
+                action_reason = f"AMBIL UNTUNG (SCALE-OUT) — Harga Rp {close:,.0f} mencapai Target Profit Rp {target_price:,.0f}. Pasang Sell Limit 50% Lot untuk kunci laba, sisa pasang trailing stop."
         elif 0 < dist_tp <= 2.0:
-            action_status = "TP_PROXIMITY_WARNING"
-            action_reason = f"PERSIAPAN TAKE PROFIT — Harga Rp {close:,.0f} mendekati Target Rp {target_price:,.0f} (jarak tinggal {dist_tp:.1f}%). Bersiap pasang antrean jual 50% lot besok pagi."
+            if is_target_below_avg:
+                action_status = "ER_PROXIMITY_WARNING"
+                action_reason = f"PERSIAPAN EXIT REBOUND — Harga Rp {close:,.0f} mendekati Target Exit Rebound Rp {target_price:,.0f} (jarak tinggal {dist_tp:.1f}%). Bersiap pasang antrean jual untuk minimalkan rugi."
+            else:
+                action_status = "TP_PROXIMITY_WARNING"
+                action_reason = f"PERSIAPAN TAKE PROFIT — Harga Rp {close:,.0f} mendekati Target Rp {target_price:,.0f} (jarak tinggal {dist_tp:.1f}%). Bersiap pasang antrean jual 50% lot besok pagi."
         elif highest_profit_pct >= 10.0 and close <= trailing_stop_price:
             action_status = "TRAILING_STOP_WARNING"
             action_reason = f"KUNCI PROFIT — Harga turun dari puncak Rp {current_high_watermark:,.0f} dan menembus Trailing Stop Rp {trailing_stop_price:,.0f}. Jual sisa posisi sekarang."

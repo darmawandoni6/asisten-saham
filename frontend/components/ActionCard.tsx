@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 import {
   AlertOctagon,
   AlertTriangle,
@@ -46,6 +44,24 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
           topBorder: 'border-t-4 border-t-orange-500',
           icon: AlertTriangle,
           indicatorDot: 'bg-orange-500',
+        };
+      case 'EXIT_REBOUND':
+        return {
+          title: 'EXIT REBOUND',
+          badgeBg: 'bg-amber-50 text-amber-800 border-amber-300',
+          accentColor: 'text-amber-700',
+          topBorder: 'border-t-4 border-t-amber-500',
+          icon: AlertTriangle,
+          indicatorDot: 'bg-amber-500',
+        };
+      case 'ER_PROXIMITY_WARNING':
+        return {
+          title: 'PERSIAPAN EXIT REBOUND',
+          badgeBg: 'bg-amber-50 text-amber-800 border-amber-300',
+          accentColor: 'text-amber-700',
+          topBorder: 'border-t-4 border-t-amber-500',
+          icon: AlertTriangle,
+          indicatorDot: 'bg-amber-500',
         };
       case 'TAKE_PROFIT':
         return {
@@ -124,7 +140,7 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
                 {holding.sector}
               </Badge>
             </div>
-            <p className="mt-0.5 max-w-[210px] truncate text-xs text-slate-500" title={holding.name}>
+            <p className="mt-0.5 max-w-52.5 truncate text-xs text-slate-500" title={holding.name}>
               {holding.name}
             </p>
           </div>
@@ -183,8 +199,26 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
             <span className="font-mono font-bold text-slate-800">Rp {formatNumber(holding.avgPrice)}</span>
           </div>
           <div>
-            <span className="block text-[10px] text-slate-500">Target (TP)</span>
-            <span className="font-mono font-bold text-emerald-700">Rp {formatNumber(holding.targetPrice)}</span>
+            <span className="block text-[10px] text-slate-500">
+              {holding.targetPrice &&
+              holding.avgPrice &&
+              holding.targetPrice < holding.avgPrice &&
+              holding.jenis !== 'investasi'
+                ? '⚡ Exit Rebound'
+                : 'Target (TP)'}
+            </span>
+            <span
+              className={`font-mono font-bold ${
+                holding.targetPrice &&
+                holding.avgPrice &&
+                holding.targetPrice < holding.avgPrice &&
+                holding.jenis !== 'investasi'
+                  ? 'text-amber-700'
+                  : 'text-emerald-700'
+              }`}
+            >
+              Rp {formatNumber(holding.targetPrice)}
+            </span>
           </div>
           <div>
             <span className="block text-[10px] text-slate-500">Stop Loss</span>

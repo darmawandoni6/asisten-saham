@@ -16,9 +16,11 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
     - 🟠 **SIAGA 1 (DEKAT STOP LOSS)**: Jarak harga ke Stop Loss $\le 2\%$, siaga pasang stop order otomatis di sekuritas.
     - 🟠 **TRAILING STOP WARNING**: Harga berbalik arah > 7% dari puncak tertinggi (*high watermark*).
     - 🟣 **RECOVERY MODE / AVERAGING DOWN REVIEW**: Saham yang mengalami floating loss dalam untuk evaluasi pemulihan modal.
+    - 🟡 **EXIT REBOUND**: Harga menyentuh target resisten di bawah modal untuk meminimalkan kerugian saat pantulan (*Cut on Strength*).
+    - 🟡 **PERSIAPAN EXIT REBOUND**: Jarak harga ke Target Exit Rebound $\le 2\%$.
     - 🟢 **TAKE PROFIT / TRIM**: Harga menyentuh target profit (disarankan amankan laba 50% lot).
     - 🔵 **PERSIAPAN TAKE PROFIT**: Jarak harga ke target TP $\le 2\%$.
-    - 🟡 **HOLD / MONITOR**: Tren berjalan aman sesuai rencana trading.
+    - ⚪ **HOLD / MONITOR**: Tren berjalan aman sesuai rencana trading.
 * **Fitur Aksi Lengkap pada Semua Mode**:
   - Akses interaktif **Buka Candlestick Chart** (MA20/MA50 overlay) dan **AI Copilot** tersedia secara setara di mode Kartu maupun mode Tabel.
   - Tombol cepat **Kirim Notifikasi Telegram** di header section untuk mengirimkan ringkasan aksi harian ke bot Telegram.
@@ -34,14 +36,21 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Jika kuota/rate limit habis (HTTP 429) atau endpoint offline, sistem otomatis dan transparan melakukan *failover* ke **Deterministic Rule-Based Expert Engine** (`source: "rule_based"`) tanpa crash atau error layar kosong.
 
 ### 3. 💼 Portfolio & Trading Plan Management (`/portfolio`)
-* **Pencatatan Saldo Kas RDN Manual**: Saldo kas RDN dapat diinput dan diperbarui kapan saja secara manual sesuai saldo nyata rekening sekuritas via tombol `[ ✏️ Edit ]`.
+* **KPI Metrics Summary Bar**: 4 kartu ringkasan portofolio di bagian atas: Total Portofolio (Aset), Modal Beli (Cost Basis), Floating PnL, dan Saldo Kas RDN.
+* **Bantuan AI TP/SL Cerdas & Mode Exit Rebound**:
+  - Algoritma menghitung resisten 20 hari & support 50 hari dari 200 hari data historis bursa.
+  - **Smart Dynamic Target**: Jika resisten berada di atas modal beli, sistem memberi label **🎯 TP (Target Profit)**. Jika resisten di bawah modal (posisi minus), sistem otomatis mengubah label menjadi **⚡ Exit Rebound** dengan alasan objektif meminimalkan kerugian saat harga memantul.
+  - Menyediakan tombol pilihan 1-klik: *Gunakan Exit Rebound* (tekan rugi) atau *Gunakan Target Profit +10%* (di atas modal).
+* **Smart Averaging (Tambah Lot Otomatis)**: Jika ticker yang diinput sudah ada di portofolio, sistem otomatis menggabungkan lot, menghitung harga rata-rata tertimbang baru (*weighted average*), dan mencatat transaksi ke log.
+* **Sinkronisasi Saldo Kas RDN Otomatis**: Pembelian memotong kas otomatis dan penjualan menambahkan seluruh hasil penjualan ke kas RDN (penyesuaian manual tetap didukung via modal `[ ✏️ Edit ]`).
+* **Dropdown Menu Aksi & Filter Tabel**: Kolom aksi rapi berbasis `@base-ui/react` (*Beli Lagi, Jual/Pangkas Lot, Buka Chart, Edit Plan, Hapus Saham*) lengkap dengan tab filter cepat (`Semua`, `Trading`, `Investasi`) dan sorting kolom instan.
+* **Interactive Scale-Out Matrix**: Dropdown pilihan saham untuk simulasi interaktif mengunci keuntungan bertahap (TP1 50% Lot).
 * **Diferensiasi Posisi**: Membedakan saham **Trading** (dengan proteksi Stop Loss ketat) dan **Investasi** (tanpa hard Stop Loss, fokus pada horizon panjang & dividen).
 * **Pangkas / Jual Lot Saham (`[ 🏷️ Jual ]`)**:
   - Modal interaktif untuk memangkas sebagian lot atau menutup seluruh posisi saham dengan preset cepat: **25%**, **50% (TP1 Kunci Profit)**, dan **100% (Exit Total)**.
   - Menghitung *real-time* total nilai transaksi, Realized PnL (nominal & %), dan sisa lot yang tersisa di portofolio.
-  - Otomatis memperbarui sisa posisi di portofolio dan menghitung laba/rugi terealisasi.
 * **Auto-Fetch Sektor**: Otomatis menarik data sektor & industri resmi emiten langsung dari Yahoo Finance.
-* **Money Management**: Visualisasi alokasi modal per sektor industri untuk memantau diversifikasi risiko.
+* **Money Management Sektor**: Visualisasi alokasi modal per sektor industri untuk memantau diversifikasi risiko.
 
 ### 4. 🛟 Recovery Engine & Floating Loss Assessment (`/recovery`)
 * **Diagnosis Kerugian Komprehensif**: Mengukur kedalaman persentase minus, bobot emiten, dan dampaknya terhadap total portofolio.

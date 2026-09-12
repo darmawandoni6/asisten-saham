@@ -165,7 +165,49 @@ def create_holding(req: HoldingCreate, db: Session = Depends(get_db)):
     ticker = normalize_ticker(req.ticker)
     jenis = req.jenis or "trading"
 
-    # Minta rekomendasi teknikal AI (support/resistance 200 hari)
+    # Cek apakah emiten sudah ada di portofolio
+    existing = db.query(Holding).filter(Holding.ticker == ticker).first()
+    if existing:
+        # Hitung weighted average baru
+        old_cost = existing.avg_price * existing.lot * 100
+        add_cost = req.avg_price * req.lot * 100
+        new_lot = existing.lot + req.lot
+        new_avg = round((old_cost + add_cost) / (new_lot * 100), 2)
+
+        existing.avg_price = new_avg
+        existing.lot = new_lot
+        if req.target_price is not None:
+            existing.target_price = req.target_price
+        if req.stop_loss is not None and existing.jenis != "investasi":
+            existing.stop_loss = req.stop_loss
+        if req.buy_reason:
+            existing.buy_reason = req.buy_reason
+        if req.sector:
+            existing.sector = req.sector
+        if req.jenis:
+            existing.jenis = req.jenis
+
+        # Catat riwayat pembelian tambahan di TradeLog
+        trade = TradeLog(
+            ticker=ticker,
+            action="BUY",
+            price=req.avg_price,
+            lot=req.lot,
+            realized_pnl=0.0,
+            note=req.buy_reason or f"Tambah {req.lot} lot @ Rp {req.avg_price:,.0f} (Avg Baru: Rp {new_avg:,.0f})"
+        )
+        db.add(trade)
+
+        # Potong otomatis modal beli dari Saldo Kas RDN
+        purchase_cost = req.avg_price * req.lot * 100
+        current_cash = get_cash_balance(db)
+        set_cash_balance(db, max(0.0, current_cash - purchase_cost))
+
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    # Minta rekomendasi teknikal AI (support/resistance 200 hari) untuk posisi baru
     rec = recommend_tp_sl(ticker=ticker, jenis=jenis, avg_price=req.avg_price)
     
     # TP/SL logic berbasis rekomendasi AI jika tidak diisi manual
@@ -206,6 +248,11 @@ def create_holding(req: HoldingCreate, db: Session = Depends(get_db)):
         note=req.buy_reason or f"Pembelian posisi {jenis}"
     )
     db.add(trade)
+
+    # Potong otomatis modal beli dari Saldo Kas RDN
+    purchase_cost = req.avg_price * req.lot * 100
+    current_cash = get_cash_balance(db)
+    set_cash_balance(db, max(0.0, current_cash - purchase_cost))
 
     db.commit()
     db.refresh(holding)
@@ -284,6 +331,11 @@ def sell_holding(holding_id: int, req: SellHoldingRequest, db: Session = Depends
     else:
         holding.lot = remaining_lot
 
+    # 4. Tambah otomatis dana hasil penjualan ke Saldo Kas RDN
+    current_cash = get_cash_balance(db)
+    new_cash = current_cash + sale_value
+    set_cash_balance(db, new_cash)
+
     db.commit()
 
     return {
@@ -294,6 +346,7 @@ def sell_holding(holding_id: int, req: SellHoldingRequest, db: Session = Depends
         "remaining_lot": remaining_lot,
         "sale_value": round(sale_value),
         "realized_pnl": round(realized_pnl),
-        "realized_pnl_pct": round(((sell_price - avg_price) / avg_price) * 100, 2) if avg_price > 0 else 0
+        "realized_pnl_pct": round(((sell_price - avg_price) / avg_price) * 100, 2) if avg_price > 0 else 0,
+        "cash_balance": round(new_cash)
     }
 

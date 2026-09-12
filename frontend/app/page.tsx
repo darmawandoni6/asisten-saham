@@ -27,9 +27,11 @@ const PRIORITY_MAP: Record<string, number> = {
   TRAILING_STOP_WARNING: 3,
   RECOVERY_MODE: 4,
   AVERAGING_REVIEW: 4,
-  TAKE_PROFIT: 5,
-  TP_PROXIMITY_WARNING: 6,
-  HOLD_MONITOR: 7,
+  EXIT_REBOUND: 5,
+  ER_PROXIMITY_WARNING: 5,
+  TAKE_PROFIT: 6,
+  TP_PROXIMITY_WARNING: 7,
+  HOLD_MONITOR: 8,
 };
 
 export default function DashboardPage() {

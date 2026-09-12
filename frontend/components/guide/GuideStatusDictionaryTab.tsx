@@ -43,6 +43,14 @@ const GLOSSARY_TERMS = [
     desc: 'Strategi menjual sebagian lot (misal 50% di TP1) untuk mengamankan keuntungan nyata ke kas, sementara sisa posisi dibiarkan mengikuti potensi tren reli berikutnya dengan trailing stop.',
   },
   {
+    term: 'Target Exit Rebound (⚡ ER)',
+    desc: 'Level target harga resisten teknikal pasar yang berada di bawah harga modal beli. Digunakan sebagai titik keluar optimal saat harga memantul untuk meminimalkan kerugian (Cut on Strength) pada posisi yang sedang recovery.',
+  },
+  {
+    term: 'Smart Dynamic Target (🎯 TP vs ⚡ ER)',
+    desc: 'Sistem pelabelan cerdas yang membedakan otomatis antara target profit murni di atas modal (Badge Emerald TP) dan target penyelamatan modal di bawah harga beli (Badge Amber Exit Rebound).',
+  },
+  {
     term: 'Saldo Kas RDN (Manual)',
     desc: 'Pencatatan kas tunai mandiri yang diinput pengguna sesuai saldo rekening dana nasabah (RDN) di sekuritas untuk mengukur ketersediaan modal dan alokasi risiko portofolio.',
   },
@@ -314,6 +322,30 @@ export function GuideStatusDictionaryTab() {
               </div>
               <span className="shrink-0 self-start rounded-full bg-emerald-200/80 px-3 py-1 text-xs font-bold text-emerald-800 md:self-auto">
                 Prioritas #2 (Amankan Cuan)
+              </span>
+            </div>
+
+            {/* Amber - Exit Rebound */}
+            <div className="flex flex-col justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4 md:flex-row md:items-center">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-600 text-white">
+                  <AlertTriangle className="h-4 w-4" />
+                </div>
+                <div>
+                  <Badge className="rounded bg-amber-100 px-2 py-0.5 font-mono text-xs font-bold text-amber-800 hover:bg-amber-100">
+                    EXIT REBOUND / PERSIAPAN EXIT
+                  </Badge>
+                  <h4 className="mt-1 text-sm font-bold text-slate-900">
+                    Kondisi: Harga menyentuh Target Exit di bawah harga modal (Cut on Strength)
+                  </h4>
+                  <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
+                    <strong>Aksi Wajib:</strong> Jual posisi untuk meminimalkan kerugian saat pantulan harga terjadi,
+                    sebelum harga kembali tertekan oleh resisten pasokan pasar.
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 self-start rounded-full bg-amber-200/80 px-3 py-1 text-xs font-bold text-amber-900 md:self-auto">
+                Prioritas #2 (Penyelamatan Modal)
               </span>
             </div>
 

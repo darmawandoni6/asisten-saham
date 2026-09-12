@@ -48,9 +48,16 @@ def recommend_tp_sl(ticker: str, jenis: str = "trading", avg_price: float = None
         recent_high_20 = float(high.rolling(20).max().iloc[-1])
         recent_high_60 = float(high.rolling(min(60, len(high))).max().iloc[-1])
         
+        target_type = "TAKE_PROFIT"
+        target_label = "Target Profit (TP)"
+        profit_target_alt = None
+        is_exit_rebound = False
+
         if jenis == "investasi":
             tp = float(high.rolling(min(200, len(high))).max().iloc[-1])
             sl = None
+            target_type = "INVESTMENT_TARGET"
+            target_label = "Target Investasi"
             sl_rationale = "Tidak ada Hard Stop Loss untuk saham investasi. Strategi: averaging down di level support."
             tp_rationale = f"Target = all-time high 200 sesi terakhir (Rp {tp:,.0f}). Fokus pemulihan jangka panjang."
             avg_down_target = round(support * 0.97, 0) if avg_price and current_price < avg_price * 0.85 else None
@@ -59,7 +66,22 @@ def recommend_tp_sl(ticker: str, jenis: str = "trading", avg_price: float = None
             tp = recent_high_20 if recent_high_20 > current_price * 1.05 else current_price * 1.15
             sl = round(support * 0.97, 0)
             sl_rationale = f"SL = 3% di bawah support Rp {support:,.0f}. Eksekusi disiplin jika tertembus closing."
-            tp_rationale = f"TP = resistance 20-hari terdekat (Rp {recent_high_20:,.0f}). Scale-out saat tersentuh."
+            
+            # Cek apakah TP berada di bawah harga modal (Mode Exit Rebound)
+            if avg_price and tp < avg_price:
+                target_type = "EXIT_REBOUND"
+                target_label = "Target Exit Rebound"
+                is_exit_rebound = True
+                loss_diff_pct = ((tp - avg_price) / avg_price) * 100
+                tp_rationale = f"Target Exit Rebound = resisten 20-hari (Rp {tp:,.0f}). Digunakan untuk meminimalkan kerugian (menjadi {loss_diff_pct:.1f}%) saat harga memantul."
+                profit_target_alt = round(avg_price * 1.10, 0)
+            else:
+                target_type = "TAKE_PROFIT"
+                target_label = "Target Profit (TP)"
+                is_exit_rebound = False
+                tp_rationale = f"TP = resistance 20-hari terdekat (Rp {tp:,.0f}). Scale-out saat tersentuh."
+                profit_target_alt = None
+
             avg_down_target = None
             avg_down_rationale = None
         
@@ -78,6 +100,10 @@ def recommend_tp_sl(ticker: str, jenis: str = "trading", avg_price: float = None
             "currentPrice": round(current_price, 0),
             "tp": round(tp, 0),
             "sl": round(sl, 0) if sl else None,
+            "targetType": target_type,
+            "targetLabel": target_label,
+            "isExitRebound": is_exit_rebound,
+            "profitTargetAlt": profit_target_alt,
             "support": round(support, 0),
             "resistance": round(recent_high_20, 0),
             "ma20": round(ma20, 0),
@@ -111,13 +137,17 @@ def _fallback_recommendation(avg_price: float, jenis: str, ticker: str = "UNKNOW
         "currentPrice": None,
         "tp": tp,
         "sl": sl,
+        "targetType": "INVESTMENT_TARGET" if jenis == "investasi" else "TAKE_PROFIT",
+        "targetLabel": "Target Investasi" if jenis == "investasi" else "Target Profit (TP)",
+        "isExitRebound": False,
+        "profitTargetAlt": None,
         "support": None,
         "resistance": None,
         "ma20": None,
         "ma50": None,
         "ma200": None,
         "rsi": None,
-        "tpRationale": "Data historis tidak tersedia. TP dihitung +15% dari avg price.",
+        "tpRationale": "Data historis tidak tersedia. Target dihitung dari avg price.",
         "slRationale": "Data historis tidak tersedia. SL dihitung -10% dari avg price.",
         "avgDownTarget": None,
         "avgDownRationale": None,

@@ -3,6 +3,8 @@ export type ActionType =
   | 'SL_PROXIMITY_WARNING'
   | 'TAKE_PROFIT'
   | 'TP_PROXIMITY_WARNING'
+  | 'EXIT_REBOUND'
+  | 'ER_PROXIMITY_WARNING'
   | 'HOLD_MONITOR'
   | 'TRAILING_STOP_WARNING'
   | 'RECOVERY_MODE'
@@ -374,6 +376,10 @@ export interface RecommendTpSlResponse {
   target_price?: number;
   stop_loss?: number | null;
   risk_reward_ratio?: string;
+  targetType?: string;
+  targetLabel?: string;
+  isExitRebound?: boolean;
+  profitTargetAlt?: number | null;
   support?: number;
   resistance?: number;
   ma20?: number;

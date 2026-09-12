@@ -71,6 +71,22 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  updateHolding: (
+    id: number,
+    data: {
+      avg_price?: number;
+      lot?: number;
+      target_price?: number;
+      stop_loss?: number;
+      sector?: string;
+      buy_reason?: string;
+      jenis?: 'trading' | 'investasi';
+    },
+  ) =>
+    fetchApi<Holding>(`/api/v1/portfolio/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
   deleteHolding: (id: number) => fetchApi<ApiStatusResponse>(`/api/v1/portfolio/${id}`, { method: 'DELETE' }),
   sellHolding: (data: {
     holding_id: number;

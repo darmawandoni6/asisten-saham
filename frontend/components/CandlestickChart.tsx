@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { CandlestickSeries, ColorType, IChartApi, LineSeries, LineStyle, createChart } from 'lightweight-charts';
-import { RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { api } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
 import { Holding, PriceCandle } from '@/types';
@@ -20,19 +21,27 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const [candles, setCandles] = useState<PriceCandle[]>(initialCandles);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch real candles from backend API
   useEffect(() => {
     let isMounted = true;
     async function loadChartData() {
+      setError(null);
       try {
         const res = await api.getStockChart(ticker);
-        if (isMounted && res.candles && res.candles.length > 0) {
-          setCandles(res.candles);
+        if (isMounted) {
+          if (res.candles && res.candles.length > 0) {
+            setCandles(res.candles);
+          } else {
+            setError(`Data candlestick historis untuk ${ticker} belum tersedia dari server.`);
+          }
         }
-      } catch (err) {
-        // Keep initial candles on fallback
+      } catch (err: unknown) {
+        if (isMounted) {
+          const errMsg = err instanceof Error ? err.message : 'Koneksi ke backend bermasalah';
+          setError(`Gagal memuat data chart riil untuk ${ticker}: ${errMsg}`);
+        }
       }
     }
     loadChartData();
@@ -123,13 +132,21 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
         title: `Avg: Rp ${formatNumber(holding.avgPrice)}`,
       });
 
+      const isExitRebound =
+        holding.targetPrice &&
+        holding.avgPrice &&
+        holding.targetPrice < holding.avgPrice &&
+        holding.jenis !== 'investasi';
+
       candleSeries.createPriceLine({
         price: holding.targetPrice,
-        color: '#059669',
+        color: isExitRebound ? '#d97706' : '#059669',
         lineWidth: 2,
         lineStyle: LineStyle.Solid,
         axisLabelVisible: true,
-        title: `Target: Rp ${formatNumber(holding.targetPrice)}`,
+        title: isExitRebound
+          ? `Exit Rebound: Rp ${formatNumber(holding.targetPrice)}`
+          : `Target: Rp ${formatNumber(holding.targetPrice)}`,
       });
 
       if (holding.stopLoss != null) {
@@ -160,6 +177,13 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
     };
   }, [candles, holding]);
 
+  const isExitRebound =
+    holding &&
+    holding.targetPrice &&
+    holding.avgPrice &&
+    holding.targetPrice < holding.avgPrice &&
+    holding.jenis !== 'investasi';
+
   return (
     <div className="relative rounded-xl border border-slate-200 bg-white p-5 shadow-2xl">
       {/* Header */}
@@ -181,9 +205,15 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
                 <span className="flex items-center gap-1 text-slate-600">
                   <span className="h-0.5 w-2.5 border-t border-dashed bg-slate-500" /> Avg ({holding.avgPrice})
                 </span>
-                <span className="flex items-center gap-1 font-bold text-emerald-700">
-                  <span className="h-0.5 w-2.5 bg-emerald-600" /> TP ({holding.targetPrice})
-                </span>
+                {isExitRebound ? (
+                  <span className="flex items-center gap-1 font-bold text-amber-700">
+                    <span className="h-0.5 w-2.5 bg-amber-600" /> Exit ({holding.targetPrice})
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 font-bold text-emerald-700">
+                    <span className="h-0.5 w-2.5 bg-emerald-600" /> TP ({holding.targetPrice})
+                  </span>
+                )}
                 <span className="flex items-center gap-1 font-bold text-rose-700">
                   <span className="h-0.5 w-2.5 bg-rose-600" /> SL ({holding.stopLoss})
                 </span>
@@ -202,6 +232,15 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
           </button>
         )}
       </div>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive" className="mt-3">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Gagal Memuat Data Chart</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Chart Canvas */}
       <div ref={chartContainerRef} className="mt-4 w-full" />

@@ -30,7 +30,13 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 9. **MODULARITAS KOMPONEN & BATAS UKURAN FILE (MAX 500 LINES)**:
    - Setiap file halaman frontend (`page.tsx`) dan komponen wajib **maksimal 500 baris kode**.
    - Pecah logika kompleks menjadi **subkomponen modular**, **custom hooks** (`frontend/hooks/`), dan **helper function** terpisah.
-   - Selalu prioritaskan penggunaan komponen resmi **shadcn/ui** (`Card`, `Badge`, `Button`, `Dialog`, `Input`, `Label`, `Select`, `Alert`, `Separator`, `ScrollArea`, `Sidebar`).
+10. **KOMPONEN UI RESMI WAJIB BERBASIS `@base-ui/react`**:
+   - Seluruh implementasi komponen **shadcn/ui** wajib **SELALU menggunakan `@base-ui/react`** sebagai headless primitives library (misal `Dialog`, `Select`, `DropdownMenu`, `ScrollArea`, `Input`, `Label`, `Separator`, dll).
+   - Dilarang menginstal atau mencampur dependensi headless lain jika primitif komponennya sudah didukung oleh `@base-ui/react`.
+11. **STANDAR 1 FILE = 1 KOMPONEN JSX & ANIMASI DIALOG**:
+   - Setiap file `.tsx` non-library wajib hanya mendefinisikan **1 komponen JSX utama** (tidak boleh mendefinisikan helper component function terpisah di file yang sama).
+   - Dialog dan modal wajib di-render secara penuh tanpa conditional unmounting `{isOpen && ...}` pada parent agar siklus animasi buka/tutup (*enter/exit animations*) dari `@base-ui/react` tidak terputus.
+   - Sinkronisasi nilai form saat modal dibuka wajib menggunakan pola resmi React pelacakan prop render-time (`isOpen !== prevIsOpen`), dan **dilarang menggunakan synchronous `setState` di dalam `useEffect`**.
 
 ---
 
@@ -38,7 +44,7 @@ Dokumentasi dan instruksi operasional untuk AI Coding Agent yang bekerja pada co
 
 | Layer | Teknologi | Catatan Khusus |
 |---|---|---|
-| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, shadcn/ui | Build statis di `frontend/out/`, disajikan via FastAPI di port `8000` |
+| **Frontend** | Next.js 16 (Static Export), TypeScript, Tailwind CSS, shadcn/ui (`@base-ui/react`) | Build statis di `frontend/out/`, disajikan via FastAPI di port `8000` |
 | **Interactive Chart** | TradingView Lightweight Charts v5 | Gunakan syntax `chart.addSeries(CandlestickSeries, ...)` |
 | **Backend & Web Server** | Python FastAPI, Uvicorn | Port `8000` (`http://localhost:8000`, Docs: `/docs`) |
 | **Database** | SQLite lokal (`assiten_saham.db`), SQLAlchemy ORM | Tabel: `holdings`, `price_history`, `ai_analysis`, `screener_results`, `recovery_chat_logs`, `copilot_chat_logs`, `screener_chat_logs` |
@@ -95,9 +101,14 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Aturan Update Harian EOD**:
   - `Target Price`: Adaptif mengikuti resistance harian candle terbaru.
   - `Stop Loss`: Hanya boleh naik (*trailing up*), **DILARANG turun di bawah SL awal** demi menjaga disiplin risiko.
-- **Status Peringatan Jarak Dekat (Proximity Warnings)**:
+- **Status Peringatan Jarak Dekat (Proximity Warnings) & Mode Exit Rebound**:
   - `SL_PROXIMITY_WARNING` (Orange): Jarak harga ke SL $\le 2\% \rightarrow$ Instruksi: *"SIAGA 1 — Pasang Stop Order di sekuritas"*.
   - `TP_PROXIMITY_WARNING` (Teal): Jarak harga ke TP $\le 2\% \rightarrow$ Instruksi: *"PERSIAPAN TP — Pasang antrean Sell 50% Lot"*.
+  - `EXIT_REBOUND` (Amber): Target resisten teknikal berada di bawah harga modal beli (`target_price < avg_price`) dan harga penutupan menyentuh target $\rightarrow$ Instruksi: *"EXIT REBOUND — Jual untuk meminimalkan kerugian saat pantulan harga terjadi"*.
+  - `ER_PROXIMITY_WARNING` (Amber): Jarak harga ke Target Exit Rebound $\le 2\% \rightarrow$ Instruksi: *"PERSIAPAN EXIT REBOUND — Pasang antrean jual untuk meminimalkan rugi"*.
+- **Smart Dynamic Target Labeling**:
+  - Jika `targetPrice >= avgPrice`: Ditampilkan sebagai **🎯 TP (Target Profit)** dengan tema Emerald/Hijau.
+  - Jika `targetPrice < avgPrice`: Ditampilkan sebagai **⚡ Exit Rebound** dengan tema Amber/Orange untuk merefleksikan bahwa target tersebut bertujuan meminimalkan kerugian (*Cut on Strength*).
 
 ### E. Status Fitur Eksternal
 - **Telegram Bot Notification**: Status saat ini adalah **Under Development** (diarahkan ke log sistem internal, belum dikaitkan ke API live).
@@ -171,12 +182,15 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - Disinkronkan ke `~/Desktop/Asisten Saham.app` dan `/Applications/Asisten Saham.app` (Dock) dengan detached process (`nohup`) sehingga dapat langsung diklik ganda dari Desktop maupun Dock tanpa terminal window.
   - Skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
 
-### L. Manual Trading Balance & Lot Management
-- **Pencatatan Saldo Kas RDN Manual**:
-  - Saldo kas RDN diinput dan diperbarui secara manual oleh pengguna sesuai kenyataan rekening sekuritas via modal `[ ✏️ Edit ]` (`EditBalanceModal.tsx`).
-  - Aplikasi bertindak sebagai asisten pencatatan personal dan tidak memotong/menambah saldo kas secara otomatis di belakang layar.
+### L. Automatic Trading Balance & Smart Lot Management
+- **Sinkronisasi Saldo Kas RDN Otomatis (Auto-Sync Cash Balance)**:
+  - Pembelian saham baru maupun penambahan lot (`create_holding`) otomatis memotong modal belanja ($\text{Harga Beli} \times \text{Lot} \times 100$) dari saldo kas RDN.
+  - Penjualan saham (`sell_holding`) otomatis menambahkan seluruh dana hasil penjualan ke saldo kas RDN.
+  - Penyesuaian manual tetap didukung via modal `[ ✏️ Edit ]` (`EditBalanceModal.tsx`) untuk koreksi setor/tarik dana dan fee broker.
+- **Smart Add / Beli Tambahan & Averaging Otomatis**:
+  - Jika ticker yang dimasukkan pada form tambah saham sudah ada di portofolio, sistem otomatis melebur posisi, menghitung harga rata-rata baru (*weighted average*), dan mencatat transaksi ke `TradeLog`.
 - **Pangkas / Jual Lot Saham (`SellHoldingModal.tsx`)**:
-  - Tombol `[ 🏷️ Jual ]` pada kolom Aksi tabel portofolio digunakan untuk memangkas sebagian lot atau menutup seluruh posisi.
+  - Tombol `[ 🏷️ Jual ]` atau opsi pada Dropdown Menu Aksi portofolio digunakan untuk memangkas sebagian lot atau menutup seluruh posisi.
   - Pilihan cepat preset lot: `25%`, `50%` (TP1 Kunci Profit), dan `100%` (Tutup Posisi Total).
   - Kalkulasi *real-time*: Total Nilai Penjualan, Realized PnL nominal & persentase, serta sisa lot di portofolio.
   - Jika `sell_lot < holding.lot`, jumlah lot holding diperbarui dengan sisa lot. Jika `sell_lot == holding.lot`, holding dihapus dari daftar aktif.

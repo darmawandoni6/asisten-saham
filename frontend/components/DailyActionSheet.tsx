@@ -21,9 +21,11 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
     TRAILING_STOP_WARNING: 3,
     RECOVERY_MODE: 4,
     AVERAGING_REVIEW: 4,
-    TAKE_PROFIT: 5,
-    TP_PROXIMITY_WARNING: 6,
-    HOLD_MONITOR: 7,
+    EXIT_REBOUND: 5,
+    ER_PROXIMITY_WARNING: 5,
+    TAKE_PROFIT: 6,
+    TP_PROXIMITY_WARNING: 7,
+    HOLD_MONITOR: 8,
   };
 
   const sortedHoldings = [...holdings].sort(
@@ -42,6 +44,18 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
         return (
           <Badge variant="outline" className="border-orange-200 bg-orange-50 text-[11px] font-bold text-orange-800">
             <AlertTriangle className="mr-1 h-3 w-3 text-orange-600" /> DEKAT SL
+          </Badge>
+        );
+      case 'EXIT_REBOUND':
+        return (
+          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-800">
+            <AlertTriangle className="mr-1 h-3 w-3 text-amber-600" /> EXIT REBOUND
+          </Badge>
+        );
+      case 'ER_PROXIMITY_WARNING':
+        return (
+          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-800">
+            <AlertTriangle className="mr-1 h-3 w-3 text-amber-600" /> DEKAT EXIT
           </Badge>
         );
       case 'TAKE_PROFIT':
@@ -113,7 +127,9 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
                 <td className="px-3 py-3.5 font-mono text-[11px] text-slate-600">
                   <div>Avg: Rp {formatNumber(h.avgPrice)}</div>
                   <div className="text-[10px] text-slate-400">
-                    SL: {h.stopLoss ? formatNumber(h.stopLoss) : 'No SL'} | TP: {formatNumber(h.targetPrice)}
+                    SL: {h.stopLoss ? formatNumber(h.stopLoss) : 'No SL'} |{' '}
+                    {h.targetPrice < h.avgPrice && h.jenis !== 'investasi' ? 'Exit' : 'TP'}:{' '}
+                    {formatNumber(h.targetPrice)}
                   </div>
                 </td>
                 <td className="px-3 py-3.5 font-mono font-bold">

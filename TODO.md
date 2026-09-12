@@ -1,7 +1,7 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–18 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
-> Frontend: Next.js 16 Static Export + shadcn/ui + Stockbit Clean Light Mode (`http://localhost:8000`)
+> Status: **Tahap 0–19 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Frontend: Next.js 16 Static Export + shadcn/ui (@base-ui/react) + Stockbit Clean Light Mode (`http://localhost:8000`)
 > Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 
 ---
@@ -285,3 +285,57 @@
 - [x] 18.5 Pembaruan Dokumentasi:
   - Pembaruan deskripsi fitur Dashboard pada `README.md` dan `TODO.md`.
 
+---
+
+## 💼 TAHAP 19 — Portfolio Management Upgrade, @base-ui/react Dropdown & Auto-Sync Balance [SELESAI ✅]
+> Peningkatan menyeluruh halaman portofolio: Edit Trading Plan, KPI Metrics Bar, Filter & Sorting Tabel, Dropdown Menu Aksi berbasis `@base-ui/react`, Smart Averaging (Tambah Lot), dan Sinkronisasi Saldo Kas RDN Otomatis.
+
+- [x] 19.1 Standarisasi Headless Primitives `@base-ui/react`:
+  - Seluruh komponen shadcn/ui wajib menggunakan `@base-ui/react` (ditambahkan aturan baku di `AGENTS.md` Rule 10).
+  - Implementasi komponen [`dropdown-menu.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/dropdown-menu.tsx) berbasis `@base-ui/react/menu`.
+- [x] 19.2 Dropdown Menu pada Kolom Aksi Tabel Portofolio:
+  - Pengubahan kolom aksi menjadi dropdown menu rapi (*Beli Lagi, Jual/Pangkas Lot, Buka Chart, Edit Trading Plan, Hapus Saham*).
+- [x] 19.3 Modal Edit Trading Plan ([`EditHoldingModal.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/portfolio/EditHoldingModal.tsx)):
+  - Edit parameter harga rata-rata, lot, target profit, stop loss, sektor, dan alasan beli secara langsung.
+- [x] 19.4 Portfolio KPI Summary Metrics Bar ([`PortfolioMetricsBar.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/portfolio/PortfolioMetricsBar.tsx)):
+  - 4 kartu metrik di bagian atas: Total Portofolio (Aset), Modal Beli (Cost Basis), Floating PnL, dan Saldo Kas RDN.
+- [x] 19.5 Smart Averaging (Tambah Lot Otomatis):
+  - Form tambah saham mendeteksi emiten aktif, menghitung harga rata-rata baru secara *real-time*, dan menggabungkan lot di database tanpa duplikasi baris.
+- [x] 19.6 Sinkronisasi Saldo Kas RDN Otomatis:
+  - Pembelian memotong kas otomatis dan penjualan menambahkan dana penjualan otomatis ke saldo kas RDN.
+- [x] 19.7 Interactive Scale-Out Matrix & Filter Tabs:
+  - Dropdown pilihan emiten aktif untuk simulasi nilai real profit taking bertahap.
+  - Tab filter cepat (`Semua`, `Trading`, `Investasi`) dan sorting kolom interaktif.
+
+---
+
+## ⚡ TAHAP 20 — Smart Dynamic Target Label & Exit Rebound Mode [SELESAI ✅]
+> Penerapan label dinamis cerdas untuk membedakan target di atas modal (🎯 Target Profit / TP) dengan target teknikal di bawah modal saat posisi terkoreksi (⚡ Target Exit Rebound / ER) di seluruh UI dan logika AI TP/SL.
+
+- [x] 20.1 Deteksi Otomatis Mode Exit Rebound di Backend ([`ai_tp_sl.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/ai_tp_sl.py)):
+  - Jika resisten teknikal 20 hari berada di bawah harga modal beli (`tp < avg_price`), sistem otomatis mengklasifikasikan sebagai `EXIT_REBOUND` dengan rasional objektif untuk meminimalkan kerugian saat harga memantul.
+  - Menyediakan alternatif target profit murni (`profitTargetAlt` = +10% dari modal) bagi pengguna yang ingin target di atas modal.
+- [x] 20.2 Decision Matrix & Proximity Alerts Exit Rebound ([`portfolio_engine.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/portfolio_engine.py)):
+  - Status `EXIT_REBOUND` saat harga menyentuh target exit dan `ER_PROXIMITY_WARNING` saat mendekati target exit ($\le 2\%$).
+- [x] 20.3 Smart Dynamic Badge di UI Frontend:
+  - **Portfolio Table** & **Dashboard Action Cards**: Otomatis menampilkan badge amber `⚡ Exit Rebound: Rp xxx` saat target $<$ modal, dan badge emerald `🎯 TP: Rp xxx` saat target $\ge$ modal.
+  - **TradingView Candlestick Chart**: Menyesuaikan label horizontal price line (`Exit Rebound` vs `Target`) dan warna garis secara dinamis.
+  - **Modal Add/Edit Trading Plan**: Menampilkan notifikasi transparan jika target resisten di bawah modal dan tombol cepat satu klik untuk memilih antara *Gunakan Exit Rebound* atau *Gunakan Target Profit +10%*.
+
+---
+
+## 🧩 TAHAP 21 — Strict Single-Component Architecture & Dialog Animation Optimization [SELESAI ✅]
+> Penerapan standar ketat "1 File = 1 Komponen JSX", eliminasi cascading render warnings (`useEffect` `setState`), serta pelestarian siklus animasi penutup (*exit transitions*) pada seluruh dialog modal (`@base-ui/react`).
+
+- [x] 21.1 Refaktorisasi 1 File = 1 Komponen JSX:
+  - `AddHoldingModal.tsx`: Penggabungan seluruh dialog tambah saham & averaging ke 1 komponen tunggal.
+  - `EditHoldingModal.tsx`: Penggabungan seluruh form edit plan ke 1 komponen tunggal.
+  - `SellHoldingModal.tsx`: Penggabungan kalkulasi pangkas/jual lot ke 1 komponen tunggal.
+  - `EditBalanceModal.tsx`: Penggabungan form modal saldo kas RDN ke 1 komponen tunggal.
+- [x] 21.2 Pola Sinkronisasi State Bebas Efek (*Render-Time State Adjustment*):
+  - Menggantikan `useEffect` synchronous `setState` dengan pola React resmi pelacakan perubahan prop (`isOpen !== prevIsOpen` / `holding.id !== prevHoldingId`).
+  - Menghilangkan 100% potensi cascading render warnings di React compiler.
+- [x] 21.3 Pelestarian Animasi Dialog (`@base-ui/react`):
+  - Menghapus conditional unmounting `{isOpen && ...}` dan `if (!isOpen) return null` agar siklus transisi keluar (`data-[state=closed]:animate-out`, `fade-out-0`, `zoom-out-95`) berjalan mulus dan tuntas.
+- [x] 21.4 Error Alert Fallback pada Candlestick Chart:
+  - Penambahan `<Alert variant="destructive">` pada [`CandlestickChart.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/CandlestickChart.tsx) bila data histori harga tidak tersedia / gagal dimuat.

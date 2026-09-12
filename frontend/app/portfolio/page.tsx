@@ -7,22 +7,55 @@ import { EditBalanceModal } from '@/components/EditBalanceModal';
 import { SellHoldingModal } from '@/components/SellHoldingModal';
 import { Topbar } from '@/components/Topbar';
 import { AddHoldingModal } from '@/components/portfolio/AddHoldingModal';
+import { EditHoldingModal } from '@/components/portfolio/EditHoldingModal';
 import { PortfolioHeader } from '@/components/portfolio/PortfolioHeader';
+import { PortfolioMetricsBar } from '@/components/portfolio/PortfolioMetricsBar';
 import { PortfolioTable } from '@/components/portfolio/PortfolioTable';
 import { ScaleOutMatrixCard } from '@/components/portfolio/ScaleOutMatrixCard';
 import { SectorAllocationCard } from '@/components/portfolio/SectorAllocationCard';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { Holding } from '@/types';
 
 export default function PortfolioPage() {
-  const { holdings, cashBalance, loadPortfolio, addHolding, deleteHolding, setCashBalance, totalCost, sectorMap } =
-    usePortfolio();
+  const {
+    holdings,
+    cashBalance,
+    loadPortfolio,
+    addHolding,
+    updateHolding,
+    deleteHolding,
+    setCashBalance,
+    totalCost,
+    totalMarketValue,
+    totalFloatingPnl,
+    totalFloatingPnlPct,
+    sectorMap,
+  } = usePortfolio();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [buyMoreTicker, setBuyMoreTicker] = useState<string>('');
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
+  const [editingHolding, setEditingHolding] = useState<Holding | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [sellingHolding, setSellingHolding] = useState<Holding | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [chartStock, setChartStock] = useState<Holding | null>(null);
+
+  const handleOpenAddHolding = () => {
+    setBuyMoreTicker('');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenBuyMore = (holding: Holding) => {
+    setBuyMoreTicker(holding.ticker);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (holding: Holding) => {
+    setEditingHolding(holding);
+    setIsEditModalOpen(true);
+  };
 
   const handleOpenSellModal = (holding: Holding) => {
     setSellingHolding(holding);
@@ -38,44 +71,78 @@ export default function PortfolioPage() {
       />
 
       <div className="mx-auto w-full max-w-7xl space-y-8 p-6">
-        {/* Header Actions */}
-        <PortfolioHeader
+        {/* 1. Portfolio KPI Summary Metrics Bar */}
+        <PortfolioMetricsBar
+          totalCost={totalCost}
+          totalMarketValue={totalMarketValue}
+          totalFloatingPnl={totalFloatingPnl}
+          totalFloatingPnlPct={totalFloatingPnlPct}
           cashBalance={cashBalance}
-          onOpenEditBalance={() => setIsBalanceModalOpen(true)}
-          onOpenAddHolding={() => setIsModalOpen(true)}
+          totalHoldings={holdings.length}
+          onEditCashBalance={() => setIsBalanceModalOpen(true)}
         />
 
-        {/* Portfolio Table */}
-        <PortfolioTable
-          holdings={holdings}
-          onOpenChart={setChartStock}
-          onSellHolding={handleOpenSellModal}
-          onDeleteHolding={deleteHolding}
-        />
+        {/* 2. Header Actions */}
+        <div className="space-y-4">
+          <PortfolioHeader totalHoldings={holdings.length} onOpenAddHolding={handleOpenAddHolding} />
 
-        {/* Money Management & Pyramiding Matrix */}
+          {/* 3. Portfolio Table with Filters & Sorting */}
+          <PortfolioTable
+            holdings={holdings}
+            onOpenChart={setChartStock}
+            onBuyMore={handleOpenBuyMore}
+            onEditHolding={handleOpenEditModal}
+            onSellHolding={handleOpenSellModal}
+            onDeleteHolding={deleteHolding}
+          />
+        </div>
+
+        {/* 4. Money Management & Selling Engine */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <SectorAllocationCard sectorMap={sectorMap} totalCost={totalCost} hasHoldings={holdings.length > 0} />
-          <ScaleOutMatrixCard />
+          <ScaleOutMatrixCard holdings={holdings} />
         </div>
       </div>
 
       {/* Modal Add Holding Form */}
-      <AddHoldingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddHolding={addHolding} />
+      <AddHoldingModal
+        isOpen={isModalOpen}
+        holdings={holdings}
+        initialTicker={buyMoreTicker}
+        onClose={() => {
+          setIsModalOpen(false);
+          setBuyMoreTicker('');
+        }}
+        onAddHolding={addHolding}
+      />
 
-      {/* Modal Chart */}
-      {chartStock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-4xl">
+      {/* Modal Edit Holding Form */}
+      <EditHoldingModal
+        isOpen={isEditModalOpen}
+        holding={editingHolding}
+        onClose={() => {
+          setIsEditModalOpen(false);
+        }}
+        onUpdateHolding={updateHolding}
+      />
+
+      {/* Modal / Dialog for Candlestick Chart (shadcn/ui Dialog) */}
+      <Dialog open={!!chartStock} onOpenChange={open => !open && setChartStock(null)}>
+        <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none [&>button]:hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Grafik Candlestick {chartStock?.ticker}</DialogTitle>
+            <DialogDescription>Grafik teknikal candlestick harian untuk saham {chartStock?.ticker}</DialogDescription>
+          </DialogHeader>
+          {chartStock && (
             <CandlestickChart
               ticker={chartStock.ticker}
               candles={[]}
               holding={chartStock}
               onClose={() => setChartStock(null)}
             />
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Edit Cash Balance */}
       <EditBalanceModal
@@ -94,7 +161,6 @@ export default function PortfolioPage() {
         holding={sellingHolding}
         onClose={() => {
           setIsSellModalOpen(false);
-          setSellingHolding(null);
         }}
         onSuccess={() => {
           loadPortfolio();

@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 
-import { Plus, Sparkles, X } from 'lucide-react';
+import { Plus, Sparkles, TrendingUp } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -15,20 +15,30 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AddHoldingPayload } from '@/hooks/usePortfolio';
 import { api } from '@/lib/api';
-import { cn } from '@/lib/utils';
+import { formatNumber, formatRupiah } from '@/lib/utils';
+import { Holding } from '@/types';
 
 interface AddHoldingModalProps {
   isOpen: boolean;
+  holdings?: Holding[];
+  initialTicker?: string;
   onClose: () => void;
   onAddHolding: (payload: AddHoldingPayload) => Promise<void>;
 }
 
-export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingModalProps) {
-  const [ticker, setTicker] = useState('');
+export function AddHoldingModal({
+  isOpen,
+  holdings = [],
+  initialTicker = '',
+  onClose,
+  onAddHolding,
+}: AddHoldingModalProps) {
+  const [ticker, setTicker] = useState(initialTicker);
   const [avgPrice, setAvgPrice] = useState('');
   const [lot, setLot] = useState('');
   const [targetPrice, setTargetPrice] = useState('');
@@ -39,26 +49,88 @@ export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingMod
 
   const [isFetchingAi, setIsFetchingAi] = useState(false);
   const [aiNote, setAiNote] = useState<string | null>(null);
+  const [aiRec, setAiRec] = useState<{
+    tp?: number;
+    sl?: number | null;
+    isExitRebound?: boolean;
+    profitTargetAlt?: number | null;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [prevTicker, setPrevTicker] = useState(initialTicker);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (isOpen !== prevIsOpen || initialTicker !== prevTicker) {
+    setPrevIsOpen(isOpen);
+    setPrevTicker(initialTicker);
+    if (isOpen) {
+      const cleanInit = initialTicker.toUpperCase().replace(/\.JK$/i, '').trim();
+      const existingInit = cleanInit
+        ? holdings.find(h => h.ticker.toUpperCase().replace(/\.JK$/i, '').trim() === cleanInit)
+        : null;
+
+      setTicker(initialTicker);
+      setAvgPrice('');
+      setLot('');
+      setTargetPrice(existingInit?.targetPrice ? existingInit.targetPrice.toString() : '');
+      setStopLoss(existingInit?.stopLoss ? existingInit.stopLoss.toString() : '');
+      setSector(existingInit?.sector || '');
+      setBuyReason('');
+      setJenis(existingInit?.jenis || 'trading');
+      setIsFetchingAi(false);
+      setAiNote(null);
+      setAiRec(null);
+      setIsSubmitting(false);
+    }
+  }
+
+  // Check if entered ticker already exists in portfolio
+  const cleanInputTicker = ticker.toUpperCase().replace(/\.JK$/i, '').trim();
+  const existingHolding = cleanInputTicker
+    ? holdings.find(h => h.ticker.toUpperCase().replace(/\.JK$/i, '').trim() === cleanInputTicker)
+    : null;
+
+  // Real-time calculation for adding lot / averaging
+  const priceNum = parseFloat(avgPrice) || 0;
+  const lotNum = parseInt(lot, 10) || 0;
+  const isAveraging = !!existingHolding && priceNum > 0 && lotNum > 0;
+
+  const newTotalLot = existingHolding ? existingHolding.lot + lotNum : lotNum;
+  const additionalCost = priceNum * lotNum * 100;
+  const existingCost = existingHolding ? existingHolding.avgPrice * existingHolding.lot * 100 : 0;
+  const newAvgPrice =
+    existingHolding && newTotalLot > 0 ? Math.round((existingCost + additionalCost) / (newTotalLot * 100)) : priceNum;
 
   const handleFetchAiRecommendation = async () => {
     if (!ticker) return;
     setIsFetchingAi(true);
     setAiNote(null);
+    setAiRec(null);
     try {
-      const priceNum = avgPrice ? parseFloat(avgPrice) : undefined;
-      const res = await api.getAiTpSl(ticker, jenis, priceNum);
+      const priceVal = avgPrice ? parseFloat(avgPrice) : undefined;
+      const res = await api.getAiTpSl(ticker, jenis, priceVal);
       if (res) {
         if (res.tp) setTargetPrice(res.tp.toString());
         if (jenis === 'trading' && res.sl) setStopLoss(res.sl.toString());
         if (res.sector) setSector(res.sector);
+        setAiRec({
+          tp: res.tp,
+          sl: res.sl,
+          isExitRebound: res.isExitRebound,
+          profitTargetAlt: res.profitTargetAlt,
+        });
+
         if (jenis === 'investasi') {
           setAiNote(
-            `💡 Rekomendasi Investasi: TP Rp ${res.tp?.toLocaleString()} (Target Puncak 200 Hari) • No Hard Stop Loss`,
+            `💡 Rekomendasi Investasi: Target Puncak 200 Hari Rp ${res.tp?.toLocaleString()} • Tanpa Hard Stop Loss.`,
+          );
+        } else if (res.isExitRebound) {
+          setAiNote(
+            `⚠️ Mode Exit Rebound: Resisten 20-hari terdekat (Rp ${res.tp?.toLocaleString()}) berada di bawah modal beli (Rp ${(priceVal || 0).toLocaleString()}). Digunakan untuk meminimalkan kerugian saat harga memantul.`,
           );
         } else {
           setAiNote(
-            `💡 Rekomendasi Trading: TP Rp ${res.tp?.toLocaleString()} (Resistance) • SL Rp ${res.sl?.toLocaleString()} (Support -3%)`,
+            `💡 Rekomendasi Trading: TP Rp ${res.tp?.toLocaleString()} (Resisten 20-Hari) • SL Rp ${res.sl?.toLocaleString()} (Support -3%).`,
           );
         }
       }
@@ -80,22 +152,14 @@ export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingMod
         avgPrice: parseFloat(avgPrice),
         lot: parseInt(lot, 10),
         targetPrice: targetPrice ? parseFloat(targetPrice) : undefined,
-        stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
+        stopLoss: jenis === 'investasi' ? undefined : stopLoss ? parseFloat(stopLoss) : undefined,
         sector: sector || undefined,
-        buyReason,
+        buyReason:
+          buyReason ||
+          (existingHolding ? `Beli tambahan ${lot} lot @ Rp ${formatNumber(parseFloat(avgPrice))}` : undefined),
         jenis,
       });
 
-      // Reset form
-      setTicker('');
-      setAvgPrice('');
-      setLot('');
-      setTargetPrice('');
-      setStopLoss('');
-      setSector('');
-      setBuyReason('');
-      setJenis('trading');
-      setAiNote(null);
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -105,205 +169,287 @@ export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingMod
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className="max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:max-w-md">
-        {/* Header */}
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 border-b border-slate-100 bg-slate-50/60 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-              <Plus className="h-5 w-5" />
-            </div>
-            <div>
-              <DialogTitle className="text-base font-bold text-slate-900">Input Trading Plan Baru</DialogTitle>
-              <DialogDescription className="text-xs text-slate-500">
-                Perekaman data kepemilikan saham IDX
-              </DialogDescription>
-            </div>
+        <DialogHeader className="border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+          <div className="flex items-center gap-2">
+            <DialogTitle className="text-base font-bold text-slate-900">
+              {existingHolding ? 'Tambah Lot Saham (Beli Lagi)' : 'Tambah Saham Baru'}
+            </DialogTitle>
+            {existingHolding && (
+              <Badge
+                variant="outline"
+                className="border-emerald-200 bg-emerald-50 font-mono text-xs font-bold text-emerald-800"
+              >
+                Posisi Aktif
+              </Badge>
+            )}
           </div>
-          <DialogClose className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Tutup</span>
-          </DialogClose>
+          <DialogDescription className="text-xs text-slate-500">
+            {existingHolding
+              ? `Saham ${existingHolding.ticker} sudah ada. Input ini akan otomatis menggabungkan lot & menghitung harga rata-rata baru.`
+              : 'Masukkan trading plan baru dengan batas risiko terukur dan trailing stop otomatis.'}
+          </DialogDescription>
         </DialogHeader>
 
-        {/* Scrollable Form Body */}
-        <form onSubmit={handleSubmit} className="flex flex-col">
-          <ScrollArea className="max-h-[62vh] px-6 py-4">
-            <div className="space-y-4 text-xs">
-              {/* Jenis Saham Toggle */}
-              <div>
-                <label className="mb-2 block font-medium text-slate-700">Jenis Saham</label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setJenis('trading')}
-                    className={cn(
-                      'flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-all',
-                      jenis === 'trading'
-                        ? 'border-amber-500 bg-amber-500 text-white shadow-2xs'
-                        : 'border-slate-300 bg-white text-slate-600 hover:border-amber-400',
-                    )}
-                  >
-                    ⚡ Trading
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setJenis('investasi')}
-                    className={cn(
-                      'flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-all',
-                      jenis === 'investasi'
-                        ? 'border-indigo-600 bg-indigo-600 text-white shadow-2xs'
-                        : 'border-slate-300 bg-white text-slate-600 hover:border-indigo-400',
-                    )}
-                  >
-                    📈 Investasi
-                  </button>
-                </div>
-                {jenis === 'investasi' && (
-                  <p className="mt-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-[10px] text-indigo-600">
-                    Mode Investasi: Tidak ada Hard Stop Loss. Strategi fokus pada averaging down dan hold jangka
-                    panjang.
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <ScrollArea className="max-h-[65vh] px-6 py-4">
+            <div className="space-y-4">
+              {/* Existing Holding Detected Banner */}
+              {existingHolding && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-emerald-900">Posisi Saat Ini di Portofolio:</span>
+                    <span className="font-mono font-bold text-emerald-800">
+                      {existingHolding.lot} Lot @ Rp {formatNumber(existingHolding.avgPrice)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-emerald-700">
+                    Sektor: {existingHolding.sector || '—'} • Tujuan:{' '}
+                    {existingHolding.jenis === 'investasi' ? 'Investasi' : 'Trading'}
                   </p>
-                )}
-              </div>
-
-              {/* Ticker Input */}
-              <div>
-                <label className="mb-1 block font-medium text-slate-700">Ticker Saham (IDX)</label>
-                <Input
-                  type="text"
-                  placeholder="Contoh: BBRI atau BBRI.JK"
-                  value={ticker}
-                  onChange={e => setTicker(e.target.value)}
-                  required
-                  className="font-mono uppercase"
-                />
-              </div>
-
-              {/* Price & Lot Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block font-medium text-slate-700">Avg Price (Rp)</label>
-                  <Input
-                    type="number"
-                    placeholder="4850"
-                    value={avgPrice}
-                    onChange={e => setAvgPrice(e.target.value)}
-                    required
-                    className="font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block font-medium text-slate-700">Jumlah Lot</label>
-                  <Input
-                    type="number"
-                    placeholder="50"
-                    value={lot}
-                    onChange={e => setLot(e.target.value)}
-                    required
-                    className="font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* AI Auto-Calculate Trigger */}
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-semibold text-slate-700">Target Profit &amp; Stop Loss</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFetchAiRecommendation}
-                  disabled={!ticker || isFetchingAi}
-                  className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-emerald-50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
-                  title="Gunakan algoritma teknikal AI untuk menghitung TP & SL otomatis dari data 200 hari bursa"
-                >
-                  <Sparkles className={cn('h-3.5 w-3.5 text-emerald-600', isFetchingAi && 'animate-spin')} />
-                  <span>{isFetchingAi ? 'Menghitung...' : '⚡ Hitung Rekomendasi AI'}</span>
-                </Button>
-              </div>
-
-              {aiNote && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-2.5 text-[11px] leading-relaxed font-medium text-emerald-800">
-                  {aiNote}
                 </div>
               )}
 
-              {/* TP & SL Inputs */}
-              <div className={jenis === 'investasi' ? '' : 'grid grid-cols-2 gap-3'}>
+              {/* Ticker & Jenis */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block font-medium text-emerald-700">
-                    Target Price (TP)
-                    <span className="font-normal text-slate-400"> — Kosongkan = Auto AI</span>
-                  </label>
+                  <Label className="text-xs font-bold text-slate-700">Kode Saham (Ticker)</Label>
                   <Input
-                    type="number"
-                    placeholder={
-                      jenis === 'investasi' ? 'Auto-calculate AI (Target 200 Hari)' : 'Auto-calculate AI (Resistance)'
-                    }
-                    value={targetPrice}
-                    onChange={e => setTargetPrice(e.target.value)}
-                    className="font-mono"
+                    placeholder="Contoh: SIDO, BBRI"
+                    value={ticker}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setTicker(val);
+                      const clean = val.toUpperCase().replace(/\.JK$/i, '').trim();
+                      const match = holdings.find(h => h.ticker.toUpperCase().replace(/\.JK$/i, '').trim() === clean);
+                      if (match) {
+                        setJenis(match.jenis || 'trading');
+                        if (match.targetPrice) setTargetPrice(match.targetPrice.toString());
+                        if (match.stopLoss) setStopLoss(match.stopLoss.toString());
+                        if (match.sector) setSector(match.sector);
+                      }
+                    }}
+                    required
+                    className="mt-1 h-9 rounded-lg border-slate-200 bg-white font-mono text-xs font-bold text-slate-900 uppercase"
                   />
                 </div>
 
-                {jenis === 'trading' && (
-                  <div>
-                    <label className="mb-1 block font-medium text-rose-600">
-                      Stop Loss (SL) <span className="font-normal text-slate-400">— Kosongkan = Auto AI</span>
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="Auto-calculate AI (Support -3%)"
-                      value={stopLoss}
-                      onChange={e => setStopLoss(e.target.value)}
-                      className="font-mono focus-visible:ring-rose-500"
-                    />
+                <div>
+                  <Label className="text-xs font-bold text-slate-700">Tujuan Kepemilikan</Label>
+                  <Select
+                    value={jenis}
+                    onValueChange={val => {
+                      const newJenis = val as 'trading' | 'investasi';
+                      setJenis(newJenis);
+                      if (newJenis === 'investasi') {
+                        setStopLoss('');
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="mt-1 h-9 rounded-lg border-slate-200 bg-white text-xs font-semibold text-slate-900">
+                      <SelectValue placeholder="Pilih Jenis" />
+                    </SelectTrigger>
+                    <SelectContent className="border-slate-200 bg-white shadow-lg">
+                      <SelectItem
+                        value="trading"
+                        className="text-xs font-medium focus:bg-amber-50 focus:text-amber-900"
+                      >
+                        ⚡ Trading (Disiplin SL)
+                      </SelectItem>
+                      <SelectItem
+                        value="investasi"
+                        className="text-xs font-medium focus:bg-indigo-50 focus:text-indigo-900"
+                      >
+                        📈 Investasi (Tanpa Hard SL)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Buy Price & Lot */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-bold text-slate-700">
+                    {existingHolding ? 'Harga Beli Hari Ini' : 'Avg Price (Modal Beli)'}
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="Contoh: 488"
+                    value={avgPrice}
+                    onChange={e => setAvgPrice(e.target.value)}
+                    required
+                    className="mt-1 h-9 rounded-lg border-slate-200 bg-white font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-slate-700">
+                    {existingHolding ? 'Jumlah Lot Tambahan' : 'Jumlah Lot'}
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="Contoh: 1"
+                    value={lot}
+                    onChange={e => setLot(e.target.value)}
+                    required
+                    className="mt-1 h-9 rounded-lg border-slate-200 bg-white font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
+              </div>
+
+              {/* Live Averaging Simulation Box */}
+              {isAveraging && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+                  <div className="mb-1.5 flex items-center gap-1.5 font-bold text-slate-900">
+                    <TrendingUp className="h-4 w-4 text-emerald-600" />
+                    <span>Hasil Simulasi Rata-Rata Modal Baru:</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="rounded-lg border border-slate-100 bg-white p-2">
+                      <span className="block text-[10px] text-slate-400">Total Lot Baru</span>
+                      <span className="font-mono font-bold text-slate-800">
+                        {existingHolding.lot} + {lotNum} = {newTotalLot} Lot
+                      </span>
+                    </div>
+                    <div className="rounded-lg border border-slate-100 bg-white p-2">
+                      <span className="block text-[10px] text-slate-400">Harga Rata-Rata Baru</span>
+                      <span className="font-mono font-bold text-emerald-700">Rp {formatNumber(newAvgPrice)}</span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-[10px] text-slate-500">
+                    Modal Pembelian Tambahan:{' '}
+                    <span className="font-mono font-bold text-slate-700">{formatRupiah(additionalCost)}</span>
+                  </p>
+                </div>
+              )}
+
+              {/* AI Recommendation Helper */}
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-900">Bantuan AI TP/SL</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFetchAiRecommendation}
+                    disabled={isFetchingAi || !ticker}
+                    className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-white px-2.5 text-[11px] font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50"
+                  >
+                    <Sparkles className="h-3 w-3 text-emerald-600" />
+                    <span>{isFetchingAi ? 'Menghitung...' : 'Rekomendasikan AI'}</span>
+                  </Button>
+                </div>
+                {aiNote && <p className="mt-2 text-[11px] leading-relaxed text-slate-700">{aiNote}</p>}
+
+                {/* Quick Choice for Exit Rebound vs Pure Profit */}
+                {aiRec?.isExitRebound && (
+                  <div className="mt-2.5 flex flex-wrap gap-1.5 border-t border-emerald-100/80 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => aiRec.tp && setTargetPrice(aiRec.tp.toString())}
+                      className="flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-800 hover:bg-amber-100"
+                    >
+                      <span>⚡ Gunakan Exit Rebound (Rp {aiRec.tp?.toLocaleString()})</span>
+                    </button>
+                    {aiRec.profitTargetAlt && (
+                      <button
+                        type="button"
+                        onClick={() => setTargetPrice(aiRec.profitTargetAlt!.toString())}
+                        className="flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-100/80 px-2 py-1 text-[10px] font-bold text-emerald-900 hover:bg-emerald-200"
+                      >
+                        <span>🎯 Gunakan Target Profit +10% (Rp {aiRec.profitTargetAlt.toLocaleString()})</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* Sector Selection */}
-              <div>
-                <label className="mb-1 block font-medium text-slate-700">
-                  Sektor Saham{' '}
-                  <span className="font-normal text-slate-400">(Opsional — Auto-detect jika dikosongkan)</span>
-                </label>
-                <Select value={sector || 'AUTO'} onValueChange={val => setSector(val && val !== 'AUTO' ? val : '')}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih sektor saham..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="AUTO">⚡ Auto-detect dari Yahoo Finance (Rekomendasi)</SelectItem>
-                    <SelectItem value="Energy">Energy</SelectItem>
-                    <SelectItem value="Consumer Defensive">Consumer Defensive / Farmasi & Herbal</SelectItem>
-                    <SelectItem value="Consumer Cyclical">Consumer Cyclical</SelectItem>
-                    <SelectItem value="Financials">Financials / Perbankan</SelectItem>
-                    <SelectItem value="Healthcare">Healthcare / Alat Kesehatan</SelectItem>
-                    <SelectItem value="Industrials">Industrials / Jasa & Logistik</SelectItem>
-                    <SelectItem value="Basic Materials">Basic Materials / Tambang</SelectItem>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Communication Services">Communication Services / Telco</SelectItem>
-                    <SelectItem value="Infrastructures">Infrastructures</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* TP & SL */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold text-slate-700">
+                      {targetPrice &&
+                      avgPrice &&
+                      parseFloat(targetPrice) < parseFloat(avgPrice) &&
+                      jenis !== 'investasi'
+                        ? '⚡ Target Exit Rebound'
+                        : jenis === 'investasi'
+                          ? 'Target Investasi'
+                          : 'Target Price (TP)'}
+                    </Label>
+                  </div>
+                  <Input
+                    type="number"
+                    placeholder="Target profit / exit"
+                    value={targetPrice}
+                    onChange={e => setTargetPrice(e.target.value)}
+                    className={`mt-1 h-9 rounded-lg border-slate-200 bg-white font-mono text-xs font-semibold ${
+                      targetPrice && avgPrice && parseFloat(targetPrice) < parseFloat(avgPrice) && jenis !== 'investasi'
+                        ? 'text-amber-700'
+                        : 'text-emerald-700'
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-slate-700">
+                    Stop Loss{' '}
+                    {jenis === 'investasi' && (
+                      <span className="text-[10px] font-normal text-slate-400">(Nonaktif)</span>
+                    )}
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder={jenis === 'investasi' ? 'No Hard SL (Investasi)' : 'Batas cut loss'}
+                    value={stopLoss}
+                    onChange={e => setStopLoss(e.target.value)}
+                    disabled={jenis === 'investasi'}
+                    className={`mt-1 h-9 rounded-lg border-slate-200 font-mono text-xs font-semibold ${
+                      jenis === 'investasi'
+                        ? 'cursor-not-allowed bg-slate-100 text-slate-400'
+                        : 'bg-white text-rose-600'
+                    }`}
+                  />
+                </div>
               </div>
 
-              {/* Buy Reason / Trading Plan Notes */}
+              {/* Sektor */}
               <div>
-                <label className="mb-1 block font-medium text-slate-700">Alasan Beli (Catatan Plan)</label>
-                <textarea
-                  rows={2}
-                  placeholder="Misal: Rebound MA50 dengan volume akumulasi..."
+                <Label className="text-xs font-bold text-slate-700">Sektor Industri</Label>
+                <Input
+                  placeholder="Contoh: Financial Services, Basic Materials"
+                  value={sector}
+                  onChange={e => setSector(e.target.value)}
+                  className="mt-1 h-9 rounded-lg border-slate-200 bg-white text-xs text-slate-800"
+                />
+              </div>
+
+              {/* Alasan Beli */}
+              <div>
+                <Label className="text-xs font-bold text-slate-700">Alasan Beli / Catatan Rencana</Label>
+                <Input
+                  placeholder={
+                    existingHolding
+                      ? 'Contoh: Averaging down di support, cicil bertahap'
+                      : 'Contoh: Buy on breakout MA20'
+                  }
                   value={buyReason}
                   onChange={e => setBuyReason(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-900 shadow-2xs transition-colors focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                  className="mt-1 h-9 rounded-lg border-slate-200 bg-white text-xs text-slate-800"
                 />
               </div>
             </div>
           </ScrollArea>
 
-          {/* Footer Actions */}
-          <DialogFooter className="border-t border-slate-100 bg-slate-50/60 px-6 py-3.5">
-            <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-xl">
+          <DialogFooter className="border-t border-slate-100 bg-slate-50/50 px-6 py-3 sm:justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200"
+            >
               Batal
             </Button>
             <Button
@@ -311,10 +457,16 @@ export function AddHoldingModal({ isOpen, onClose, onAddHolding }: AddHoldingMod
               variant="emerald"
               size="sm"
               disabled={isSubmitting}
-              className="gap-1.5 rounded-xl shadow-xs"
+              className="gap-1.5 rounded-lg text-xs font-semibold shadow-2xs"
             >
               <Plus className="h-4 w-4" />
-              <span>{isSubmitting ? 'Menyimpan...' : 'Simpan ke Portofolio'}</span>
+              <span>
+                {isSubmitting
+                  ? 'Menyimpan...'
+                  : existingHolding
+                    ? `Tambah ${lotNum || 0} Lot ke ${existingHolding.ticker}`
+                    : 'Tambah Saham ke Portofolio'}
+              </span>
             </Button>
           </DialogFooter>
         </form>
