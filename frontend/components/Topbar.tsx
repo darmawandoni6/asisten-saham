@@ -70,7 +70,7 @@ export function Topbar({
         <SidebarTrigger className="md:hidden" />
         <div>
           <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">{title}</h2>
-          <p className="text-[11px] text-slate-500">{subtitle}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export function Topbar({
           title={marketStatus?.description || 'Jadwal Sinkronisasi EOD Penutupan Pasar BEI'}
         >
           <Clock className={cn('h-3.5 w-3.5', marketStatus?.isOpen ? 'text-emerald-600' : 'text-slate-500')} />
-          <span className="text-[11px] text-slate-500">Status BEI:</span>
+          <span className="text-xs text-slate-500">Status BEI:</span>
           <Badge
             variant={marketStatus?.isOpen ? 'emerald' : marketStatus?.status === 'MARKET_BREAK' ? 'amber' : 'secondary'}
             className="gap-1 px-1.5 py-0 text-[10px] font-semibold"

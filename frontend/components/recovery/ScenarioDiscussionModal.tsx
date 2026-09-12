@@ -230,7 +230,7 @@ export function ScenarioDiscussionModal({
                         variant="ghost"
                         size="sm"
                         onClick={onClearChatHistory}
-                        className="h-7 gap-1 px-2 text-[11px] font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600"
+                        className="h-7 gap-1 px-2 text-xs font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600"
                         title="Bersihkan riwayat chat sesi hari ini"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -240,7 +240,7 @@ export function ScenarioDiscussionModal({
                   </div>
 
                   {/* Expiry Banner */}
-                  <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500">
+                  <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500">
                     <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                     <span>
                       Riwayat chat tersimpan khusus sesi hari ini (otomatis dihapus saat market close 17:30 WIB).
@@ -254,14 +254,14 @@ export function ScenarioDiscussionModal({
                         <div
                           key={idx}
                           className={cn(
-                            'rounded-xl p-3.5 text-xs leading-relaxed',
+                            'rounded-xl p-3.5 text-sm leading-relaxed',
                             item.role === 'user'
                               ? 'ml-8 border border-purple-200 bg-purple-100/70 text-purple-900 shadow-2xs'
                               : 'mr-4 border border-slate-200 bg-slate-100/90 text-slate-800 shadow-2xs',
                           )}
                         >
                           <div className="mb-1.5 flex items-center justify-between border-b border-slate-200/50 pb-1">
-                            <strong className="block font-mono text-xs font-bold uppercase opacity-80">
+                            <strong className="block font-mono text-sm font-bold uppercase opacity-80">
                               {item.role === 'user' ? 'Pertanyaan Anda' : 'Jawaban AI Copilot'}
                             </strong>
                             {item.role === 'assistant' && (
@@ -317,7 +317,7 @@ export function ScenarioDiscussionModal({
                           {item.role === 'user' ? (
                             <div className="font-medium whitespace-pre-line">{item.text}</div>
                           ) : (
-                            <MarkdownText content={item.text} className="text-xs leading-relaxed text-slate-800" />
+                            <MarkdownText content={item.text} className="text-sm leading-relaxed text-slate-800" />
                           )}
                         </div>
                       ))}

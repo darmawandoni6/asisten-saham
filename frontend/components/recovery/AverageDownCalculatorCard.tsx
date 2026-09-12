@@ -206,7 +206,7 @@ export function AverageDownCalculatorCard({
                 className={`font-mono text-sm ${modeConfig.accentBorder}`}
                 placeholder="Contoh: 418"
               />
-              <span className="block text-[11px] text-slate-500">
+              <span className="block text-xs text-slate-500">
                 Estimasi modal per lot:{' '}
                 <strong className="font-mono text-slate-700">{formatRupiah(calcBuyPrice * 100)}</strong>
               </span>
@@ -280,7 +280,7 @@ export function AverageDownCalculatorCard({
                   className="bg-white font-mono text-sm focus-visible:ring-blue-600"
                   placeholder={`Contoh: ${Math.round((currentAvg + calcBuyPrice) / 2)}`}
                 />
-                <span className="block text-[11px] text-blue-700">
+                <span className="block text-xs text-blue-700">
                   Sistem otomatis menghitung lot bulat minimum (dibulatkan ke atas) agar target tercapai.
                 </span>
               </div>
@@ -319,7 +319,7 @@ export function AverageDownCalculatorCard({
                   className="bg-white font-mono text-sm focus-visible:ring-emerald-600"
                   placeholder="Contoh: 500000"
                 />
-                <span className="block text-[11px] text-emerald-700">
+                <span className="block text-xs text-emerald-700">
                   Nominal anggaran aktif: <strong className="font-mono">{formatRupiah(calcBudget)}</strong>
                 </span>
               </div>
@@ -346,7 +346,7 @@ export function AverageDownCalculatorCard({
                       size="sm"
                       variant="outline"
                       onClick={() => setCalcBudget(calcResult.exactBudgetForLot!)}
-                      className="h-7 border-amber-300 bg-white px-2.5 text-[11px] font-bold text-amber-800 hover:bg-amber-100 hover:text-amber-900"
+                      className="h-7 border-amber-300 bg-white px-2.5 text-xs font-bold text-amber-800 hover:bg-amber-100 hover:text-amber-900"
                     >
                       <span>⚡ Sesuaikan Input ke {formatRupiah(calcResult.exactBudgetForLot)}</span>
                     </Button>
@@ -357,7 +357,7 @@ export function AverageDownCalculatorCard({
                         size="sm"
                         variant="outline"
                         onClick={() => setCalcBudget(calcResult.nextLotBudget!)}
-                        className="h-7 border-emerald-300 bg-white px-2.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                        className="h-7 border-emerald-300 bg-white px-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                       >
                         <span>
                           ➕ Tambah ke {calcResult.addLot + 1} Lot ({formatRupiah(calcResult.nextLotBudget)})
@@ -370,7 +370,7 @@ export function AverageDownCalculatorCard({
             )}
 
             {/* SOP Note */}
-            <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-[11px] text-slate-600">
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-xs text-slate-600">
               <span className="font-bold text-slate-700">💡 Disiplin Entry: </span>
               Lakukan eksekusi penambahan lot hanya saat harga berada di area Support dan terkonfirmasi pemantulan
               teknikal (rebound).
@@ -402,39 +402,35 @@ export function AverageDownCalculatorCard({
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {/* Card 1: Lot Tambahan */}
                     <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
-                      <span className="mb-1 block text-[11px] font-semibold text-slate-500 uppercase">
-                        Lot Tambahan
-                      </span>
+                      <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">Lot Tambahan</span>
                       <span className={`font-mono text-2xl font-bold ${modeConfig.metricText}`}>
                         +{formatNumber(calcResult.addLot)} Lot
                       </span>
-                      <span className="mt-1 block text-[11px] text-slate-500">
+                      <span className="mt-1 block text-xs text-slate-500">
                         Total akhir: <strong className="text-slate-700">{calcResult.totalLot} Lot</strong>
                       </span>
                     </div>
 
                     {/* Card 2: Modal Tambahan / Terpakai */}
                     <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
-                      <span className="mb-1 block text-[11px] font-semibold text-slate-500 uppercase">
+                      <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">
                         {calcMode === 'by_budget' ? 'Modal Terpakai' : 'Modal Tambahan'}
                       </span>
                       <span className="font-mono text-xl font-bold text-slate-900">
                         {formatRupiah(calcResult.capitalRequired)}
                       </span>
-                      <span className="mt-1 block text-[11px] text-slate-500">
+                      <span className="mt-1 block text-xs text-slate-500">
                         @ Rp {formatNumber(calcResult.buyPrice)} / saham
                       </span>
                     </div>
 
                     {/* Card 3: Avg Baru */}
                     <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
-                      <span className="mb-1 block text-[11px] font-semibold text-slate-500 uppercase">
-                        Avg Price Baru
-                      </span>
+                      <span className="mb-1 block text-xs font-semibold text-slate-500 uppercase">Avg Price Baru</span>
                       <span className="font-mono text-2xl font-bold text-emerald-700">
                         Rp {formatNumber(calcResult.newAvg)}
                       </span>
-                      <div className="mt-1 flex items-center gap-1 text-[11px]">
+                      <div className="mt-1 flex items-center gap-1 text-xs">
                         {calcResult.avgDiff > 0 ? (
                           <span className="flex items-center gap-0.5 font-bold text-emerald-600">
                             <TrendingDown className="h-3 w-3" />

@@ -126,7 +126,7 @@ export function EditBalanceModal({ isOpen, currentBalance, onClose, onSuccess }:
 
           {/* Quick Preset Buttons */}
           <div>
-            <p className="mb-2 text-[11px] font-medium text-slate-400">Tambah Cepat:</p>
+            <p className="mb-2 text-xs font-medium text-slate-400">Tambah Cepat:</p>
             <div className="grid grid-cols-3 gap-2">
               <Button
                 type="button"

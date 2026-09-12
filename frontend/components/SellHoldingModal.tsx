@@ -198,7 +198,7 @@ export function SellHoldingModal({ isOpen, holding, onClose, onSuccess }: SellHo
             {/* Quick Lot Scale-Out Presets */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[11px] font-medium text-slate-500">Pilihan Cepat (Scale-Out):</span>
+                <span className="text-xs font-medium text-slate-500">Pilihan Cepat (Scale-Out):</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <Button
@@ -247,12 +247,12 @@ export function SellHoldingModal({ isOpen, holding, onClose, onSuccess }: SellHo
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="block text-[11px] text-slate-500">Total Nilai Penjualan</span>
+                  <span className="block text-xs text-slate-500">Total Nilai Penjualan</span>
                   <span className="font-mono text-sm font-bold text-slate-900">{formatRupiah(totalSaleValue)}</span>
                 </div>
 
                 <div>
-                  <span className="block text-[11px] text-slate-500">Realized Profit / Loss</span>
+                  <span className="block text-xs text-slate-500">Realized Profit / Loss</span>
                   <div className="flex items-baseline gap-1.5">
                     <span className={`font-mono text-sm font-bold ${isGain ? 'text-emerald-700' : 'text-rose-600'}`}>
                       {isGain ? '+' : ''}
@@ -272,8 +272,8 @@ export function SellHoldingModal({ isOpen, holding, onClose, onSuccess }: SellHo
               </div>
 
               <div className="flex items-center justify-between border-t border-slate-200/60 pt-2 text-xs">
-                <span className="text-[11px] text-slate-500">Sisa di Portofolio:</span>
-                <span className="font-mono text-[11px] font-semibold text-slate-700">
+                <span className="text-xs text-slate-500">Sisa di Portofolio:</span>
+                <span className="font-mono text-xs font-semibold text-slate-700">
                   {remainingLot > 0 ? `${remainingLot} Lot tersisa` : 'Posisi ditutup total (100%)'}
                 </span>
               </div>

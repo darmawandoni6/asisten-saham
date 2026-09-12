@@ -36,62 +36,62 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
     switch (status) {
       case 'SELL_CUT_LOSS':
         return (
-          <Badge variant="outline" className="border-rose-200 bg-rose-50 text-[11px] font-bold text-rose-700">
+          <Badge variant="outline" className="border-rose-200 bg-rose-50 text-xs font-bold text-rose-700">
             <AlertOctagon className="mr-1 h-3 w-3" /> CUT LOSS
           </Badge>
         );
       case 'SL_PROXIMITY_WARNING':
         return (
-          <Badge variant="outline" className="border-orange-200 bg-orange-50 text-[11px] font-bold text-orange-800">
+          <Badge variant="outline" className="border-orange-200 bg-orange-50 text-xs font-bold text-orange-800">
             <AlertTriangle className="mr-1 h-3 w-3 text-orange-600" /> DEKAT SL
           </Badge>
         );
       case 'EXIT_REBOUND':
         return (
-          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-800">
+          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-xs font-bold text-amber-800">
             <AlertTriangle className="mr-1 h-3 w-3 text-amber-600" /> EXIT REBOUND
           </Badge>
         );
       case 'ER_PROXIMITY_WARNING':
         return (
-          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-800">
+          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-xs font-bold text-amber-800">
             <AlertTriangle className="mr-1 h-3 w-3 text-amber-600" /> DEKAT EXIT
           </Badge>
         );
       case 'TAKE_PROFIT':
         return (
-          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-[11px] font-bold text-emerald-700">
+          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-700">
             <CheckCircle2 className="mr-1 h-3 w-3" /> TAKE PROFIT
           </Badge>
         );
       case 'TP_PROXIMITY_WARNING':
         return (
-          <Badge variant="outline" className="border-teal-200 bg-teal-50 text-[11px] font-bold text-teal-800">
+          <Badge variant="outline" className="border-teal-200 bg-teal-50 text-xs font-bold text-teal-800">
             <CheckCircle2 className="mr-1 h-3 w-3 text-teal-600" /> DEKAT TP
           </Badge>
         );
       case 'TRAILING_STOP_WARNING':
         return (
-          <Badge variant="outline" className="border-orange-200 bg-orange-50 text-[11px] font-bold text-orange-700">
+          <Badge variant="outline" className="border-orange-200 bg-orange-50 text-xs font-bold text-orange-700">
             <AlertTriangle className="mr-1 h-3 w-3" /> TRAILING STOP
           </Badge>
         );
       case 'RECOVERY_MODE':
         return (
-          <Badge variant="outline" className="border-purple-200 bg-purple-50 text-[11px] font-bold text-purple-700">
+          <Badge variant="outline" className="border-purple-200 bg-purple-50 text-xs font-bold text-purple-700">
             <LifeBuoy className="mr-1 h-3 w-3" /> RECOVERY
           </Badge>
         );
       case 'AVERAGING_REVIEW':
         return (
-          <Badge variant="outline" className="border-indigo-200 bg-indigo-50 text-[11px] font-bold text-indigo-700">
+          <Badge variant="outline" className="border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-700">
             <LifeBuoy className="mr-1 h-3 w-3" /> AVG DOWN
           </Badge>
         );
 
       default:
         return (
-          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-800">
+          <Badge variant="outline" className="border-amber-200 bg-amber-50 text-xs font-bold text-amber-800">
             <PauseCircle className="mr-1 h-3 w-3" /> HOLD
           </Badge>
         );
@@ -121,10 +121,10 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
                 </td>
                 <td className="px-3 py-3.5">
                   <div className="font-mono text-xs font-bold text-slate-900">{h.ticker}</div>
-                  <div className="max-w-35 truncate text-[11px] text-slate-500">{h.name}</div>
+                  <div className="max-w-35 truncate text-xs text-slate-500">{h.name}</div>
                 </td>
                 <td className="px-3 py-3.5 font-mono font-bold text-slate-900">Rp {formatNumber(h.currentPrice)}</td>
-                <td className="px-3 py-3.5 font-mono text-[11px] text-slate-600">
+                <td className="px-3 py-3.5 font-mono text-xs text-slate-600">
                   <div>Avg: Rp {formatNumber(h.avgPrice)}</div>
                   <div className="text-[10px] text-slate-400">
                     SL: {h.stopLoss ? formatNumber(h.stopLoss) : 'No SL'} |{' '}
@@ -139,7 +139,7 @@ export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props
                 </td>
                 <td className="px-3 py-3.5">
                   <div className="mb-1 flex items-center gap-2">{getStatusBadge(h.actionStatus)}</div>
-                  <p className="max-w-sm text-[11px] leading-snug text-slate-600">{h.actionReason}</p>
+                  <p className="max-w-sm text-xs leading-snug text-slate-600">{h.actionReason}</p>
                 </td>
                 <td className="px-3 py-3.5 text-right">
                   <div className="flex items-center justify-end gap-1">

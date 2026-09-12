@@ -202,7 +202,7 @@ export function AddHoldingModal({
                       {existingHolding.lot} Lot @ Rp {formatNumber(existingHolding.avgPrice)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-emerald-700">
+                  <p className="mt-1 text-xs text-emerald-700">
                     Sektor: {existingHolding.sector || '—'} • Tujuan:{' '}
                     {existingHolding.jenis === 'investasi' ? 'Investasi' : 'Trading'}
                   </p>
@@ -304,7 +304,7 @@ export function AddHoldingModal({
                     <TrendingUp className="h-4 w-4 text-emerald-600" />
                     <span>Hasil Simulasi Rata-Rata Modal Baru:</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-lg border border-slate-100 bg-white p-2">
                       <span className="block text-[10px] text-slate-400">Total Lot Baru</span>
                       <span className="font-mono font-bold text-slate-800">
@@ -333,13 +333,13 @@ export function AddHoldingModal({
                     size="sm"
                     onClick={handleFetchAiRecommendation}
                     disabled={isFetchingAi || !ticker}
-                    className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-white px-2.5 text-[11px] font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50"
+                    className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-white px-2.5 text-xs font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50"
                   >
                     <Sparkles className="h-3 w-3 text-emerald-600" />
                     <span>{isFetchingAi ? 'Menghitung...' : 'Rekomendasikan AI'}</span>
                   </Button>
                 </div>
-                {aiNote && <p className="mt-2 text-[11px] leading-relaxed text-slate-700">{aiNote}</p>}
+                {aiNote && <p className="mt-2 text-xs leading-relaxed text-slate-700">{aiNote}</p>}
 
                 {/* Quick Choice for Exit Rebound vs Pure Profit */}
                 {aiRec?.isExitRebound && (

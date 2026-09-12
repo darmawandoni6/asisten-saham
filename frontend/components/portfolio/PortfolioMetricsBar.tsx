@@ -45,7 +45,7 @@ export function PortfolioMetricsBar({
         </div>
         <div className="mt-2">
           <div className="font-mono text-xl font-bold text-slate-900">{formatRupiah(totalCapital)}</div>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             Nilai Pasar Saham:{' '}
             <span className="font-mono font-semibold text-slate-700">{formatRupiah(totalMarketValue)}</span>
           </p>
@@ -64,7 +64,7 @@ export function PortfolioMetricsBar({
         </div>
         <div className="mt-2">
           <div className="font-mono text-xl font-bold text-slate-900">{formatRupiah(totalCost)}</div>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             Total <span className="font-mono font-semibold text-slate-700">{totalHoldings} Saham</span> Aktif
           </p>
         </div>
@@ -95,7 +95,7 @@ export function PortfolioMetricsBar({
             {formatPercent(totalFloatingPnlPct)}
           </Badge>
         </div>
-        <p className="mt-1 text-[11px] text-slate-500">Keuntungan / Kerugian Belum Terealisasi</p>
+        <p className="mt-1 text-xs text-slate-500">Keuntungan / Kerugian Belum Terealisasi</p>
       </Card>
 
       {/* 4. Kas RDN & Alokasi */}
@@ -115,7 +115,7 @@ export function PortfolioMetricsBar({
         </div>
         <div className="mt-2">
           <div className="font-mono text-xl font-bold text-slate-900">{formatRupiah(cashBalance)}</div>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             Alokasi: <span className="font-semibold text-slate-800">{stockPct}% Saham</span> /{' '}
             <span className="font-semibold text-emerald-700">{cashPct}% Kas</span>
           </p>

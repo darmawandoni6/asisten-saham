@@ -387,5 +387,8 @@
 - [x] 23.6 Workspace Skill Antigravity ([`.agents/skills/idx-eod-screener/`](file:///Users/donidarmawan/Documents/me/assiten-saham/.agents/skills/idx-eod-screener/)):
   - Script CLI `scan_screener.py` untuk pemindaian pool saham likuid BEI, filter strategi (`BREAKOUT`, `VALUE`, `OVERSOLD`), filter anggaran harga maksimal (`--max-price`), serta analisis on-demand kode ticker apa saja (`--ticker`).
   - Output visual terminal: Confidence bar Skor AI 1–10, badge kesesuaian profil (`⚡ Cocok Trading`, `🏛️ Cocok Investasi`, `✨ Trading & Investasi`), 4 metrik fundamental (MC, Float %, ROE %, DER), level transaksi (Area Beli, TP, SL), dan estimasi modal per lot.
+- [x] 23.7 Tipografi Global & Perbaikan Hidrasi DOM ([`globals.css`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/globals.css) & [`badge.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/badge.tsx)):
+  - Pengaturan basis font root `html { font-size: 18px; }` sehingga `1rem = 18px` untuk skala tampilan yang lebih jelas dan nyaman dibaca (+12.5%).
+  - Refactoring elemen komponen `Badge` dari `<div>` ke `<span>` semantik untuk mencegah React Hydration Error (*In HTML, <div> cannot be a descendant of <p>*).
 
 

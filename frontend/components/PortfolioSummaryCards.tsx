@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 import { AlertTriangle, Layers, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +33,7 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
         </div>
         <div className="mt-2">
           <div className="font-mono text-xl font-bold text-slate-900">{formatRupiah(totalCapital)}</div>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             Saham: <span className="font-mono font-semibold text-slate-700">{formatRupiah(summary.totalEquity)}</span>
           </p>
         </div>
@@ -66,7 +64,7 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
             {formatPercent(summary.floatingPnlPct)}
           </Badge>
         </div>
-        <p className="mt-1 text-[11px] text-slate-500">Total {summary.totalLots} Lot Tercatat</p>
+        <p className="mt-1 text-xs text-slate-500">Total {summary.totalLots} Lot Tercatat</p>
       </Card>
 
       {/* Status Aksi Hari Ini */}
@@ -78,24 +76,24 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
           </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <Badge variant="outline" className="border-rose-200 bg-rose-50 font-mono text-[11px] font-bold text-rose-700">
+          <Badge variant="outline" className="border-rose-200 bg-rose-50 font-mono text-xs font-bold text-rose-700">
             {summary.actionCounts.sellCutLoss} Cut Loss
           </Badge>
           <Badge
             variant="outline"
-            className="border-emerald-200 bg-emerald-50 font-mono text-[11px] font-bold text-emerald-700"
+            className="border-emerald-200 bg-emerald-50 font-mono text-xs font-bold text-emerald-700"
           >
             {summary.actionCounts.takeProfit} Take Profit
           </Badge>
           <Badge
             variant="outline"
-            className="border-orange-200 bg-orange-50 font-mono text-[11px] font-bold text-orange-700"
+            className="border-orange-200 bg-orange-50 font-mono text-xs font-bold text-orange-700"
           >
             {summary.actionCounts.trailingStopWarning} Trailing Stop
           </Badge>
           <Badge
             variant="outline"
-            className="border-purple-200 bg-purple-50 font-mono text-[11px] font-bold text-purple-700"
+            className="border-purple-200 bg-purple-50 font-mono text-xs font-bold text-purple-700"
           >
             {summary.actionCounts.recoveryMode} Recovery
           </Badge>
@@ -127,7 +125,7 @@ export function PortfolioSummaryCards({ summary, onEditCashBalance }: Props) {
         </div>
         <div className="mt-2">
           <div className="font-mono text-xl font-bold text-slate-900">{formatRupiah(summary.cashBalance)}</div>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             {totalCapital > 0 ? (
               <>
                 Alokasi: <span className="font-semibold text-slate-800">{stockPct}% Saham</span> /{' '}

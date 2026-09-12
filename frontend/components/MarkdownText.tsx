@@ -31,7 +31,7 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
       return (
         <code
           key={index}
-          className="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-purple-700"
+          className="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-medium text-purple-700"
         >
           {part.slice(1, -1)}
         </code>

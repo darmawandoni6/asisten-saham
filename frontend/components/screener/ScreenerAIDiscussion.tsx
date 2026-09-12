@@ -90,7 +90,7 @@ export function ScreenerAIDiscussion({
       <div className="grid grid-cols-1 gap-3.5 text-xs md:grid-cols-3">
         {/* Box 1: Alasan Rekomendasi (Why Buy) + Snapshot Fundamental */}
         <Card className="space-y-1.5 rounded-xl border-slate-200 bg-white p-3.5 shadow-2xs">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-slate-900 uppercase">
+          <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-slate-900 uppercase">
             <span className="text-emerald-600">💡</span>
             <span>Alasan Rekomendasi:</span>
           </div>
@@ -121,12 +121,12 @@ export function ScreenerAIDiscussion({
 
         {/* Box 2: Hal Wajib Dipantau Besok */}
         <Card className="space-y-1.5 rounded-xl border-amber-200/80 bg-amber-50/60 p-3.5 shadow-2xs">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-amber-950 uppercase">
+          <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-amber-950 uppercase">
             <Eye className="h-3.5 w-3.5 text-amber-700" />
             <span>Wajib Dipantau Besok (09:00 WIB):</span>
           </div>
           <p className="font-sans leading-relaxed text-slate-800">{item.watchTrigger}</p>
-          <div className="pt-1 text-[11px] font-medium text-amber-900">
+          <div className="pt-1 text-xs font-medium text-amber-900">
             👉 <em>Disiplin entry hanya saat trigger terkonfirmasi.</em>
           </div>
         </Card>
@@ -142,7 +142,7 @@ export function ScreenerAIDiscussion({
           }`}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase">
+            <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase">
               <Target className={`h-3.5 w-3.5 ${isConv10 ? 'text-emerald-700' : 'text-blue-600'}`} />
               <span>Skor Perhatian Besok:</span>
             </div>
@@ -203,7 +203,7 @@ export function ScreenerAIDiscussion({
               className="h-auto p-0 text-left hover:bg-transparent"
               title="Klik untuk melihat penjelasan di Kamus Badge"
             >
-              <span className="block text-[11px] font-bold">
+              <span className="block text-xs font-bold">
                 {isConv10 ? (
                   <span className="flex items-center gap-1 text-emerald-900">
                     <span>🔥</span> {convLabel} (Skor 10/10)
@@ -219,7 +219,7 @@ export function ScreenerAIDiscussion({
                 )}
               </span>
             </Button>
-            <p className="mt-0.5 text-[11px] leading-snug opacity-80">
+            <p className="mt-0.5 text-xs leading-snug opacity-80">
               {isConv10
                 ? 'Setup teknikal prima & RRR menguntungkan. Direkomendasikan pasang antrean saat market open 09:00 WIB.'
                 : disc.data?.conviction_reason || 'Pantau konfirmasi antrean bid penahan sebelum melakukan entry.'}
@@ -240,7 +240,7 @@ export function ScreenerAIDiscussion({
               <h4 className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
                 <span>Diskusi AI: Mengapa {item.ticker} Direkomendasikan?</span>
               </h4>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Tanya jawab interaktif seputar setup teknikal, batas risiko, dan SOP beli besok pagi.
               </p>
             </div>
@@ -291,7 +291,7 @@ export function ScreenerAIDiscussion({
                 variant="ghost"
                 size="sm"
                 onClick={() => onClearHistory(item.ticker)}
-                className="h-6 gap-1 px-1.5 text-[11px] font-semibold text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                className="h-6 gap-1 px-1.5 text-xs font-semibold text-slate-400 hover:bg-rose-50 hover:text-rose-600"
                 title="Hapus seluruh riwayat chat saham ini"
               >
                 <Trash2 className="h-3 w-3" />
@@ -316,7 +316,7 @@ export function ScreenerAIDiscussion({
               size="sm"
               disabled={disc.isSending}
               onClick={handleRetryAI}
-              className="h-6.5 shrink-0 gap-1 rounded-lg border-amber-300 bg-white px-2.5 text-[11px] font-bold text-amber-800 shadow-2xs hover:bg-amber-100"
+              className="h-6.5 shrink-0 gap-1 rounded-lg border-amber-300 bg-white px-2.5 text-xs font-bold text-amber-800 shadow-2xs hover:bg-amber-100"
             >
               <RotateCw className={`h-3 w-3 ${disc.isSending ? 'animate-spin' : ''}`} />
               <span>Hubungkan AI Lagi</span>
@@ -349,7 +349,7 @@ export function ScreenerAIDiscussion({
                       `**Checklist Jam 09:00 WIB**: ${item.watchTrigger}\n\n` +
                       `*👉 Klik tombol **Pertanyaan Cepat** di bawah atau ketik pertanyaan Anda untuk memulai diskusi interaktif bersama 9Router AI.*`
                   }
-                  className="text-xs leading-relaxed"
+                  className="text-sm leading-relaxed"
                 />
               </div>
             )}
@@ -419,7 +419,7 @@ export function ScreenerAIDiscussion({
                     size="sm"
                     disabled={disc.isSending}
                     onClick={() => onSendQuestion(item.ticker, sq)}
-                    className="h-auto px-2.5 py-1 text-left text-[11px] font-medium text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-900"
+                    className="h-auto px-2.5 py-1 text-left text-xs font-medium text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-900"
                   >
                     {sq}
                   </Button>

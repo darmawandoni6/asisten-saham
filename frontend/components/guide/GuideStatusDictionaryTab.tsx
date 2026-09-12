@@ -166,7 +166,7 @@ export function GuideStatusDictionaryTab() {
               </p>
               <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 font-mono text-xs">
                 <div className="font-bold text-slate-800">RRR = 1 : (TP - Entry) / (Entry - SL)</div>
-                <div className="font-sans text-[11px] text-slate-600">
+                <div className="font-sans text-xs text-slate-600">
                   Contoh: Beli Rp 1.000, SL Rp 950 (-5%), TP Rp 1.100 (+10%) &rarr; <strong>RRR = 1 : 2.0</strong>
                 </div>
               </div>
@@ -193,15 +193,15 @@ export function GuideStatusDictionaryTab() {
                 Menyaring probabilitas tren MA/RSI, 4 pilar fundamental (ROE, DER, Float, MC), dan validasi RRR.
               </p>
               <div className="space-y-1.5 pt-0.5">
-                <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-1.5 px-2.5 text-[11px]">
+                <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-1.5 px-2.5 text-xs">
                   <strong className="font-bold text-emerald-800">🔥 Skor 10/10 (Wajib Beli)</strong>
                   <span className="text-slate-600">Setup Prima (Tren Valid, RRR &ge; 1 : 1.8)</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-white p-1.5 px-2.5 text-[11px]">
+                <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-white p-1.5 px-2.5 text-xs">
                   <strong className="font-bold text-blue-800">⚡ Skor 8 – 9/10 (Siaga 1 Beli)</strong>
                   <span className="text-slate-600">Momentum Kuat (Konfirmasi 09:00 WIB)</span>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-1.5 px-2.5 text-[11px]">
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-1.5 px-2.5 text-xs">
                   <strong className="font-bold text-slate-700">👀 Skor 6 – 7/10 (Layak Pantau)</strong>
                   <span className="text-slate-600">Tunggu Pullback / Cicil DCA Support</span>
                 </div>
@@ -215,7 +215,7 @@ export function GuideStatusDictionaryTab() {
               <span className="block text-xs font-bold tracking-wider text-slate-900 uppercase">
                 🧭 Kesesuaian Profil Emiten (Trading vs Investasi)
               </span>
-              <span className="text-[11px] font-bold text-sky-800">Disiplin Gaya Transaksi</span>
+              <span className="text-xs font-bold text-sky-800">Disiplin Gaya Transaksi</span>
             </div>
             <div className="grid grid-cols-1 gap-3 text-xs md:grid-cols-3">
               <div className="space-y-1 rounded-lg border border-sky-200 bg-white p-3">

@@ -235,13 +235,13 @@ export function EditHoldingModal({ isOpen, holding, onClose, onUpdateHolding }: 
                       size="sm"
                       onClick={handleFetchAiRecommendation}
                       disabled={isFetchingAi}
-                      className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-white px-2.5 text-[11px] font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50"
+                      className="h-7 gap-1.5 rounded-lg border-emerald-200 bg-white px-2.5 text-xs font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50"
                     >
                       <Sparkles className="h-3 w-3 text-emerald-600" />
                       <span>{isFetchingAi ? 'Menghitung...' : 'Hitung Ulang AI'}</span>
                     </Button>
                   </div>
-                  {aiNote && <p className="mt-2 text-[11px] leading-relaxed text-slate-700">{aiNote}</p>}
+                  {aiNote && <p className="mt-2 text-xs leading-relaxed text-slate-700">{aiNote}</p>}
 
                   {/* Quick Choice for Exit Rebound vs Pure Profit */}
                   {aiRec?.isExitRebound && (

@@ -136,7 +136,7 @@ export function ScreenerTableView({
                         <span className="font-mono text-[10px] font-bold text-slate-400">#{idx + 1}</span>
                         <div>
                           <div className="font-mono text-xs font-bold text-slate-900">{item.ticker}</div>
-                          <div className="text-[11px] text-slate-500">{item.name}</div>
+                          <div className="text-xs text-slate-500">{item.name}</div>
                           <div className="flex items-center gap-1.5 pt-0.5">
                             {item.profileSuitability === 'BOTH' ? (
                               <Badge
@@ -240,7 +240,7 @@ export function ScreenerTableView({
                             e.stopPropagation();
                             onToggleExpand(item.ticker);
                           }}
-                          className={`h-7 gap-1 px-2 text-[11px] font-bold ${
+                          className={`h-7 gap-1 px-2 text-xs font-bold ${
                             isExpanded
                               ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
                               : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -284,40 +284,40 @@ export function ScreenerTableView({
                             <div className="flex flex-wrap items-center gap-2">
                               <Badge
                                 variant="secondary"
-                                className="border-slate-200 bg-slate-100 text-[11px] font-bold text-slate-700"
+                                className="border-slate-200 bg-slate-100 text-xs font-bold text-slate-700"
                               >
                                 Sektor: {item.sector}
                               </Badge>
                               {item.profileSuitability === 'BOTH' ? (
                                 <Badge
                                   variant="outline"
-                                  className="border-emerald-200 bg-emerald-50 text-[11px] font-bold text-emerald-800"
+                                  className="border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800"
                                 >
                                   ✨ Trading &amp; Investasi
                                 </Badge>
                               ) : item.profileSuitability === 'INVESTASI' ? (
                                 <Badge
                                   variant="outline"
-                                  className="border-indigo-200 bg-indigo-50 text-[11px] font-bold text-indigo-800"
+                                  className="border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-800"
                                 >
                                   🏛️ Cocok Investasi
                                 </Badge>
                               ) : (
                                 <Badge
                                   variant="outline"
-                                  className="border-sky-200 bg-sky-50 text-[11px] font-bold text-sky-800"
+                                  className="border-sky-200 bg-sky-50 text-xs font-bold text-sky-800"
                                 >
                                   ⚡ Cocok Trading
                                 </Badge>
                               )}
                               <span
-                                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700"
+                                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700"
                                 title="Kapitalisasi Pasar"
                               >
                                 🏢 MC: <strong className="text-slate-900">{item.marketCapFormatted || '-'}</strong>
                               </span>
                               <span
-                                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700"
+                                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700"
                                 title="Porsi Kepemilikan Publik (Free Float)"
                               >
                                 🌐 Float:{' '}
@@ -328,7 +328,7 @@ export function ScreenerTableView({
                                 </strong>
                               </span>
                               <span
-                                className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
+                                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
                                   item.roePct !== null && item.roePct !== undefined && item.roePct >= 10
                                     ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                                     : 'border-slate-200 bg-slate-50 text-slate-700'
@@ -341,7 +341,7 @@ export function ScreenerTableView({
                                 </strong>
                               </span>
                               <span
-                                className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
+                                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
                                   item.der !== null && item.der !== undefined && item.der <= 1.0
                                     ? 'border-blue-200 bg-blue-50 text-blue-800'
                                     : 'border-slate-200 bg-slate-50 text-slate-700'
@@ -355,7 +355,7 @@ export function ScreenerTableView({
                               </span>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
+                            <div className="flex flex-wrap items-center gap-2.5 text-xs">
                               <span className="text-slate-600">
                                 Area Beli: <strong className="text-slate-900">{item.buyArea}</strong>
                               </span>

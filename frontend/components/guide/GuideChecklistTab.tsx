@@ -48,14 +48,14 @@ export function GuideChecklistTab({ checkedItems, onToggleCheck }: GuideChecklis
                     <h4 className={`text-xs font-bold ${isDone ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
                       {item.title}
                     </h4>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{item.desc}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{item.desc}</p>
                   </div>
                 </div>
 
                 <Link
                   href={item.href}
                   onClick={e => e.stopPropagation()}
-                  className="flex shrink-0 items-center gap-1 self-center text-[11px] font-semibold text-emerald-700 hover:text-emerald-800"
+                  className="flex shrink-0 items-center gap-1 self-center text-xs font-semibold text-emerald-700 hover:text-emerald-800"
                 >
                   <span>{item.linkText}</span>
                   <ArrowRight className="h-3 w-3" />

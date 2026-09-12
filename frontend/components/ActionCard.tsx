@@ -163,7 +163,7 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
                 Rp {formatNumber(holding.currentPrice)}
               </span>
               <span
-                className={`flex items-center text-[11px] font-semibold ${
+                className={`flex items-center text-xs font-semibold ${
                   holding.currentPrice >= holding.previousClose ? 'text-emerald-700' : 'text-rose-600'
                 }`}
               >
@@ -185,7 +185,7 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
               <span className={`font-mono text-base font-bold ${isProfit ? 'text-emerald-700' : 'text-rose-600'}`}>
                 {formatPercent(holding.floatingPnlPct)}
               </span>
-              <span className={`font-mono text-[11px] ${isProfit ? 'text-emerald-600' : 'text-rose-500'}`}>
+              <span className={`font-mono text-xs ${isProfit ? 'text-emerald-600' : 'text-rose-500'}`}>
                 ({formatRupiah(holding.floatingPnl)})
               </span>
             </div>
@@ -193,7 +193,7 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
         </div>
 
         {/* Trading Plan Parameters */}
-        <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-[11px]">
+        <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-xs">
           <div>
             <span className="block text-[10px] text-slate-500">Avg Price</span>
             <span className="font-mono font-bold text-slate-800">Rp {formatNumber(holding.avgPrice)}</span>
@@ -240,7 +240,7 @@ export function ActionCard({ holding, onSelectStock, onOpenAI }: ActionCardProps
             <StatusIcon className={`h-3.5 w-3.5 ${config.accentColor}`} />
             <span>Instruksi Aksi:</span>
           </div>
-          <p className="text-[11px] leading-relaxed text-slate-600">{holding.actionReason}</p>
+          <p className="text-xs leading-relaxed text-slate-600">{holding.actionReason}</p>
         </div>
       </div>
 

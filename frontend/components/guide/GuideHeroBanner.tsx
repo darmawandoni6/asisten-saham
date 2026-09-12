@@ -16,7 +16,7 @@ export function GuideHeroBanner() {
           <div className="max-w-2xl space-y-2">
             <Badge
               variant="outline"
-              className="inline-flex items-center gap-1.5 rounded-full border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-bold tracking-wider text-emerald-800 uppercase"
+              className="inline-flex items-center gap-1.5 rounded-full border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-bold tracking-wider text-emerald-800 uppercase"
             >
               <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
               Filosofi EOD Decision Copilot

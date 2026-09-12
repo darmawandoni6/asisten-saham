@@ -279,7 +279,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                   9Router AI
                 </Badge>
               </div>
-              <DialogDescription className="mt-0.5 text-left text-[11px] text-slate-500">
+              <DialogDescription className="mt-0.5 text-left text-xs text-slate-500">
                 Evaluasi EOD • Tipe:{' '}
                 <span className="font-mono font-semibold text-slate-700 uppercase">{holding.jenis}</span>
               </DialogDescription>
@@ -346,7 +346,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                         <KeyRound className="h-4 w-4 text-amber-600" />
                         <span>Langkah Mudah Konfigurasi 9Router:</span>
                       </div>
-                      <ol className="list-inside list-decimal space-y-1 text-[11px] leading-relaxed text-slate-600">
+                      <ol className="list-inside list-decimal space-y-1 text-xs leading-relaxed text-slate-600">
                         <li>
                           Pastikan gateway 9Router lokal Anda berjalan di{' '}
                           <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-800">
@@ -361,7 +361,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                             backend/.env
                           </code>
                           :
-                          <div className="mt-1 rounded bg-slate-900 p-2 font-mono text-[11px] text-emerald-400">
+                          <div className="mt-1 rounded bg-slate-900 p-2 font-mono text-xs text-emerald-400">
                             NINEROUTER_API_KEY=sk-your-9router-key
                             <br />
                             NINEROUTER_BASE_URL=http://localhost:20128/v1
@@ -405,7 +405,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                         {data.message ||
                           'AI belum dapat menjawab saat ini karena limit token atau kuota harian telah habis.'}
                       </p>
-                      <p className="mt-1 text-[11px] text-rose-600">
+                      <p className="mt-1 text-xs text-rose-600">
                         {data.detail || 'Mohon tunggu beberapa saat sebelum mencoba analisis ulang.'}
                       </p>
                     </div>
@@ -500,7 +500,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
                     <div className="rounded-lg border border-slate-100 bg-slate-50/60 p-3.5">
-                      <MarkdownText content={data.rationale || ''} className="text-xs leading-relaxed text-slate-800" />
+                      <MarkdownText content={data.rationale || ''} className="text-sm leading-relaxed text-slate-800" />
                     </div>
                   </CardContent>
                 </Card>
@@ -517,7 +517,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                         <div className="mt-1 font-mono text-xs font-bold text-slate-800">
                           MA20: Rp {formatNumber(Math.round(data.indicators?.ma20 || 0))}
                         </div>
-                        <div className="font-mono text-[11px] text-slate-500">
+                        <div className="font-mono text-xs text-slate-500">
                           MA50: Rp {formatNumber(Math.round(data.indicators?.ma50 || 0))}
                         </div>
                       </CardContent>
@@ -568,7 +568,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                         <div className="mt-1 text-xs font-bold text-blue-700">
                           {data.indicators?.trend || 'SIDEWAYS'}
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-xs text-slate-500">
                           Volume: {data.indicators?.volume_status === 'ABOVE_AVG' ? 'Di Atas Rata-rata' : 'Normal'}
                         </div>
                       </CardContent>
@@ -586,10 +586,10 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                       {data.actionItems.map((item: string, idx: number) => (
                         <Card key={idx} className="border-slate-200/80 bg-slate-50 shadow-none">
                           <CardContent className="flex items-start gap-2.5 p-3 text-xs text-slate-700">
-                            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 font-mono text-[11px] font-bold text-emerald-800">
+                            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 font-mono text-xs font-bold text-emerald-800">
                               {idx + 1}
                             </div>
-                            <MarkdownText content={item} className="flex-1 text-xs leading-relaxed text-slate-800" />
+                            <MarkdownText content={item} className="flex-1 text-sm leading-relaxed text-slate-800" />
                           </CardContent>
                         </Card>
                       ))}
@@ -610,7 +610,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                         variant="ghost"
                         size="sm"
                         onClick={handleClearChatHistory}
-                        className="h-7 text-[11px] text-slate-500 hover:bg-rose-50 hover:text-rose-600"
+                        className="h-7 text-xs text-slate-500 hover:bg-rose-50 hover:text-rose-600"
                         title="Bersihkan riwayat percakapan sesi ini"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -620,7 +620,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                   </div>
 
                   {/* Retention Info Banner */}
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] text-slate-500">
+                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
                     <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                     <span>
                       Riwayat diskusi tersimpan khusus sesi ini dan otomatis dibersihkan saat penutupan bursa EOD (17:30
@@ -665,7 +665,7 @@ export function AICopilotPanel({ holding, isOpen = true, onClose }: AICopilotPan
                           }`}
                         >
                           <div className="mb-1 flex items-center justify-between border-b border-slate-200/60 pb-1">
-                            <strong className="block font-mono text-[11px] font-bold uppercase opacity-80">
+                            <strong className="block font-mono text-xs font-bold uppercase opacity-80">
                               {msg.role === 'user' ? 'Pertanyaan Anda' : 'Jawaban AI Copilot'}
                             </strong>
                             {msg.role === 'assistant' && (

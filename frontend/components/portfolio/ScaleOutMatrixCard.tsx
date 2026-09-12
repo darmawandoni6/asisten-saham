@@ -40,7 +40,7 @@ export function ScaleOutMatrixCard({ holdings = [] }: ScaleOutMatrixCardProps) {
         {holdings.length > 0 && (
           <div className="w-36">
             <Select value={selectedHolding?.ticker} onValueChange={val => val && setSelectedTicker(val)}>
-              <SelectTrigger className="h-7 rounded-lg border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-800">
+              <SelectTrigger className="h-7 rounded-lg border-slate-200 bg-slate-50 text-xs font-bold text-slate-800">
                 <SelectValue placeholder="Pilih Saham" />
               </SelectTrigger>
               <SelectContent className="border-slate-200 bg-white shadow-lg">
@@ -62,12 +62,12 @@ export function ScaleOutMatrixCard({ holdings = [] }: ScaleOutMatrixCardProps) {
             <div className="flex items-center gap-2">
               <span className="font-bold text-emerald-700">TP1 (Kunci Profit 50%)</span>
               {selectedHolding && (
-                <span className="font-mono text-[11px] font-semibold text-slate-700">
+                <span className="font-mono text-xs font-semibold text-slate-700">
                   {tp1Lot} Lot @ Rp {formatNumber(tpPrice)}
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-slate-500">
+            <span className="text-xs text-slate-500">
               {selectedHolding
                 ? `Kunci kas ${formatRupiah(tp1Value)} (Est. Laba ${formatRupiah(tp1Profit)})`
                 : 'Jual 50% posisi saat menyentuh resistance pertama'}
@@ -86,11 +86,9 @@ export function ScaleOutMatrixCard({ holdings = [] }: ScaleOutMatrixCardProps) {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-slate-800">TP2 (Target Profit 2)</span>
-              {selectedHolding && (
-                <span className="font-mono text-[11px] font-semibold text-slate-700">{tp2Lot} Lot</span>
-              )}
+              {selectedHolding && <span className="font-mono text-xs font-semibold text-slate-700">{tp2Lot} Lot</span>}
             </div>
-            <span className="text-[11px] text-slate-500">Jual 25% posisi di resistance berikutnya</span>
+            <span className="text-xs text-slate-500">Jual 25% posisi di resistance berikutnya</span>
           </div>
           <Badge variant="secondary" className="font-mono text-[10px] font-bold text-slate-700">
             Amankan 25%
@@ -103,12 +101,12 @@ export function ScaleOutMatrixCard({ holdings = [] }: ScaleOutMatrixCardProps) {
             <div className="flex items-center gap-2">
               <span className="font-bold text-orange-700">Sisa Posisi (Trailing Stop)</span>
               {selectedHolding && (
-                <span className="font-mono text-[11px] font-semibold text-slate-700">
+                <span className="font-mono text-xs font-semibold text-slate-700">
                   {trailingLot > 0 ? `${trailingLot} Lot` : `${tp2Lot} Lot`}
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-slate-500">Batas proteksi: 7% dari High Watermark</span>
+            <span className="text-xs text-slate-500">Batas proteksi: 7% dari High Watermark</span>
           </div>
           <Badge
             variant="outline"

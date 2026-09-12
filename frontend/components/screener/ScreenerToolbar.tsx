@@ -205,7 +205,7 @@ export function ScreenerToolbar({
           </div>
         </div>
 
-        <div className="hidden text-[11px] font-medium text-slate-500 sm:block">
+        <div className="hidden text-xs font-medium text-slate-500 sm:block">
           {maxPriceFilter !== null ? (
             <span>
               Menampilkan saham terjangkau{' '}
@@ -237,7 +237,7 @@ export function ScreenerToolbar({
           {/* Quick Sort Dropdown */}
           <div className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
             <ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-            <span className="hidden text-[11px] font-medium text-slate-400 md:inline">Urutkan:</span>
+            <span className="hidden text-xs font-medium text-slate-400 md:inline">Urutkan:</span>
             <select
               value={`${sortField}-${sortDirection}`}
               onChange={e => {
@@ -264,7 +264,7 @@ export function ScreenerToolbar({
 
         {/* View Mode Toggle & Count */}
         <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-2 sm:justify-end sm:border-t-0 sm:pt-0">
-          <span className="text-[11px] font-medium text-slate-400">
+          <span className="text-xs font-medium text-slate-400">
             Menampilkan <strong className="text-slate-700">{filteredItemsCount}</strong> saham
           </span>
 

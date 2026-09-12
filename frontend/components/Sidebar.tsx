@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { BookOpen, Briefcase, HelpCircle, LayoutDashboard, LifeBuoy, Search, Sparkles, TrendingUp } from 'lucide-react';
+import { Briefcase, HelpCircle, LayoutDashboard, LifeBuoy, Search, Sparkles, TrendingUp } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -70,7 +70,7 @@ export function Sidebar() {
               IDX
             </Badge>
           </div>
-          <p className="truncate text-[11px] font-medium text-slate-500">EOD Decision Copilot</p>
+          <p className="truncate text-xs font-medium text-slate-500">EOD Decision Copilot</p>
         </div>
       </SidebarHeader>
 
@@ -116,7 +116,7 @@ export function Sidebar() {
                 <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
                 <span>Siklus Kerja EOD</span>
               </div>
-              <p className="text-[11px] leading-relaxed text-slate-500">
+              <p className="text-xs leading-relaxed text-slate-500">
                 Evaluasi otomatis aktif setiap <span className="font-semibold text-slate-800">17:30 WIB</span> setelah
                 penutupan bursa IDX untuk aksi esok hari.
               </p>
@@ -140,7 +140,7 @@ export function Sidebar() {
                 Aktif
               </Badge>
             </div>
-            <p className="text-[11px] leading-relaxed text-slate-500">
+            <p className="text-xs leading-relaxed text-slate-500">
               Mengevaluasi closing bursa jam 17:30 WIB secara objektif.
             </p>
           </CardContent>

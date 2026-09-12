@@ -66,7 +66,7 @@ export function GuideFlowTab() {
                 <p className="text-xs leading-relaxed text-slate-500">{item.desc}</p>
               </div>
               <div
-                className={`mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3 text-[11px] font-semibold ${item.badgeColor}`}
+                className={`mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3 text-xs font-semibold ${item.badgeColor}`}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>{item.badgeText}</span>

@@ -198,24 +198,24 @@ export function ScreenerCardItem({
       <div className="grid grid-cols-1 gap-4 text-xs lg:grid-cols-3">
         {/* Pilar 1: Alasan Rekomendasi (Why Buy) */}
         <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-slate-900 uppercase">
+          <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-slate-900 uppercase">
             <span className="text-emerald-600">💡</span>
             <span>Alasan Rekomendasi</span>
           </div>
           <p className="font-sans leading-relaxed text-slate-700">{item.whyBuy || item.catalyst}</p>
-          <div className="pt-1 text-[11px] text-slate-500">
+          <div className="pt-1 text-xs text-slate-500">
             Status MA: <strong className="text-slate-800">{item.maStatus}</strong>
           </div>
         </div>
 
         {/* Pilar 2: Hal Wajib Dipantau Besok (Watch Trigger) */}
         <div className="space-y-1.5 rounded-xl border border-amber-200/80 bg-amber-50/40 p-3.5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-amber-950 uppercase">
+          <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-amber-950 uppercase">
             <span className="text-amber-700">👀</span>
             <span>Wajib Dipantau Besok (09:00 WIB)</span>
           </div>
           <p className="font-sans leading-relaxed text-slate-700">{item.watchTrigger}</p>
-          <div className="pt-1 text-[11px] font-medium text-amber-900/80">
+          <div className="pt-1 text-xs font-medium text-amber-900/80">
             👉 <em>Disiplin entry hanya saat trigger terkonfirmasi.</em>
           </div>
         </div>
@@ -223,7 +223,7 @@ export function ScreenerCardItem({
         {/* Pilar 3: Panduan Level Eksekusi & Risk/Reward Ratio */}
         <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-3.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-slate-900 uppercase">
+            <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-slate-900 uppercase">
               <Target className="h-3.5 w-3.5 text-blue-600" />
               <span>Panduan Level &amp; Rasio</span>
             </div>
@@ -238,7 +238,7 @@ export function ScreenerCardItem({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+          <div className="grid grid-cols-2 gap-2 font-mono text-xs">
             <div className="rounded-lg border border-slate-100 bg-slate-50 p-2">
               <span className="block text-[10px] text-slate-500">Area Beli Ideal</span>
               <strong className="font-bold text-slate-900">{item.buyArea}</strong>
@@ -270,7 +270,7 @@ export function ScreenerCardItem({
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
-            className={`font-mono text-[11px] font-bold ${
+            className={`font-mono text-xs font-bold ${
               isConv10
                 ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
                 : convScore >= 8

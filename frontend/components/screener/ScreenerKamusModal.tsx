@@ -54,7 +54,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 >
                   🎯 RISK : REWARD RATIO (RRR)
                 </Badge>
-                <span className="text-[11px] font-bold text-emerald-800">Matematika Jarak Harga</span>
+                <span className="text-xs font-bold text-emerald-800">Matematika Jarak Harga</span>
               </div>
               <strong className="block text-sm text-slate-900">
                 Kunci Profit Konsisten: Mengapa RRR &ge; 1 : 1.5 Sangat Krusial?
@@ -65,7 +65,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
               </p>
 
               <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-2">
-                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-[11px]">
+                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-xs">
                   <span className="block font-bold text-slate-900">📐 Rumus Sederhana:</span>
                   <p className="font-mono text-slate-600">1 : (Target TP - Entry) / (Entry - Stop Loss)</p>
                   <span className="block text-[10px] font-medium text-emerald-800">
@@ -73,7 +73,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                   </span>
                 </div>
 
-                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-[11px]">
+                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-xs">
                   <span className="block font-bold text-slate-900">🏆 Simulasi Win-Rate 40%:</span>
                   <p className="text-slate-600">
                     Dari 10 trade: <strong>6x Rugi (-Rp 300)</strong> vs <strong>4x Cuan (+Rp 400)</strong>.
@@ -84,7 +84,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
                 <Badge variant="secondary" className="bg-emerald-200/80 font-bold text-emerald-950">
                   &ge; 1 : 2.0 (Sangat Layak)
                 </Badge>
@@ -103,14 +103,14 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 <span className="block text-xs font-bold tracking-wider text-slate-900 uppercase">
                   ⭐ SKOR KEYAKINAN AI (1 – 10) VS RISK:REWARD
                 </span>
-                <span className="text-[11px] font-semibold text-slate-500">Probabilitas &amp; Kualitas Setup</span>
+                <span className="text-xs font-semibold text-slate-500">Probabilitas &amp; Kualitas Setup</span>
               </div>
               <p className="leading-relaxed text-slate-600">
                 <strong>Perbedaan Mendasar:</strong> RRR mengukur <em>jarak rupiah untung vs rugi</em>, sedangkan Skor
                 AI mengukur <em>probabilitas keberhasilan setup</em> (menggabungkan MA20/50, RSI, 4 pilar fundamental
                 ROE/DER/MC, dan validasi RRR).
               </p>
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[11px] leading-snug text-amber-950">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs leading-snug text-amber-950">
                 ⚠️ <strong>KENAPA SAHAM BULLISH BISA DAPAT SKOR 6/10?</strong> Jika harga sudah terlalu dekat dengan
                 target resisten (sehingga RRR &lt; 1 : 1.0), AI otomatis membatasi skor maksimal <strong>6/10</strong>{' '}
                 agar Anda tidak mengejar harga di pucuk (*chasing high*) dan menyarankan <em>Tunggu Pullback</em>.
@@ -118,19 +118,19 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
               <div className="grid grid-cols-1 gap-2 pt-1 text-xs sm:grid-cols-3">
                 <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-2.5">
                   <strong className="block font-black text-emerald-900">🔥 Skor 10/10 (Wajib Beli Besok)</strong>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-emerald-950">
+                  <span className="mt-0.5 block text-xs leading-snug text-emerald-950">
                     Setup Sempurna (Tren Valid, Fundamental Kuat, RRR &ge; 1 : 1.8).
                   </span>
                 </div>
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5">
                   <strong className="block font-bold text-blue-900">⚡ Skor 8 – 9/10 (Siaga 1 Beli)</strong>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-blue-950">
+                  <span className="mt-0.5 block text-xs leading-snug text-blue-950">
                     Sangat Direkomendasikan (Tunggu konfirmasi candle 15 menit pertama 09:00–09:15 WIB).
                   </span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <strong className="block font-bold text-slate-800">👀 Skor 6 – 7/10 (Layak Pantau)</strong>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-slate-600">
+                  <span className="mt-0.5 block text-xs leading-snug text-slate-600">
                     Tunggu pullback atau cicil akumulasi bertahap (DCA) di area Support Major.
                   </span>
                 </div>
@@ -215,7 +215,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 <Badge variant="outline" className="border-sky-300 bg-sky-100 font-mono text-xs font-bold text-sky-900">
                   🧭 KESESUAIAN PROFIL TRADING VS INVESTASI
                 </Badge>
-                <span className="text-[11px] font-bold text-sky-800">Mindset &amp; SOP Eksekusi</span>
+                <span className="text-xs font-bold text-sky-800">Mindset &amp; SOP Eksekusi</span>
               </div>
               <strong className="block text-sm text-slate-900">
                 Pilih Gaya Transaksi yang Tepat untuk Menghindari Nyangkut
@@ -225,7 +225,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
               </p>
 
               <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-3">
-                <div className="space-y-1 rounded-lg border border-sky-200 bg-white p-2.5 text-[11px]">
+                <div className="space-y-1 rounded-lg border border-sky-200 bg-white p-2.5 text-xs">
                   <Badge variant="outline" className="border-sky-200 bg-sky-50 font-bold text-sky-800">
                     ⚡ Cocok Trading
                   </Badge>
@@ -235,7 +235,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                   </span>
                 </div>
 
-                <div className="space-y-1 rounded-lg border border-indigo-200 bg-white p-2.5 text-[11px]">
+                <div className="space-y-1 rounded-lg border border-indigo-200 bg-white p-2.5 text-xs">
                   <Badge variant="outline" className="border-indigo-200 bg-indigo-50 font-bold text-indigo-800">
                     🏛️ Cocok Investasi
                   </Badge>
@@ -247,7 +247,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                   </span>
                 </div>
 
-                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-[11px]">
+                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-xs">
                   <Badge variant="outline" className="border-emerald-200 bg-emerald-50 font-bold text-emerald-800">
                     ✨ Trading &amp; Investasi
                   </Badge>

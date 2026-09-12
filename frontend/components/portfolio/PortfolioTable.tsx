@@ -236,7 +236,7 @@ export function PortfolioTable({
                         </Badge>
                       )}
                     </td>
-                    <td className="px-3 py-3.5 text-[11px] text-slate-500">{h.sector || '—'}</td>
+                    <td className="px-3 py-3.5 text-xs text-slate-500">{h.sector || '—'}</td>
                     <td className="px-3 py-3.5 font-mono text-slate-800">Rp {formatNumber(h.avgPrice)}</td>
                     <td className="px-3 py-3.5 font-mono text-slate-700">{formatNumber(h.lot)} Lot</td>
                     <td className="px-3 py-3.5 font-mono text-slate-800">{formatRupiah(cost)}</td>
@@ -327,7 +327,7 @@ export function PortfolioTable({
                       ? 'Belum Ada Saham di Portofolio'
                       : `Tidak ada saham dengan kategori ${filterType}`}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-slate-400">
+                  <p className="mt-0.5 text-xs text-slate-400">
                     Gunakan tombol &quot;Tambah Saham Baru&quot; di atas untuk memasukkan trading plan.
                   </p>
                 </td>

@@ -193,7 +193,7 @@ export function CandlestickChart({ candles: initialCandles, holding, ticker, onC
           <span className="text-xs text-slate-500">TradingView Daily Chart (EOD)</span>
 
           {/* Indicators Legend */}
-          <div className="ml-4 hidden items-center gap-3 font-mono text-[11px] sm:flex">
+          <div className="ml-4 hidden items-center gap-3 font-mono text-xs sm:flex">
             <span className="flex items-center gap-1 font-bold text-amber-700">
               <span className="h-0.5 w-2.5 bg-amber-600" /> MA20
             </span>
