@@ -87,8 +87,6 @@ export function useRecoveryDiscussion(selectedTicker: string): UseRecoveryDiscus
     }
     latestRequestIdRef.current++;
     setActiveScenarioModal(null);
-    setDiscussionData(null);
-    setChatHistory([]);
     setCustomQuestion('');
   }, []);
 

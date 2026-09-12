@@ -339,3 +339,25 @@
   - Menghapus conditional unmounting `{isOpen && ...}` dan `if (!isOpen) return null` agar siklus transisi keluar (`data-[state=closed]:animate-out`, `fade-out-0`, `zoom-out-95`) berjalan mulus dan tuntas.
 - [x] 21.4 Error Alert Fallback pada Candlestick Chart:
   - Penambahan `<Alert variant="destructive">` pada [`CandlestickChart.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/CandlestickChart.tsx) bila data histori harga tidak tersedia / gagal dimuat.
+
+---
+
+## 🩺 TAHAP 22 — AI Tri-Scenario Recovery Engine & 3-Mode Lot Averaging Calculator [SELESAI ✅]
+> Peningkatan menyeluruh modul Recovery Engine: 3 skenario rekomendasi AI otomatis (Cut Loss, Average Down, Hold), sistem keyakinan 1–10, skill workspace CLI Antigravity, serta transformasi Kalkulator Penambahan Lot 3 Mode (Jumlah Lot, Target Avg, Anggaran Kas) dengan shadcn/ui `@base-ui/react` Tabs.
+
+- [x] 22.1 AI Tri-Scenario Recovery Recommendation Engine ([`ai_copilot.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/ai_copilot.py)):
+  - 3 skenario simultan: *Cut Loss* (pangkas 50%/100%), *Precision Average Down*, dan *Hold for Exit Rebound*.
+  - Skor keyakinan objektif 1–10 per skenario, saran alokasi lot riil, alasan teknikal & fundamental.
+  - Multi-tagging rekomendasi (bisa merekomendasikan >1 skenario untuk kombinasi strategi).
+  - Kolom `recovery_recommendation` pada tabel `ai_analysis` SQLite.
+  - Failover transparan ke deterministic rule-based engine bila AI offline/rate limited.
+- [x] 22.2 Workspace Skills Antigravity ([`.agents/skills/idx-recovery-plan/`](file:///Users/donidarmawan/Documents/me/assiten-saham/.agents/skills/idx-recovery-plan/)):
+  - Script CLI `sync_recovery.py` untuk pemindaian kerugian, penentuan 3 skenario AI, dan visual confidence bar terminal.
+  - Pembaruan `sync_eod.py` untuk sinkronisasi saldo kas dinamis dan trigger generate recovery recommendation otomatis pasca-closing.
+- [x] 22.3 Kalkulator Penambahan Lot & Averaging 3 Mode ([`AverageDownCalculatorCard.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/recovery/AverageDownCalculatorCard.tsx)):
+  - **Mode 1 (Jumlah Lot)**: Input harga beli + jumlah lot tambahan $\rightarrow$ output total lot, modal tambahan, dan avg price baru.
+  - **Mode 2 (Target Avg)**: Input harga beli + target avg price baru $\rightarrow$ output lot bulat minimum ($\lceil \dots \rceil$) dan modal yang dibutuhkan.
+  - **Mode 3 (Anggaran Modal)**: Input harga beli + budget kas (Rp) $\rightarrow$ output lot bulat maksimal ($\lfloor \dots \rfloor$), modal terpakai, dan sisa kas.
+  - **Alert Pecahan Budget & Auto-Update**: Notifikasi informatif jika modal menghasilkan sisa kas dengan tombol cepat *⚡ Sesuaikan Input* atau *➕ Tambah Lot*.
+  - **Standar Resmi shadcn/ui Tabs**: Komponen [`tabs.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/tabs.tsx) berbasis `@base-ui/react` dengan warna aktif kontras spesifik per mode (Purple, Blue, Emerald).
+

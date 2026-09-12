@@ -5,8 +5,9 @@ from models import Holding, PriceHistory, get_cash_balance
 from services.data_fetcher import fetch_and_store_stock_data, normalize_ticker
 from services.technical import get_latest_indicators
 from services.portfolio_engine import evaluate_holding_status
-from services.ai_copilot import purge_ai_chat_and_cache
+from services.ai_copilot import purge_ai_chat_and_cache, generate_recovery_recommendation
 import pandas as pd
+import yfinance as yf
 
 router = APIRouter(prefix="/api/v1", tags=["Stocks & Dashboard"])
 
@@ -121,9 +122,67 @@ def manual_fetch(ticker: str, db: Session = Depends(get_db)):
 def fetch_all(db: Session = Depends(get_db)):
     holdings = db.query(Holding).all()
     results = {}
+    recovery_generated = {}
+    cash_balance = get_cash_balance(db)
+
+    # Purge old AI chat and cache before generating new data
+    purged = purge_ai_chat_and_cache(db)
+
     for h in holdings:
         df = fetch_and_store_stock_data(h.ticker, db, period="6mo")
         results[h.ticker] = len(df)
-    purged = purge_ai_chat_and_cache(db)
-    return {"status": "success", "fetched": results, "purged_chat_cache": purged}
+
+        # Generate recovery recommendation for holdings with floating loss >= 5%
+        if len(df) > 0:
+            try:
+                latest_row = df.iloc[-1]
+                close = float(latest_row.get("close", h.avg_price))
+                pnl_pct = ((close - h.avg_price) / h.avg_price) * 100 if h.avg_price > 0 else 0
+
+                if pnl_pct <= -5.0:
+                    # Fetch indicators from latest price history
+                    records = db.query(PriceHistory).filter(
+                        PriceHistory.ticker == h.ticker
+                    ).order_by(PriceHistory.date.asc()).all()
+
+                    if records:
+                        ind_df = pd.DataFrame([{
+                            "date": r.date, "open": r.open, "high": r.high,
+                            "low": r.low, "close": r.close, "volume": r.volume,
+                            "ma20": r.ma20, "ma50": r.ma50, "rsi": r.rsi,
+                            "support": r.support, "resistance": r.resistance
+                        } for r in records])
+                        indicators = get_latest_indicators(ind_df)
+
+                        # Fetch fundamentals
+                        fundamental_info = {}
+                        try:
+                            t_obj = yf.Ticker(h.ticker)
+                            info = t_obj.info or {}
+                            fundamental_info = {
+                                "dividendYield": info.get("dividendYield"),
+                                "trailingPE": info.get("trailingPE"),
+                                "priceToBook": info.get("priceToBook"),
+                            }
+                        except Exception as fe:
+                            print(f"[fetch-all] Fundamental fetch error {h.ticker}: {fe}")
+
+                        rec = generate_recovery_recommendation(
+                            holding=h,
+                            latest_indicators=indicators,
+                            db=db,
+                            cash_balance=cash_balance,
+                            fundamental_info=fundamental_info,
+                            force_refresh=True,
+                        )
+                        recovery_generated[h.ticker] = rec.get("source", "unknown")
+            except Exception as re:
+                print(f"[fetch-all] Recovery recommendation error {h.ticker}: {re}")
+
+    return {
+        "status": "success",
+        "fetched": results,
+        "recovery_generated": recovery_generated,
+        "purged_chat_cache": purged
+    }
 

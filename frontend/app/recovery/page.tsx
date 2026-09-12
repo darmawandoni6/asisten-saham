@@ -2,6 +2,7 @@
 
 import { Topbar } from '@/components/Topbar';
 import { AverageDownCalculatorCard } from '@/components/recovery/AverageDownCalculatorCard';
+import { RecoveryAISummaryCard } from '@/components/recovery/RecoveryAISummaryCard';
 import { RecoveryDiagnosisCard } from '@/components/recovery/RecoveryDiagnosisCard';
 import { RecoveryEmptyState } from '@/components/recovery/RecoveryEmptyState';
 import { RecoveryScenariosGrid } from '@/components/recovery/RecoveryScenariosGrid';
@@ -16,13 +17,21 @@ export default function RecoveryPage() {
     selectedTicker,
     data,
     isLoading,
-    targetBuyPrice,
-    targetAvgPrice,
-    setTargetBuyPrice,
-    setTargetAvgPrice,
+    isRegenerating,
+    calcMode,
+    setCalcMode,
+    calcBuyPrice,
+    setCalcBuyPrice,
+    calcAddLot,
+    setCalcAddLot,
+    calcTargetAvg,
+    setCalcTargetAvg,
+    calcBudget,
+    setCalcBudget,
     calcResult,
     loadData,
     selectStock,
+    regenerateRecommendation,
   } = useRecovery();
 
   const {
@@ -67,16 +76,34 @@ export default function RecoveryPage() {
             {/* 1. Diagnosis Kerugian Card */}
             <RecoveryDiagnosisCard data={data} />
 
-            {/* 2. Skenario Penyelamatan AI */}
-            <RecoveryScenariosGrid scenarios={data.scenarios} onOpenDiscussion={openDiscussion} />
+            {/* 2. AI Summary Card */}
+            <RecoveryAISummaryCard
+              ticker={selectedTicker}
+              aiRecommendation={data.aiRecommendation}
+              isRegenerating={isRegenerating}
+              onRegenerate={regenerateRecommendation}
+            />
 
-            {/* 3. Kalkulator Average Down Presisi */}
+            {/* 3. Skenario Penyelamatan AI — 3 Kartu */}
+            <RecoveryScenariosGrid
+              scenarios={data.scenarios}
+              aiRecommendation={data.aiRecommendation}
+              onOpenDiscussion={openDiscussion}
+            />
+
+            {/* 4. Kalkulator Penambahan Lot & Averaging (3 Mode) */}
             <AverageDownCalculatorCard
               data={data}
-              targetBuyPrice={targetBuyPrice}
-              targetAvgPrice={targetAvgPrice}
-              setTargetBuyPrice={setTargetBuyPrice}
-              setTargetAvgPrice={setTargetAvgPrice}
+              calcMode={calcMode}
+              setCalcMode={setCalcMode}
+              calcBuyPrice={calcBuyPrice}
+              setCalcBuyPrice={setCalcBuyPrice}
+              calcAddLot={calcAddLot}
+              setCalcAddLot={setCalcAddLot}
+              calcTargetAvg={calcTargetAvg}
+              setCalcTargetAvg={setCalcTargetAvg}
+              calcBudget={calcBudget}
+              setCalcBudget={setCalcBudget}
               calcResult={calcResult}
             />
           </>

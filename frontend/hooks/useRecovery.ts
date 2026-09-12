@@ -3,27 +3,31 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { api } from '@/lib/api';
-import { Holding, RecoveryDiagnosis } from '@/types';
-
-export interface AverageDownResult {
-  addLot: number;
-  capital: number;
-  newAvg: number;
-  error?: string;
-}
+import { Holding, LotAveragingMode, LotAveragingResult, RecoveryAIRecommendation, RecoveryDiagnosis } from '@/types';
 
 export interface UseRecoveryReturn {
   holdings: Holding[];
   selectedTicker: string;
   data: RecoveryDiagnosis | null;
   isLoading: boolean;
-  targetBuyPrice: number;
-  targetAvgPrice: number;
-  setTargetBuyPrice: React.Dispatch<React.SetStateAction<number>>;
-  setTargetAvgPrice: React.Dispatch<React.SetStateAction<number>>;
-  calcResult: AverageDownResult;
+  isRegenerating: boolean;
+
+  // 3-Mode Lot Averaging Calculator State
+  calcMode: LotAveragingMode;
+  setCalcMode: React.Dispatch<React.SetStateAction<LotAveragingMode>>;
+  calcBuyPrice: number;
+  setCalcBuyPrice: React.Dispatch<React.SetStateAction<number>>;
+  calcAddLot: number;
+  setCalcAddLot: React.Dispatch<React.SetStateAction<number>>;
+  calcTargetAvg: number;
+  setCalcTargetAvg: React.Dispatch<React.SetStateAction<number>>;
+  calcBudget: number;
+  setCalcBudget: React.Dispatch<React.SetStateAction<number>>;
+
+  calcResult: LotAveragingResult;
   loadData: () => Promise<void>;
   selectStock: (stock: Holding) => Promise<void>;
+  regenerateRecommendation: () => Promise<void>;
 }
 
 export function useRecovery(): UseRecoveryReturn {
@@ -31,10 +35,14 @@ export function useRecovery(): UseRecoveryReturn {
   const [selectedTicker, setSelectedTicker] = useState<string>('');
   const [data, setData] = useState<RecoveryDiagnosis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
-  // Interactive Calculator State
-  const [targetBuyPrice, setTargetBuyPrice] = useState<number>(0);
-  const [targetAvgPrice, setTargetAvgPrice] = useState<number>(0);
+  // 3-Mode Calculator Inputs
+  const [calcMode, setCalcMode] = useState<LotAveragingMode>('by_lot');
+  const [calcBuyPrice, setCalcBuyPrice] = useState<number>(0);
+  const [calcAddLot, setCalcAddLot] = useState<number>(5);
+  const [calcTargetAvg, setCalcTargetAvg] = useState<number>(0);
+  const [calcBudget, setCalcBudget] = useState<number>(500000);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -54,8 +62,11 @@ export function useRecovery(): UseRecoveryReturn {
           const rec = await api.getRecovery(initialTicker);
           if (rec) {
             setData(rec);
-            setTargetBuyPrice(Math.round(rec.currentPrice * 0.95));
-            setTargetAvgPrice(Math.round((rec.avgPrice + rec.currentPrice) / 2));
+            const defaultBuy = Math.round(rec.supportMajor || rec.currentPrice * 0.95);
+            setCalcBuyPrice(defaultBuy);
+            setCalcTargetAvg(Math.round((rec.avgPrice + defaultBuy) / 2));
+            setCalcAddLot(Math.max(1, Math.round(rec.lot * 0.5)));
+            setCalcBudget(rec.cashBalance && rec.cashBalance > 0 ? rec.cashBalance : defaultBuy * 10 * 100);
           }
         } else {
           setData(null);
@@ -86,10 +97,14 @@ export function useRecovery(): UseRecoveryReturn {
             const initialTicker = candidates[0].ticker;
             setSelectedTicker(initialTicker);
             const rec = await api.getRecovery(initialTicker).catch(() => null);
+
             if (isMounted && rec) {
               setData(rec);
-              setTargetBuyPrice(Math.round(rec.currentPrice * 0.95));
-              setTargetAvgPrice(Math.round((rec.avgPrice + rec.currentPrice) / 2));
+              const defaultBuy = Math.round(rec.supportMajor || rec.currentPrice * 0.95);
+              setCalcBuyPrice(defaultBuy);
+              setCalcTargetAvg(Math.round((rec.avgPrice + defaultBuy) / 2));
+              setCalcAddLot(Math.max(1, Math.round(rec.lot * 0.5)));
+              setCalcBudget(rec.cashBalance && rec.cashBalance > 0 ? rec.cashBalance : defaultBuy * 10 * 100);
             }
           } else {
             setData(null);
@@ -117,47 +132,220 @@ export function useRecovery(): UseRecoveryReturn {
       const rec = await api.getRecovery(stock.ticker);
       if (rec) {
         setData(rec);
-        setTargetBuyPrice(Math.round(rec.currentPrice * 0.95));
-        setTargetAvgPrice(Math.round((rec.avgPrice + rec.currentPrice) / 2));
+        const defaultBuy = Math.round(rec.supportMajor || rec.currentPrice * 0.95);
+        setCalcBuyPrice(defaultBuy);
+        setCalcTargetAvg(Math.round((rec.avgPrice + defaultBuy) / 2));
+        setCalcAddLot(Math.max(1, Math.round(rec.lot * 0.5)));
+        setCalcBudget(rec.cashBalance && rec.cashBalance > 0 ? rec.cashBalance : defaultBuy * 10 * 100);
       }
     } catch (e) {
       console.warn('Select recovery stock err:', e);
     }
   }, []);
 
-  const calcResult = useMemo<AverageDownResult>(() => {
-    if (!data) return { addLot: 0, capital: 0, newAvg: 0 };
-    const currentLot = data.lot;
-    const currentAvg = data.avgPrice;
+  const regenerateRecommendation = useCallback(async () => {
+    if (!selectedTicker || isRegenerating) return;
+    setIsRegenerating(true);
+    try {
+      const result: RecoveryAIRecommendation = await api.regenerateRecoveryRecommendation(selectedTicker);
+      if (result) {
+        setData(prev => {
+          if (!prev) return prev;
+          return { ...prev, aiRecommendation: { ...result, available: true } };
+        });
+      }
+    } catch (err) {
+      console.warn('Regenerate recovery recommendation error:', err);
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [selectedTicker, isRegenerating]);
 
-    if (targetAvgPrice <= targetBuyPrice || targetAvgPrice >= currentAvg) {
+  // Reactive Multi-Mode Lot Averaging Calculation
+  const calcResult = useMemo<LotAveragingResult>(() => {
+    if (!data || !calcBuyPrice || calcBuyPrice <= 0) {
       return {
+        mode: calcMode,
         addLot: 0,
-        capital: 0,
-        newAvg: currentAvg,
-        error: 'Target Avg harus di antara harga beli bawah dan Avg saat ini',
+        buyPrice: calcBuyPrice || 0,
+        capitalRequired: 0,
+        newAvg: data?.avgPrice || 0,
+        totalLot: data?.lot || 0,
+        avgDiff: 0,
+        error: 'Masukkan harga beli yang valid (lebih dari 0)',
       };
     }
 
-    const rawAddLot = (currentLot * (currentAvg - targetAvgPrice)) / (targetAvgPrice - targetBuyPrice);
-    const addLot = Math.ceil(rawAddLot);
-    const capital = addLot * targetBuyPrice * 100;
-    const finalAvg = Math.round((currentLot * currentAvg + addLot * targetBuyPrice) / (currentLot + addLot));
+    const currentLot = data.lot;
+    const currentAvg = data.avgPrice;
+    const pricePerLot = calcBuyPrice * 100;
 
-    return { addLot, capital, newAvg: finalAvg };
-  }, [data, targetAvgPrice, targetBuyPrice]);
+    // Mode 1: Berdasarkan Jumlah Lot Tambahan
+    if (calcMode === 'by_lot') {
+      const addLot = Math.max(0, Math.floor(calcAddLot || 0));
+      if (addLot <= 0) {
+        return {
+          mode: 'by_lot',
+          addLot: 0,
+          buyPrice: calcBuyPrice,
+          capitalRequired: 0,
+          newAvg: currentAvg,
+          totalLot: currentLot,
+          avgDiff: 0,
+          error: 'Jumlah lot tambahan harus bilangan bulat minimal 1 lot',
+        };
+      }
+      const capitalRequired = addLot * pricePerLot;
+      const totalLot = currentLot + addLot;
+      const newAvg = Math.round((currentLot * currentAvg + addLot * calcBuyPrice) / totalLot);
+      const avgDiff = Math.round(currentAvg - newAvg);
+
+      return {
+        mode: 'by_lot',
+        addLot,
+        buyPrice: calcBuyPrice,
+        capitalRequired,
+        newAvg,
+        totalLot,
+        avgDiff,
+      };
+    }
+
+    // Mode 2: Berdasarkan Target Average Price
+    if (calcMode === 'by_target_avg') {
+      if (calcBuyPrice === currentAvg) {
+        return {
+          mode: 'by_target_avg',
+          addLot: 0,
+          buyPrice: calcBuyPrice,
+          capitalRequired: 0,
+          newAvg: currentAvg,
+          totalLot: currentLot,
+          avgDiff: 0,
+          error: 'Harga beli sama dengan Avg saat ini, rata-rata modal tidak akan berubah',
+        };
+      }
+
+      const isAvgDown = calcBuyPrice < currentAvg;
+      if (isAvgDown && (calcTargetAvg <= calcBuyPrice || calcTargetAvg >= currentAvg)) {
+        return {
+          mode: 'by_target_avg',
+          addLot: 0,
+          buyPrice: calcBuyPrice,
+          capitalRequired: 0,
+          newAvg: currentAvg,
+          totalLot: currentLot,
+          avgDiff: 0,
+          error: `Target Avg harus di antara Rp ${calcBuyPrice.toLocaleString('id-ID')} (harga beli) dan Rp ${Math.round(currentAvg).toLocaleString('id-ID')} (avg modal saat ini)`,
+        };
+      }
+
+      if (!isAvgDown && (calcTargetAvg <= currentAvg || calcTargetAvg >= calcBuyPrice)) {
+        return {
+          mode: 'by_target_avg',
+          addLot: 0,
+          buyPrice: calcBuyPrice,
+          capitalRequired: 0,
+          newAvg: currentAvg,
+          totalLot: currentLot,
+          avgDiff: 0,
+          error: `Target Avg harus di antara Rp ${Math.round(currentAvg).toLocaleString('id-ID')} (avg saat ini) dan Rp ${calcBuyPrice.toLocaleString('id-ID')} (harga beli)`,
+        };
+      }
+
+      const rawAddLot = (currentLot * (currentAvg - calcTargetAvg)) / (calcTargetAvg - calcBuyPrice);
+      const addLot = Math.max(1, Math.ceil(rawAddLot));
+      const capitalRequired = addLot * pricePerLot;
+      const totalLot = currentLot + addLot;
+      const newAvg = Math.round((currentLot * currentAvg + addLot * calcBuyPrice) / totalLot);
+      const avgDiff = Math.round(currentAvg - newAvg);
+
+      return {
+        mode: 'by_target_avg',
+        addLot,
+        buyPrice: calcBuyPrice,
+        capitalRequired,
+        newAvg,
+        totalLot,
+        avgDiff,
+      };
+    }
+
+    // Mode 3: Berdasarkan Alokasi Budget Modal (Rp)
+    if (calcMode === 'by_budget') {
+      const budget = Math.max(0, calcBudget || 0);
+      if (budget < pricePerLot) {
+        return {
+          mode: 'by_budget',
+          addLot: 0,
+          buyPrice: calcBuyPrice,
+          capitalRequired: 0,
+          budgetRemaining: budget,
+          hasBudgetFraction: false,
+          newAvg: currentAvg,
+          totalLot: currentLot,
+          avgDiff: 0,
+          error: `Budget minimal Rp ${pricePerLot.toLocaleString('id-ID')} untuk dapat membeli 1 lot @ Rp ${calcBuyPrice.toLocaleString('id-ID')}`,
+        };
+      }
+
+      const rawLots = budget / pricePerLot;
+      const addLot = Math.floor(rawLots);
+      const capitalRequired = addLot * pricePerLot;
+      const budgetRemaining = budget - capitalRequired;
+      const hasBudgetFraction = budgetRemaining > 0;
+      const exactBudgetForLot = capitalRequired;
+      const nextLotBudget = (addLot + 1) * pricePerLot;
+
+      const totalLot = currentLot + addLot;
+      const newAvg = Math.round((currentLot * currentAvg + addLot * calcBuyPrice) / totalLot);
+      const avgDiff = Math.round(currentAvg - newAvg);
+
+      return {
+        mode: 'by_budget',
+        addLot,
+        buyPrice: calcBuyPrice,
+        capitalRequired,
+        budgetRemaining,
+        hasBudgetFraction,
+        exactBudgetForLot,
+        nextLotBudget,
+        newAvg,
+        totalLot,
+        avgDiff,
+      };
+    }
+
+    return {
+      mode: 'by_lot',
+      addLot: 0,
+      buyPrice: calcBuyPrice,
+      capitalRequired: 0,
+      newAvg: currentAvg,
+      totalLot: currentLot,
+      avgDiff: 0,
+    };
+  }, [data, calcMode, calcBuyPrice, calcAddLot, calcTargetAvg, calcBudget]);
 
   return {
     holdings,
     selectedTicker,
     data,
     isLoading,
-    targetBuyPrice,
-    targetAvgPrice,
-    setTargetBuyPrice,
-    setTargetAvgPrice,
+    isRegenerating,
+    calcMode,
+    setCalcMode,
+    calcBuyPrice,
+    setCalcBuyPrice,
+    calcAddLot,
+    setCalcAddLot,
+    calcTargetAvg,
+    setCalcTargetAvg,
+    calcBudget,
+    setCalcBudget,
     calcResult,
     loadData,
     selectStock,
+    regenerateRecommendation,
   };
 }

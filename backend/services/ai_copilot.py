@@ -133,7 +133,15 @@ def _extract_json(text: str) -> dict:
     if not text or not text.strip():
         raise ValueError("Empty response text received for JSON extraction")
     raw = text.strip()
-    
+
+    # 0. Direct full-string JSON parse (fastest & most accurate for json_mode)
+    try:
+        val = json.loads(raw)
+        if isinstance(val, dict) and len(val) > 0:
+            return val
+    except Exception:
+        pass
+
     # 1. Try markdown ```json codeblock first (from right to left)
     if "```json" in raw:
         blocks = raw.split("```json")[1:]
@@ -159,45 +167,52 @@ def _extract_json(text: str) -> dict:
                 except Exception:
                     pass
 
-    # 2. Balanced-bracket scanner from right to left (takes the final JSON object output by reasoning models)
-    indices = [i for i, ch in enumerate(raw) if ch == '{']
-    for start_idx in reversed(indices):
-        depth = 0
-        in_string = False
-        escape = False
-        for pos in range(start_idx, len(raw)):
-            char = raw[pos]
-            if escape:
-                escape = False
-                continue
-            if char == '\\':
-                escape = True
-                continue
-            if char == '"':
-                in_string = not in_string
-                continue
-            if not in_string:
-                if char == '{':
-                    depth += 1
-                elif char == '}':
-                    depth -= 1
-                    if depth == 0:
-                        candidate = raw[start_idx:pos+1].strip()
+    # 2. Extract top-level balanced { ... } objects from left to right
+    import re
+    candidates = []
+    depth = 0
+    start_idx = None
+    in_string = False
+    escape = False
+
+    for pos, char in enumerate(raw):
+        if escape:
+            escape = False
+            continue
+        if char == '\\':
+            escape = True
+            continue
+        if char == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if char == '{':
+                if depth == 0:
+                    start_idx = pos
+                depth += 1
+            elif char == '}':
+                depth -= 1
+                if depth == 0 and start_idx is not None:
+                    candidate = raw[start_idx:pos+1].strip()
+                    try:
+                        val = json.loads(candidate)
+                        if isinstance(val, dict) and len(val) > 0:
+                            candidates.append(val)
+                    except Exception:
                         try:
-                            val = json.loads(candidate)
+                            no_trailing = re.sub(r',\s*([\]}])', r'\1', candidate)
+                            val = json.loads(no_trailing)
                             if isinstance(val, dict) and len(val) > 0:
-                                return val
+                                candidates.append(val)
                         except Exception:
-                            # Fix trailing commas
-                            try:
-                                import re
-                                no_trailing = re.sub(r',\s*([\]}])', r'\1', candidate)
-                                val = json.loads(no_trailing)
-                                if isinstance(val, dict) and len(val) > 0:
-                                    return val
-                            except Exception:
-                                pass
-                        break
+                            pass
+                    start_idx = None
+
+    if candidates:
+        for c in reversed(candidates):
+            if any(k in c for k in ['recommendations', 'recommendation', 'coreLogic', 'target_price', 'score']):
+                return c
+        return candidates[-1]
 
     # 3. Python dict literal (e.g. single quotes)
     try:
@@ -206,7 +221,7 @@ def _extract_json(text: str) -> dict:
         e_idx = raw.rfind("}")
         if s_idx != -1 and e_idx != -1 and e_idx > s_idx:
             val = ast.literal_eval(raw[s_idx:e_idx+1])
-            if isinstance(val, dict):
+            if isinstance(val, dict) and len(val) > 0:
                 return val
     except Exception:
         pass
@@ -1297,6 +1312,340 @@ def discuss_screener_recommendation(
             f"Apa level invalidasi jika IHSG mengalami koreksi besok?"
         ]
     }
+
+
+def _rule_based_recovery_recommendation(
+    ticker: str,
+    jenis: str,
+    lot: int,
+    avg_price: float,
+    close: float,
+    rsi: float,
+    support: float,
+    resistance: float,
+    cash_balance: float,
+    div_yield: float,
+    capital_required_avgdown: float,
+) -> Dict[str, Any]:
+    """Fallback rule-based recovery recommendation if AI is offline."""
+    pnl_pct = ((close - avg_price) / avg_price) * 100
+    is_oversold = rsi < 35.0
+    near_support = abs(close - support) / close < 0.05
+    is_cash_sufficient = cash_balance >= capital_required_avgdown
+    has_high_dividend = div_yield >= 5.0
+
+    # --- Cut Loss ---
+    cl_confidence = 3
+    if not is_oversold and close < support:
+        cl_confidence += 3
+    if jenis == "trading" and pnl_pct < -10:
+        cl_confidence += 2
+    if jenis == "investasi":
+        cl_confidence = max(1, cl_confidence - 2)
+    if has_high_dividend and jenis == "investasi":
+        cl_confidence = max(1, cl_confidence - 2)
+    cl_confidence = min(10, max(1, cl_confidence))
+    cl_lot_pct = 100 if not is_oversold and close < support and jenis == "trading" else 50
+    cl_recommended = jenis == "trading" and not is_oversold and close < support
+
+    # --- Average Down ---
+    ad_confidence = 3
+    if is_oversold:
+        ad_confidence += 3
+    if near_support:
+        ad_confidence += 2
+    if is_cash_sufficient:
+        ad_confidence += 1
+    if jenis == "investasi" and has_high_dividend:
+        ad_confidence += 1
+    if jenis == "trading":
+        ad_confidence = max(1, ad_confidence - 2)
+    ad_confidence = min(10, max(1, ad_confidence))
+    ad_lot_pct = 100 if is_cash_sufficient and is_oversold and jenis == "investasi" else 50
+    ad_recommended = (is_oversold or near_support) and is_cash_sufficient
+
+    # --- Hold ---
+    hold_confidence = 5
+    if has_high_dividend and jenis == "investasi":
+        hold_confidence += 2
+    if is_oversold and not is_cash_sufficient:
+        hold_confidence += 1
+    if jenis == "trading" and pnl_pct < -15:
+        hold_confidence = max(1, hold_confidence - 2)
+    hold_confidence = min(10, max(1, hold_confidence))
+    hold_recommended = not cl_recommended or jenis == "investasi"
+
+    cut_lot_text = f"{cl_lot_pct}% ({round(lot * cl_lot_pct / 100)} lot)"
+    avg_lot_additional = max(1, round(capital_required_avgdown / (support * 100))) if support > 0 else 1
+    avg_lot_text = f"Tambah {avg_lot_additional} lot di area support Rp {round(support):,}"
+    hold_lot_text = f"Tahan seluruh {lot} lot sambil pantau pemantulan"
+
+    ai_summary = (
+        f"Berdasarkan analisis teknikal rule-based: RSI {rsi:.0f} ({'oversold' if is_oversold else 'normal'}), "
+        f"harga {'mendekati' if near_support else 'di atas'} support Rp {round(support):,}. "
+        f"Kas {'mencukupi' if is_cash_sufficient else 'belum mencukupi'} untuk average down. "
+        f"Saham {jenis} dengan dividen yield {div_yield:.1f}%."
+    )
+
+    return {
+        "source": "rule_based",
+        "recommendations": {
+            "cutLoss": {
+                "recommended": cl_recommended,
+                "confidence": cl_confidence,
+                "lotSuggestion": cut_lot_text,
+                "lotPct": cl_lot_pct,
+                "reason": (
+                    f"Harga Rp {round(close):,} telah menembus support Rp {round(support):,} dengan RSI {rsi:.0f} belum oversold. "
+                    f"Untuk saham trading, disiplin membatasi kerugian menjadi prioritas utama."
+                    if cl_recommended else
+                    f"RSI {rsi:.0f} {'menunjukkan kondisi oversold — potensi rebound teknikal masih terbuka.' if is_oversold else 'masih normal.'} "
+                    f"{'Dividen yield ' + str(round(div_yield, 1)) + '%/thn menjadi buffer passive income. ' if has_high_dividend else ''}"
+                    f"Cut loss kurang disarankan saat ini."
+                )
+            },
+            "averageDown": {
+                "recommended": ad_recommended,
+                "confidence": ad_confidence,
+                "lotSuggestion": avg_lot_text,
+                "lotPct": ad_lot_pct,
+                "reason": (
+                    f"RSI {rsi:.0f} dalam zona oversold dan harga mendekati support Rp {round(support):,}. "
+                    f"{'Kas mencukupi untuk eksekusi averaging down.' if is_cash_sufficient else 'Namun saldo kas belum mencukupi untuk average down optimal.'}"
+                    if ad_recommended else
+                    f"{'Saldo kas tidak mencukupi (butuh Rp ' + f'{round(capital_required_avgdown):,}' + '). ' if not is_cash_sufficient else ''}"
+                    f"{'Kondisi teknikal belum ideal untuk average down — harga belum menyentuh support major.' if not (is_oversold or near_support) else ''}"
+                    f" Average down kurang disarankan saat ini."
+                )
+            },
+            "hold": {
+                "recommended": hold_recommended,
+                "confidence": hold_confidence,
+                "lotSuggestion": hold_lot_text,
+                "lotPct": 100,
+                "reason": (
+                    f"{'Dividend yield ' + str(round(div_yield, 1)) + '%/thn memberikan passive income selama menunggu rebound. ' if has_high_dividend else ''}"
+                    f"Tunggu pemantulan teknikal ke resistance Rp {round(resistance):,} untuk exit dengan kerugian minimal. "
+                    f"Estimasi target rebound dalam 5–14 hari bursa."
+                )
+            }
+        },
+        "aiSummary": ai_summary
+    }
+
+
+def generate_recovery_recommendation(
+    holding: "Holding",
+    latest_indicators: dict,
+    db: "Session",
+    cash_balance: float = 0.0,
+    fundamental_info: dict = None,
+    force_refresh: bool = False,
+) -> Dict[str, Any]:
+    """
+    Generate AI tri-scenario recovery recommendation (Cut Loss / Average Down / Hold)
+    for a holding with floating loss. Saves result to AIAnalysis.recovery_recommendation.
+    Falls back to rule-based engine if AI is offline.
+    """
+    import math
+    ticker = holding.ticker
+    jenis = getattr(holding, "jenis", "trading") or "trading"
+    lot = holding.lot
+    avg_price = float(holding.avg_price)
+    close = float(latest_indicators.get("close", avg_price))
+    rsi = float(latest_indicators.get("rsi", 50.0))
+    support = float(latest_indicators.get("support", close * 0.95))
+    resistance = float(latest_indicators.get("resistance", close * 1.05))
+    ma20 = float(latest_indicators.get("ma20", close))
+    today = date.today()
+
+    f_info = fundamental_info or {}
+    div_yield_raw = f_info.get("dividendYield")
+    if div_yield_raw and div_yield_raw > 0:
+        div_yield = div_yield_raw if div_yield_raw > 1.0 else (div_yield_raw * 100.0)
+    else:
+        div_yield = 0.0
+    pe = f_info.get("trailingPE")
+    pbv = f_info.get("priceToBook")
+
+    # Compute capital required for average down (mid-support target)
+    suggested_entry = round(support)
+    target_avg = round((avg_price + suggested_entry) / 2)
+    if target_avg > suggested_entry and target_avg < avg_price:
+        raw_add_lot = (lot * (avg_price - target_avg)) / (target_avg - suggested_entry)
+        add_lot = math.ceil(raw_add_lot)
+        capital_required = add_lot * suggested_entry * 100
+    else:
+        add_lot = 1
+        capital_required = suggested_entry * 100
+
+    pnl_pct = ((close - avg_price) / avg_price) * 100
+
+    # Check existing cache
+    cached = db.query(AIAnalysis).filter(
+        AIAnalysis.ticker == ticker,
+        AIAnalysis.date == today
+    ).first()
+
+    if not force_refresh and cached and cached.recovery_recommendation:
+        try:
+            return json.loads(cached.recovery_recommendation)
+        except Exception:
+            pass
+
+    has_valid_api = bool(get_ai_api_key())
+
+    if not has_valid_api:
+        result = _rule_based_recovery_recommendation(
+            ticker=ticker, jenis=jenis, lot=lot, avg_price=avg_price,
+            close=close, rsi=rsi, support=support, resistance=resistance,
+            cash_balance=cash_balance, div_yield=div_yield,
+            capital_required_avgdown=capital_required,
+        )
+        # Save to DB
+        rec_json = json.dumps(result)
+        if cached:
+            cached.recovery_recommendation = rec_json
+        else:
+            new_analysis = AIAnalysis(
+                ticker=ticker, date=today,
+                recommendation="HOLD", analysis_text="Rule-based fallback (no AI key)",
+                raw_data_snapshot=json.dumps({"source": "rule_based"}),
+                recovery_recommendation=rec_json,
+            )
+            db.add(new_analysis)
+        db.commit()
+        return result
+
+    active_provider = get_active_provider()
+
+    system_prompt = (
+        "Anda adalah AI Recovery Copilot profesional untuk pasar saham IDX (Bursa Efek Indonesia). "
+        "Berikan rekomendasi 3-skenario penyelamatan modal berbasis data teknikal dan fundamental secara objektif."
+    )
+
+    tp_text = f"Rp {round(holding.target_price):,}" if holding.target_price else "Belum ditentukan"
+    sl_text = "Tidak ada hard SL (Investasi)" if jenis == "investasi" else (f"Rp {round(holding.stop_loss):,}" if holding.stop_loss else "Belum ditentukan")
+
+    prompt = f"""
+Analisis 3 skenario recovery untuk saham berikut:
+
+Data Posisi:
+- Ticker: {ticker} ({jenis.upper()})
+- Lot: {lot} lot, Avg Beli: Rp {round(avg_price):,} → Harga EOD: Rp {round(close):,} (Floating PnL: {pnl_pct:.1f}%)
+- Target: {tp_text} | Stop Loss: {sl_text}
+- Saldo Kas Tersedia: Rp {round(cash_balance):,}
+
+Indikator Teknikal:
+- MA20: Rp {round(ma20):,} | Support Major: Rp {round(support):,} | Resistance: Rp {round(resistance):,}
+- RSI(14): {rsi:.1f}
+
+Fundamental:
+- Dividend Yield: {f'{div_yield:.1f}%/tahun' if div_yield > 0 else 'Tidak ada/rendah'}
+- PE Ratio: {f'{pe:.1f}x' if pe else '-'}
+- PBV: {f'{pbv:.2f}x' if pbv else '-'}
+
+Berikan rekomendasi JSON berikut:
+{{
+  "recommendations": {{
+    "cutLoss": {{
+      "recommended": true/false,
+      "confidence": 1-10,
+      "lotSuggestion": "misalnya: Jual 50% ({round(lot*0.5)} lot) atau Jual 100% ({lot} lot)",
+      "lotPct": 0-100,
+      "reason": "2-3 kalimat reasoning objektif mengapa cut loss disarankan/tidak"
+    }},
+    "averageDown": {{
+      "recommended": true/false,
+      "confidence": 1-10,
+      "lotSuggestion": "misalnya: Tambah {add_lot} lot di area Rp {round(support):,}",
+      "lotPct": 0-100,
+      "reason": "2-3 kalimat reasoning objektif mengapa average down disarankan/tidak"
+    }},
+    "hold": {{
+      "recommended": true/false,
+      "confidence": 1-10,
+      "lotSuggestion": "misalnya: Tahan seluruh {lot} lot sambil pantau MA20",
+      "lotPct": 100,
+      "reason": "2-3 kalimat reasoning objektif mengapa hold disarankan/tidak"
+    }}
+  }},
+  "aiSummary": "1 paragraf ringkasan keputusan strategis keseluruhan berdasarkan kondisi teknikal dan fundamental"
+}}
+
+ATURAN PENTING:
+- Confidence 1-10: 1=sangat tidak yakin, 10=sangat yakin
+- recommended: true jika skenario ini layak dieksekusi berdasarkan kondisi saat ini
+- Bisa lebih dari 1 skenario yang recommended=true (jika kondisi mendukung mix strategi)
+- Semua harga harus bilangan bulat tanpa desimal
+- JANGAN rekomendasikan cut loss untuk saham investasi dengan dividend yield >5% kecuali ada alasan fundamental yang sangat kuat
+"""
+
+    try:
+        response_text, used_provider = call_llm(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            preferred_provider=active_provider,
+            json_mode=True,
+        )
+        data = _extract_json(response_text)
+        recs = data.get("recommendations", {})
+
+        def safe_scenario(raw: dict, default_confidence: int = 5) -> dict:
+            return {
+                "recommended": bool(raw.get("recommended", False)),
+                "confidence": max(1, min(10, int(raw.get("confidence", default_confidence)))),
+                "lotSuggestion": str(raw.get("lotSuggestion", "")),
+                "lotPct": max(0, min(100, int(raw.get("lotPct", 50)))),
+                "reason": str(raw.get("reason", "")),
+            }
+
+        ai_summary_raw = str(data.get("aiSummary", "")).strip()
+        # Fallback: jika AI tidak mengembalikan aiSummary, buat ringkasan dari data teknikal
+        if not ai_summary_raw:
+            is_oversold_local = rsi < 35.0
+            near_support_local = abs(close - support) / close < 0.05 if close > 0 else False
+            ai_summary_raw = (
+                f"Analisis dari {used_provider}: RSI {rsi:.0f} "
+                f"({'oversold — potensi rebound' if is_oversold_local else 'normal'}), "
+                f"harga Rp {round(close):,} {'mendekati' if near_support_local else 'belum di'} support Rp {round(support):,}. "
+                f"Lihat detail keyakinan dan saran lot di masing-masing kartu skenario."
+            )
+
+        result = {
+            "source": used_provider,
+            "recommendations": {
+                "cutLoss": safe_scenario(recs.get("cutLoss", {})),
+                "averageDown": safe_scenario(recs.get("averageDown", {})),
+                "hold": safe_scenario(recs.get("hold", {})),
+            },
+            "aiSummary": ai_summary_raw,
+        }
+
+    except Exception as e:
+        print(f"[recovery_rec] AI error for {ticker}: {e}. Falling back to rule-based.")
+        result = _rule_based_recovery_recommendation(
+            ticker=ticker, jenis=jenis, lot=lot, avg_price=avg_price,
+            close=close, rsi=rsi, support=support, resistance=resistance,
+            cash_balance=cash_balance, div_yield=div_yield,
+            capital_required_avgdown=capital_required,
+        )
+
+    # Save to DB
+    rec_json = json.dumps(result)
+    if cached:
+        cached.recovery_recommendation = rec_json
+    else:
+        new_analysis = AIAnalysis(
+            ticker=ticker, date=today,
+            recommendation="RECOVERY_ANALYSIS",
+            analysis_text=result.get("aiSummary", "")[:500],
+            raw_data_snapshot=json.dumps({"source": result.get("source", "rule_based")}),
+            recovery_recommendation=rec_json,
+        )
+        db.add(new_analysis)
+    db.commit()
+    return result
 
 
 def purge_ai_chat_and_cache(db: Session, ticker: Optional[str] = None) -> Dict[str, Any]:

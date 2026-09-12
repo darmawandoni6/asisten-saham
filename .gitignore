@@ -67,7 +67,8 @@ Thumbs.db
 *~
 *.log
 logs/
-scripts/
+/scripts/
+!.agents/skills/**/scripts/
 
 # Desktop App Launchers & Local OS Shortcuts
 *.app/

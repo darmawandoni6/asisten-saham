@@ -80,6 +80,26 @@ export interface AIAnalysis {
   actionItems: string[];
 }
 
+export interface RecoveryScenarioAdvice {
+  recommended: boolean;
+  confidence: number; // 1-10
+  lotSuggestion: string;
+  lotPct: number; // 0-100
+  reason: string;
+}
+
+export interface RecoveryAIRecommendation {
+  available: boolean;
+  source?: string;
+  generatedAt?: string;
+  recommendations?: {
+    cutLoss: RecoveryScenarioAdvice;
+    averageDown: RecoveryScenarioAdvice;
+    hold: RecoveryScenarioAdvice;
+  };
+  aiSummary?: string;
+}
+
 export interface RecoveryDiagnosis {
   ticker: string;
   name: string;
@@ -103,6 +123,7 @@ export interface RecoveryDiagnosis {
     pbv?: number | null;
     verdict?: string;
   };
+  aiRecommendation?: RecoveryAIRecommendation;
   scenarios: {
     cutLoss: {
       title: string;
@@ -393,6 +414,23 @@ export interface RecommendTpSlResponse {
   avgDownTarget?: number | null;
   avgDownRationale?: string | null;
   dataSource?: string;
+}
+
+export type LotAveragingMode = 'by_lot' | 'by_target_avg' | 'by_budget';
+
+export interface LotAveragingResult {
+  mode: LotAveragingMode;
+  addLot: number;
+  buyPrice: number;
+  capitalRequired: number;
+  budgetRemaining?: number;
+  hasBudgetFraction?: boolean;
+  exactBudgetForLot?: number;
+  nextLotBudget?: number;
+  newAvg: number;
+  totalLot: number;
+  avgDiff: number; // positif = penurunan avg (avg down), negatif = kenaikan avg
+  error?: string;
 }
 
 export interface AvgDownCalculationResult {

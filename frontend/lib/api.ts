@@ -10,6 +10,7 @@ import {
   Holding,
   MarketStatus,
   RecommendTpSlResponse,
+  RecoveryAIRecommendation,
   RecoveryChatMessage,
   RecoveryDiagnosis,
   RecoveryDiscussion,
@@ -170,6 +171,10 @@ export const api = {
     fetchApi<RecoveryDiscussion>(`/api/v1/recovery/${ticker}/discuss`, {
       method: 'POST',
       body: JSON.stringify(data),
+    }),
+  regenerateRecoveryRecommendation: (ticker: string) =>
+    fetchApi<RecoveryAIRecommendation>(`/api/v1/recovery/${ticker}/regenerate-recommendation`, {
+      method: 'POST',
     }),
   getRecoveryChatHistory: (ticker: string, scenario_id?: string) => {
     const params = scenario_id ? `?scenario_id=${scenario_id}` : '';

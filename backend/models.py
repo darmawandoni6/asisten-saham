@@ -60,6 +60,7 @@ class AIAnalysis(Base):
     recommendation = Column(String, nullable=False) # HOLD, SELL, BUY, CUT_LOSS, TRIM, AVG_DOWN
     analysis_text = Column(Text, nullable=False)
     raw_data_snapshot = Column(Text, nullable=True) # JSON representation
+    recovery_recommendation = Column(Text, nullable=True) # JSON: tri-scenario AI recommendation
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (UniqueConstraint('ticker', 'date', name='uix_analysis_ticker_date'),)

@@ -19,11 +19,12 @@ if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
 from database import SessionLocal
-from models import Holding, PriceHistory
+from models import Holding, PriceHistory, get_cash_balance
 from services.data_fetcher import fetch_and_store_stock_data, normalize_ticker
 from services.technical import get_latest_indicators
 from services.portfolio_engine import evaluate_holding_status
-from services.ai_copilot import purge_ai_chat_and_cache
+from services.ai_copilot import purge_ai_chat_and_cache, generate_recovery_recommendation
+import yfinance as yf
 
 def format_idr(val: float) -> str:
     if val >= 0:
@@ -60,6 +61,7 @@ def sync_eod(ticker: str = None, period: str = "6mo", as_json: bool = False):
         print(f"[*] Reset histori chat AI & cache ({purged['copilot_deleted']} copilot, {purged['recovery_deleted']} recovery, {purged['screener_deleted']} screener, {purged['analysis_deleted']} analisis)...")
 
         evaluated_list = []
+        cash_balance = get_cash_balance(db)
         total_equity = 0.0
         total_cost = 0.0
         urgent_list = []
@@ -89,6 +91,28 @@ def sync_eod(ticker: str = None, period: str = "6mo", as_json: bool = False):
 
                     if card.get("isUrgent") or card["actionStatus"] in ["SELL_CUT_LOSS", "TAKE_PROFIT", "SL_PROXIMITY_WARNING"]:
                         urgent_list.append(card)
+
+                    # Trigger recovery recommendation if floating loss >= 5%
+                    if card["floatingPnlPct"] <= -5.0:
+                        fundamental_info = {}
+                        try:
+                            t_obj = yf.Ticker(t)
+                            info = t_obj.info or {}
+                            fundamental_info = {
+                                "dividendYield": info.get("dividendYield"),
+                                "trailingPE": info.get("trailingPE"),
+                                "priceToBook": info.get("priceToBook"),
+                            }
+                        except Exception:
+                            pass
+                        generate_recovery_recommendation(
+                            holding=h,
+                            latest_indicators=candle,
+                            db=db,
+                            cash_balance=cash_balance,
+                            fundamental_info=fundamental_info,
+                            force_refresh=True
+                        )
                 else:
                     print(f"[!] Data kosong untuk {t}")
             except Exception as ex:
@@ -102,7 +126,7 @@ def sync_eod(ticker: str = None, period: str = "6mo", as_json: bool = False):
         print(f"• Total Nilai Portofolio : {format_idr(total_equity)}")
         print(f"• Total Modal Beli      : {format_idr(total_cost)}")
         print(f"• Total Floating PnL    : {format_idr(pnl)} ({pnl_pct:+.2f}%)")
-        print(f"• Kas Aktif             : Rp 168.755")
+        print(f"• Kas Aktif             : {format_idr(cash_balance)}")
         print(f"• Jumlah Emiten         : {len(evaluated_list)}")
 
         print("\n📋 TABEL STATUS EMITEN:")

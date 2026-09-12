@@ -93,7 +93,11 @@ def diagnose_recovery(
                 "suitabilityReason": (
                     "Posisi trading wajib disiplin batasi risiko modal sebelum amblas lebih dalam."
                     if jenis == "trading" else
-                    "Menjual saham investasi di titik bawah menghilangkan hak dividen dan potensi pemulihan jangka panjang."
+                    (
+                        f"Saham investasi dengan dividen tinggi ({div_yield:.1f}%/thn) sangat disayangkan di-cut loss saat harga diskon; prioritaskan dividen dan swing pantulan."
+                        if div_yield and div_yield >= 5.0 else
+                        "Menjual saham investasi di titik bawah menghilangkan hak dividen dan potensi pemulihan jangka panjang."
+                    )
                 ),
                 "checklist": [
                     "Anda membutuhkan modal kas segera untuk diputar ke saham lain",
@@ -126,8 +130,8 @@ def diagnose_recovery(
                 ]
             },
             "holdForBep": {
-                "title": "Opsi C: Hold for Rebound & Exit at BEP",
-                "description": f"Pertahankan {lot} lot tanpa modal baru. Tunggu pemantulan teknikal ke area Resistance MA20 untuk exit dengan kerugian terminimalisir.",
+                "title": "Opsi C: Hold for Exit Rebound (Tanpa Tambah Modal)",
+                "description": f"Pertahankan {lot} lot tanpa modal baru. Tunggu pemantulan teknikal ke area Resistance MA20 (Rp {round(latest_indicators.get('resistance', current_price * 1.08)):,.0f}) untuk exit dengan kerugian terminimalisir.",
                 "realisticExitPrice": round(latest_indicators.get("resistance", current_price * 1.08)),
                 "expectedDays": "5 - 14 Hari Bursa",
                 "actionRecommended": recommend_hold_bep or (recommend_avgdown and not is_cash_sufficient),

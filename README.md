@@ -59,16 +59,21 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - *Kesesuaian Profil*: Label kelayakan strategi spesifik untuk saham *Trading* vs *Investasi*.
   - *Checklist "PILIH OPSI INI JIKA"*: 3 poin kriteria acuan kapan harus memilih Skenario A, B, atau C.
   - *Snapshot Fundamental & Dividen*: Menampilkan Dividend Yield tahunan, P/E ratio, dan PBV untuk membentengi psikologi investor.
-* **3 Skenario Penyelamatan AI**:
-  - *Opsi A*: Cut Loss / Pangkas Posisi (amankan sisa modal jika breakdown Major Support).
-  - *Opsi B*: Precision Average Down (cicil beli di Major Support saat RSI Oversold).
-  - *Opsi C*: Hold for Rebound / Exit at BEP (tunggu pemantulan teknikal ke area Resistance MA20).
-* **Kalkulator Average Down Presisi**: Menghitung secara matematis jumlah lot dan modal rupiah tambahan yang dibutuhkan untuk menurunkan harga rata-rata ke level impas yang diinginkan.
+* **3 Skenario Rekomendasi AI & Skor Keyakinan (Conviction 1–10)**:
+  - *Opsi A (Cut Loss)*: Rekomendasi pangkas 50% vs 100% lot jika breakdown Support Major / Stop Loss.
+  - *Opsi B (Precision Average Down)*: Rekomendasi cicil beli terukur di Major Support saat RSI Oversold lengkap dengan kecukupan kas.
+  - *Opsi C (Hold / Exit Rebound)*: Rekomendasi tahan posisi untuk exit saat rebound ke Resistance MA20 atau mengamankan dividen yield tinggi.
+  - *AI Summary Card*: Ringkasan strategi otomatis pasca-closing lengkap dengan tombol *Generate Ulang*.
+* **Kalkulator Penambahan Lot & Averaging (3 Mode)**:
+  - **Mode 1 (Jumlah Lot)**: Menghitung modal tambahan dan harga rata-rata baru jika membeli $X$ lot di harga $Y$.
+  - **Mode 2 (Target Avg)**: Menghitung lot bulat minimum ($\lceil \dots \rceil$) yang harus dibeli di harga $Y$ agar target modal baru tercapai.
+  - **Mode 3 (Anggaran Modal / Budget)**: Menghitung jumlah lot bulat maksimal ($\lfloor \dots \rfloor$) yang didapat dengan nominal kas tertentu.
+  - **Alert Pecahan Budget & Auto-Update**: Mendeteksi sisa kas/pecahan lot otomatis dengan tombol 1-klik *⚡ Sesuaikan Input* atau *➕ Tambah Lot*.
+  - **Tabs Resmi shadcn/ui**: Berbasis `@base-ui/react` dengan palet warna aktif kontras spesifik per mode (Purple, Blue, Emerald).
 * **💬 Bedah Logika Skenario & Diskusi AI (Deep-Dive & Follow-Up Q&A)**:
   - Tombol **`"Bedah Logika & Diskusi AI"`** pada tiap kartu skenario.
   - Modal interaktif menyajikan 4 pilar analisis mendalam: Logika Utama, Batas Risiko & Invalidasi (Plan B), Arus Kas & Estimasi Waktu, serta Checklist Aksi Jam Bursa Besok Pagi.
-  - Tanya jawab interaktif lanjutan (Q&A) dengan Gemini 2.0 Flash / Rule-Based Expert Engine.
-* **🔎 Skala Tipografi Nyaman (+1x Scale-Up)**: Teks penjelasan, metrik, dan checklist aksi disesuaikan agar sangat ergonomis dan mudah dibaca di layar desktop/laptop.
+  - Tanya jawab interaktif lanjutan (Q&A) dengan Gemini 2.0 Flash / 9Router AI / Rule-Based Expert Engine.
 
 ### 5. 🔍 EOD Stock Screener & 3-Pilar Watchlist Intelijen (`/screener`)
 * **Filter Anggaran Terjangkau (Budget Filter Bar)**: Pilihan filter cepat khusus modal terukur (**`≤ Rp 2.000 (Default)`**, **`≤ Rp 1.000`**, **`≤ Rp 500`**, dan **`Semua Harga`**), lengkap dengan label estimasi modal riil per lot (**`Rp {price * 100}/lot`**) pada tampilan Kartu maupun Tabel.
@@ -93,9 +98,9 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - *Tab 4*: SOP Anti-Nyangkut (4 Aturan Emas Manajemen Risiko).
   - *Tab 5*: Checklist Interaktif Pemula.
 
-### 8. 🤖 Workspace Skill: `idx-eod-sync` (Antigravity Customization)
-* Modul kemampuan AI terintegrasi di folder `.agents/skills/idx-eod-sync/`.
-* Pengguna cukup mengetik di chat: *"Tolong update EOD hari ini"* atau *"Sync portofolio saya"*, AI secara otomatis akan menjalankan penarikan data Yahoo Finance, menghitung ulang indikator, dan memunculkan tabel evaluasi portofolio pasca-closing langsung di jendela chat.
+### 8. 🤖 Workspace Skills (`.agents/skills/`)
+* **`idx-eod-sync` (`.agents/skills/idx-eod-sync/`)**: Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa Yahoo Finance, menghitung ulang indikator teknikal, menyinkronkan saldo kas, dan mencetak laporan eksekutif pasca-closing.
+* **`idx-recovery-plan` (`.agents/skills/idx-recovery-plan/`)**: Modul skill otomatis Antigravity untuk memindai saham floating loss, menjalankan kalkulasi AI 3-skenario (Cut Loss, Average Down, Hold), dan mencetak visual conviction bar di terminal.
 
 ### 9. ⚡ Ultra-Light Architecture & Auto-Shutdown (0 MB RAM saat Idle)
 * **Single-Process FastAPI Port 8000**: Frontend Next.js di-export menjadi static web bundle (`frontend/out`) dan disajikan langsung oleh FastAPI. Server Node.js **tidak perlu berjalan di background** (hemat ~100MB RAM permanen).

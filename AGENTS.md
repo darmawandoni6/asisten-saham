@@ -137,8 +137,9 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
   - **Dibersihkan (Reset) Hanya Saat Sinkronisasi (EOD Sync)**: Histori chat AI dan cache analisis (`AIAnalysis`, `RecoveryDeepDive`) otomatis di-reset saat sinkronisasi data pasar baru dijalankan (melalui tombol Sinkronisasi EOD `POST /api/v1/stocks/fetch-all`, CLI `sync_eod.py`, jadwal harian 17:30 WIB di `backend/scheduler.py`, atau tombol manual *Bersihkan Riwayat* di UI), sehingga siklus percakapan selalu relevan dengan data candle closing bursa terbaru.
   - Dilengkapi endpoint API lengkap: `GET`/`DELETE` untuk `/api/v1/analysis/{ticker}/chat-history`, `/api/v1/recovery/{ticker}/chat-history`, dan `/api/v1/screener/{ticker}/chat-history`.
 
-### G. Workspace Skill: `idx-eod-sync` (`.agents/skills/idx-eod-sync/`)
-- Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
+### G. Workspace Skills (`.agents/skills/`)
+- **`idx-eod-sync` (`.agents/skills/idx-eod-sync/`)**: Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
+- **`idx-recovery-plan` (`.agents/skills/idx-recovery-plan/`)**: Modul skill otomatis Antigravity untuk menganalisis saham floating loss menggunakan AI Tri-Scenario Recovery Engine (Cut Loss, Precision Average Down, Hold for Exit Rebound), menghitung skor keyakinan 1–10, saran alokasi lot riil, serta mencetak rencana eksekusi penyelamatan modal.
 - Database SQLite di `backend/database.py` dan `.env` dipatok absolut ke `/Users/donidarmawan/Documents/me/assiten-saham/backend/assiten_saham.db` sehingga eksekusi dari CLI / skill Antigravity dari folder kerja mana pun selalu merujuk ke database yang sama persis tanpa duplikasi file kosong di root folder.
 
 ### H. Kamus Lengkap Badge & Glosarium Terintegrasi
@@ -224,15 +225,19 @@ cd frontend && npm run format:check # Verifikasi formatting frontend
 ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py
 ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py --ticker SIDO.JK
 
-# 4. Tes Endpoint Sinkronisasi EOD via API
+# 4. Rencana Recovery AI 3-Skenario via Workspace Skill
+./backend/venv/bin/python .agents/skills/idx-recovery-plan/scripts/sync_recovery.py
+./backend/venv/bin/python .agents/skills/idx-recovery-plan/scripts/sync_recovery.py --ticker DEWA.JK --force
+
+# 5. Tes Endpoint Sinkronisasi EOD via API
 curl -s -X POST http://localhost:8000/api/v1/stocks/fetch-all
 
-# 5. Tes Endpoint Bedah Logika Skenario AI
+# 6. Tes Endpoint Bedah Logika Skenario AI
 curl -s -X POST http://localhost:8000/api/v1/recovery/SIDO.JK/discuss \
   -H "Content-Type: application/json" \
   -d '{"scenario_id": "holdForBep", "user_question": "apakah dividen aman?"}'
 
-# 6. Tes Endpoint Analisis AI & Dashboard
+# 7. Tes Endpoint Analisis AI & Dashboard
 curl -s -X POST http://localhost:8000/api/v1/analysis/SIDO.JK
 curl -s http://localhost:8000/api/v1/dashboard
 ```
@@ -245,10 +250,14 @@ curl -s http://localhost:8000/api/v1/dashboard
 assiten-saham/
 ├── .agents/                   # Antigravity Customizations
 │   └── skills/
-│       └── idx-eod-sync/      # Workspace Skill: Sinkronisasi EOD
-│           ├── SKILL.md       # Panduan operasional & instruksi agent
+│       ├── idx-eod-sync/      # Workspace Skill: Sinkronisasi EOD
+│       │   ├── SKILL.md       # Panduan operasional & instruksi agent
+│       │   └── scripts/
+│       │       └── sync_eod.py# Script eksekutor penarik data Yahoo Finance
+│       └── idx-recovery-plan/ # Workspace Skill: AI Tri-Scenario Recovery
+│           ├── SKILL.md       # Panduan operasional analisis recovery
 │           └── scripts/
-│               └── sync_eod.py# Script eksekutor penarik data Yahoo Finance
+│               └── sync_recovery.py # Script eksekutor recovery plan
 ├── AGENTS.md                  # Panduan operasional AI Agent (file ini)
 ├── README.md                  # Dokumentasi proyek untuk pengguna
 ├── TODO.md                    # Tracking checklist fitur
