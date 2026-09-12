@@ -22,7 +22,7 @@ export function useScreenerDiscussion() {
   const initDiscussion = async (ticker: string, force = false) => {
     if (!ticker) return;
     const current = discussions[ticker];
-    if (current?.data && !force && current.messages.length > 0) return;
+    if (current && !force && current.messages.length > 0) return;
 
     setDiscussions(prev => ({
       ...prev,
@@ -37,17 +37,14 @@ export function useScreenerDiscussion() {
     }));
 
     try {
-      const [history, discRes] = await Promise.all([
-        api.getScreenerChatHistory(ticker).catch(() => []),
-        api.discussScreener(ticker, {}).catch(() => null),
-      ]);
+      const history = await api.getScreenerChatHistory(ticker).catch(() => []);
 
       setDiscussions(prev => ({
         ...prev,
         [ticker]: {
           isLoading: false,
           isSending: false,
-          data: discRes,
+          data: prev[ticker]?.data || null,
           messages: history && history.length > 0 ? history : [],
           inputQuestion: prev[ticker]?.inputQuestion || '',
           error: null,
@@ -63,7 +60,7 @@ export function useScreenerDiscussion() {
           data: prev[ticker]?.data || null,
           messages: prev[ticker]?.messages || [],
           inputQuestion: prev[ticker]?.inputQuestion || '',
-          error: err instanceof Error ? err.message : 'Gagal memuat analisis AI',
+          error: err instanceof Error ? err.message : 'Gagal memuat riwayat diskusi',
         },
       }));
     }

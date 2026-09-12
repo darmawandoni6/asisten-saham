@@ -10,9 +10,15 @@ export type ScreenerSortField =
   | 'convictionScore'
   | 'score'
   | 'ticker'
+  | 'sector'
   | 'price'
   | 'changePct'
+  | 'changeNominal'
   | 'rsi'
+  | 'marketCap'
+  | 'freeFloatPct'
+  | 'roePct'
+  | 'der'
   | 'targetPrice'
   | 'stopLoss'
   | 'riskRewardRatio'
@@ -29,7 +35,7 @@ export const mapScreenerItem = (r: ScreenerRawItem): ScreenerItem => {
 
   if (scoreVal >= 90 || (scoreVal >= 87 && (rrrVal.includes('2.') || rrrVal.includes('3.') || rrrVal.includes('4.')))) {
     defaultConvScore = 10;
-    defaultConvLabel = 'Wajib Dibeli Besok Pagi';
+    defaultConvLabel = 'Wajib Dibeli Besok Pagi (Setup Prima)';
   } else if (scoreVal >= 85) {
     defaultConvScore = 9;
     defaultConvLabel = 'Sangat Direkomendasikan Beli Besok Pagi';
@@ -44,12 +50,21 @@ export const mapScreenerItem = (r: ScreenerRawItem): ScreenerItem => {
     defaultConvLabel = 'Tunggu Konfirmasi Pantulan';
   }
 
+  const changePctVal = r.change_pct ?? r.changePct ?? 0;
+  const changeNomVal =
+    r.change_nominal ??
+    r.changeNominal ??
+    (changePctVal !== 0 && r.price > 0 ? Math.round(r.price * (changePctVal / 100)) : 0);
+
   return {
     ticker: r.ticker,
     name: r.name,
     sector: r.sector,
+    profileSuitability: r.profile_suitability ?? r.profileSuitability ?? 'TRADING',
+    profileSuitabilityLabel: r.profile_suitability_label ?? r.profileSuitabilityLabel ?? 'Cocok Trading',
     price: r.price,
-    changePct: r.change_pct ?? r.changePct ?? 0,
+    changePct: changePctVal,
+    changeNominal: changeNomVal,
     volume: r.volume,
     rsi: r.rsi,
     maStatus: r.ma_status ?? r.maStatus ?? 'Normal',
@@ -57,6 +72,14 @@ export const mapScreenerItem = (r: ScreenerRawItem): ScreenerItem => {
     score: scoreVal,
     convictionScore: r.conviction_score ?? r.convictionScore ?? defaultConvScore,
     convictionLabel: r.conviction_label ?? r.convictionLabel ?? defaultConvLabel,
+    convictionReason: r.conviction_reason ?? r.convictionReason,
+    aiAnalysis: r.ai_analysis ?? r.aiAnalysis,
+    aiSource: r.ai_source ?? r.aiSource,
+    marketCap: r.market_cap ?? r.marketCap ?? null,
+    marketCapFormatted: r.market_cap_formatted ?? r.marketCapFormatted ?? '-',
+    freeFloatPct: r.free_float_pct ?? r.freeFloatPct ?? null,
+    roePct: r.roe_pct ?? r.roePct ?? null,
+    der: r.der ?? null,
     catalyst: r.catalyst || r.why_buy || '',
     actionStance:
       r.action_stance ||
@@ -153,7 +176,7 @@ export function useScreener() {
         setCustomTickerInput('');
         setCustomFeedback({
           type: 'success',
-          message: `Saham ${res.ticker} (${res.name}) berhasil dianalisis! Strategi: ${res.strategy} | AI Score: ${res.score}/100.`,
+          message: `Saham ${res.ticker} (${res.name}) berhasil dianalisis! Sektor: ${res.sector} | Skor AI: ${newItem.convictionScore}/10.`,
         });
       } else {
         setCustomFeedback({
@@ -180,7 +203,7 @@ export function useScreener() {
       setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
-      setSortDirection(field === 'ticker' || field === 'strategy' ? 'asc' : 'desc');
+      setSortDirection(field === 'ticker' || field === 'strategy' || field === 'sector' ? 'asc' : 'desc');
     }
   };
 
@@ -188,7 +211,8 @@ export function useScreener() {
     const matchesTab = activeTab === 'ALL' || item.strategy === activeTab;
     const matchesSearch =
       item.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.sector && item.sector.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPrice = maxPriceFilter === null || item.price <= maxPriceFilter;
     return matchesTab && matchesSearch && matchesPrice;
   });
@@ -197,7 +221,7 @@ export function useScreener() {
     const rawA = a[sortField];
     const rawB = b[sortField];
 
-    if (sortField === 'ticker' || sortField === 'strategy') {
+    if (sortField === 'ticker' || sortField === 'strategy' || sortField === 'sector') {
       const strA = String(rawA ?? '').toLowerCase();
       const strB = String(rawB ?? '').toLowerCase();
       if (strA < strB) return sortDirection === 'asc' ? -1 : 1;

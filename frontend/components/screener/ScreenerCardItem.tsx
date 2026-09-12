@@ -41,9 +41,9 @@ export function ScreenerCardItem({
 
   return (
     <Card className="space-y-4 rounded-2xl border-slate-200 bg-white p-5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs">
-      {/* Card Header: Ticker, Name, Strategy, AI Score & Chart Button */}
+      {/* Card Header: Ticker, Name, Sector (Jenis Saham), Price, Change, RSI & AI Score */}
       <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 font-mono text-xs font-bold text-slate-600">
             #{index + 1}
           </span>
@@ -51,11 +51,30 @@ export function ScreenerCardItem({
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-base font-black text-slate-900">{item.ticker}</span>
               <span className="text-xs font-medium text-slate-500">{item.name}</span>
-              <Badge variant="secondary" className="text-[10px] font-semibold text-slate-600">
-                {item.sector}
+              <Badge variant="secondary" className="border-slate-200 bg-slate-100 text-[10px] font-bold text-slate-700">
+                Sektor: {item.sector}
               </Badge>
+              {item.profileSuitability === 'BOTH' ? (
+                <Badge
+                  variant="outline"
+                  className="border-emerald-200 bg-emerald-50 text-[10px] font-bold text-emerald-800"
+                >
+                  ✨ Trading &amp; Investasi
+                </Badge>
+              ) : item.profileSuitability === 'INVESTASI' ? (
+                <Badge
+                  variant="outline"
+                  className="border-indigo-200 bg-indigo-50 text-[10px] font-bold text-indigo-800"
+                >
+                  🏛️ Cocok Investasi
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-sky-200 bg-sky-50 text-[10px] font-bold text-sky-800">
+                  ⚡ Cocok Trading
+                </Badge>
+              )}
             </div>
-            <div className="mt-0.5 flex items-center gap-2.5">
+            <div className="mt-1 flex flex-wrap items-center gap-2.5">
               <span className="font-mono text-sm font-bold text-slate-900">Rp {formatNumber(item.price)}</span>
               <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-600">
                 Rp {formatNumber(item.price * 100)}/lot
@@ -63,7 +82,10 @@ export function ScreenerCardItem({
               <span
                 className={`font-mono text-xs font-bold ${item.changePct >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}
               >
-                {formatPercent(item.changePct)}
+                {(item.changeNominal ?? 0) >= 0
+                  ? `+${formatNumber(item.changeNominal ?? 0)}`
+                  : formatNumber(item.changeNominal ?? 0)}{' '}
+                ({formatPercent(item.changePct)})
               </span>
               <span className="text-slate-300">•</span>
               <span className="font-mono text-xs text-slate-500">
@@ -72,6 +94,51 @@ export function ScreenerCardItem({
                   className={item.rsi < 35 ? 'text-purple-700' : item.rsi > 70 ? 'text-rose-600' : 'text-slate-800'}
                 >
                   {item.rsi}
+                </strong>
+              </span>
+            </div>
+
+            {/* 4 Fundamental Metrics Badges (Market Cap, Free Float, ROE, DER) */}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
+              <span
+                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-semibold text-slate-700"
+                title="Kapitalisasi Pasar"
+              >
+                🏢 MC: <strong className="font-bold text-slate-900">{item.marketCapFormatted || '-'}</strong>
+              </span>
+              <span
+                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-semibold text-slate-700"
+                title="Porsi Kepemilikan Publik (Free Float)"
+              >
+                🌐 Float:{' '}
+                <strong className="font-bold text-slate-900">
+                  {item.freeFloatPct !== null && item.freeFloatPct !== undefined ? `${item.freeFloatPct}%` : 'N/A'}
+                </strong>
+              </span>
+              <span
+                className={`rounded-md border px-2 py-0.5 font-semibold ${
+                  item.roePct !== null && item.roePct !== undefined && item.roePct >= 10
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border-slate-200 bg-slate-50 text-slate-700'
+                }`}
+                title="Return on Equity (Tingkat Profitabilitas)"
+              >
+                📊 ROE:{' '}
+                <strong className="font-bold">
+                  {item.roePct !== null && item.roePct !== undefined ? `${item.roePct}%` : 'N/A'}
+                </strong>
+              </span>
+              <span
+                className={`rounded-md border px-2 py-0.5 font-semibold ${
+                  item.der !== null && item.der !== undefined && item.der <= 1.0
+                    ? 'border-blue-200 bg-blue-50 text-blue-800'
+                    : 'border-slate-200 bg-slate-50 text-slate-700'
+                }`}
+                title="Debt to Equity Ratio (Rasio Utang terhadap Ekuitas)"
+              >
+                ⚖️ DER:{' '}
+                <strong className="font-bold">
+                  {item.der !== null && item.der !== undefined ? `${item.der}x` : 'N/A (Finansial)'}
                 </strong>
               </span>
             </div>
@@ -106,9 +173,9 @@ export function ScreenerCardItem({
                   ? 'border-blue-200 bg-blue-50 text-blue-900'
                   : 'border-slate-200 bg-slate-50 text-slate-700'
             }`}
-            title="Skor Perhatian (1-10): 10 = Wajib Dibeli Besok Pagi. Klik untuk buka kamus."
+            title="Skor Rekomendasi AI (1-10): 10 = Wajib Dibeli Besok Pagi. Klik untuk buka kamus."
           >
-            <span>{isConv10 ? '🔥' : '⭐'} Skor:</span>
+            <span>{isConv10 ? '🔥' : '⭐'} Skor AI:</span>
             <span className="text-sm font-black">{convScore}/10</span>
             <HelpCircle className="h-3 w-3 opacity-70" />
           </Button>

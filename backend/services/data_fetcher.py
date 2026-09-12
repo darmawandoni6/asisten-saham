@@ -84,6 +84,15 @@ def fetch_and_store_stock_data(ticker: str, db: Session, period: str = "6mo") ->
             } for r in records])
         return pd.DataFrame()
 
+def format_market_cap(market_cap: float) -> str:
+    if not market_cap or market_cap <= 0:
+        return "-"
+    if market_cap >= 1_000_000_000_000:
+        return f"Rp {market_cap / 1_000_000_000_000:.1f} T"
+    if market_cap >= 1_000_000_000:
+        return f"Rp {market_cap / 1_000_000_000:.1f} M"
+    return f"Rp {int(market_cap):,}"
+
 def fetch_stock_profile(ticker: str) -> dict:
     ticker = normalize_ticker(ticker)
     try:
@@ -103,5 +112,63 @@ def fetch_stock_profile(ticker: str) -> dict:
             "sector": "General",
             "industry": "",
             "name": f"{ticker.replace('.JK', '')} Tbk"
+        }
+
+def fetch_stock_fundamentals(ticker: str) -> dict:
+    """
+    Menarik ringkasan fundamental kunci (Market Cap, Free Float, ROE, DER, Sektor) dari Yahoo Finance.
+    """
+    ticker = normalize_ticker(ticker)
+    try:
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+
+        # 1. Market Cap
+        mc = info.get("marketCap")
+        mc_formatted = format_market_cap(float(mc)) if mc else "-"
+
+        # 2. Free Float
+        fs = info.get("floatShares")
+        so = info.get("sharesOutstanding")
+        free_float_pct = round((float(fs) / float(so)) * 100, 1) if (fs and so and float(so) > 0) else None
+
+        # 3. ROE
+        roe_raw = info.get("returnOnEquity")
+        roe_pct = round(float(roe_raw) * 100, 1) if roe_raw is not None else None
+
+        # 4. Debt to Equity (DER)
+        der_raw = info.get("debtToEquity")
+        if der_raw is not None:
+            der_val = round(float(der_raw) / 100.0, 2) if float(der_raw) > 3.0 else round(float(der_raw), 2)
+        else:
+            der_val = None
+
+        sector = info.get("sector") or "General"
+        industry = info.get("industry") or ""
+        short_name = info.get("shortName") or info.get("longName") or f"{ticker.replace('.JK', '')} Tbk"
+
+        return {
+            "ticker": ticker,
+            "name": short_name,
+            "sector": sector,
+            "industry": industry,
+            "market_cap": float(mc) if mc else None,
+            "market_cap_formatted": mc_formatted,
+            "free_float_pct": free_float_pct,
+            "roe_pct": roe_pct,
+            "der": der_val,
+        }
+    except Exception as e:
+        print(f"[fetch_stock_fundamentals] Gagal menarik fundamental {ticker}: {e}")
+        return {
+            "ticker": ticker,
+            "name": f"{ticker.replace('.JK', '')} Tbk",
+            "sector": "General",
+            "industry": "",
+            "market_cap": None,
+            "market_cap_formatted": "-",
+            "free_float_pct": None,
+            "roe_pct": None,
+            "der": None,
         }
 

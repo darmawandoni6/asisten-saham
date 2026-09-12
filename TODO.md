@@ -1,6 +1,6 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–22 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Status: **Tahap 0–23 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
 > Frontend: Next.js 16 Static Export + shadcn/ui (@base-ui/react) + Stockbit Clean Light Mode (`http://localhost:8000`)
 > Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 
@@ -360,4 +360,32 @@
   - **Mode 3 (Anggaran Modal)**: Input harga beli + budget kas (Rp) $\rightarrow$ output lot bulat maksimal ($\lfloor \dots \rfloor$), modal terpakai, dan sisa kas.
   - **Alert Pecahan Budget & Auto-Update**: Notifikasi informatif jika modal menghasilkan sisa kas dengan tombol cepat *⚡ Sesuaikan Input* atau *➕ Tambah Lot*.
   - **Standar Resmi shadcn/ui Tabs**: Komponen [`tabs.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/ui/tabs.tsx) berbasis `@base-ui/react` dengan warna aktif kontras spesifik per mode (Purple, Blue, Emerald).
+
+---
+
+## 🔍 TAHAP 23 — EOD Screener Revamp: Top 10 Fundamental Picks, 1–10 AI Score, Expanded Rows & AI Discussion [SELESAI ✅]
+> Revamp total modul EOD Stock Screener (`/screener`): Pemindaian kurasi Top 10 saham terbaik dengan 4 metrik fundamental (Market Cap, Free Float %, ROE %, DER), skala penilaian skor keyakinan AI 1–10, ulasan objektif AI hibrida teknikal-fundamental, layout tabel expanded row modular, serta panel diskusi AI interaktif multi-turn.
+
+- [x] 23.1 Kurasi Top 10 Rekomendasi & 4 Metrik Fundamental ([`screener_engine.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/screener_engine.py) & [`data_fetcher.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/data_fetcher.py)):
+  - Fungsi `fetch_stock_fundamentals(ticker)` menarik data Market Cap, Free Float %, ROE %, DER, Sektor, dan Nama Emiten dari Yahoo Finance.
+  - Skala Skor Keyakinan AI 1–10 (`conviction_score`) terbobot teknikal (MA, RSI, Breakout) dan fundamental (ROE > 10%, DER < 1.5x, Likuiditas Market Cap).
+  - Algoritma `scan_market_pool(db, top_n=10)` memfilter dan menyajikan 10 saham terbaik berdasarkan skor AI tertinggi.
+- [x] 23.2 Integrasi Informasi Lengkap Saham & Perubahan Nominal ([`routers/screener.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/routers/screener.py) & [`types/index.ts`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/types/index.ts)):
+  - Serialisasi data lengkap: Kode Ticker & Nama Emiten, Jenis Saham (Sektor), Harga Terakhir & Biaya per Lot (`Rp {price * 100}/lot`), Perubahan Harga Nominal Rupiah (`change_nominal`) & Persentase (`change_pct`), RSI(14), Skor Keyakinan 1–10, AI Reason, dan 4 Pill Fundamental (Market Cap terformat, Free Float %, ROE %, DER).
+- [x] 23.3 Expanded Row Layout pada Tabel Screener ([`ScreenerTableView.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/screener/ScreenerTableView.tsx)):
+  - Baris utama tetap ringkas & compact (7 kolom: `# Ticker`, `Harga Close`, `Perubahan`, `RSI`, `Risk:Reward`, `Skor AI`, `Aksi`).
+  - Sektor/Jenis Saham, 4 Pill Fundamental, dan Level Trading (Area Beli, Target TP, Stop Loss) dipindahkan secara elegan ke **Expanded Rows** (`colSpan={7}`) di atas panel diskusi AI.
+- [x] 23.4 Diskusi AI Multi-Turn Terkontekstualisasi ([`ScreenerAIDiscussion.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/components/screener/ScreenerAIDiscussion.tsx) & [`ai_copilot.py`](file:///Users/donidarmawan/Documents/me/assiten-saham/backend/services/ai_copilot.py)):
+  - Chat interaktif per emiten untuk membedah alasan rekomendasi AI dan menjawab pertanyaan spesifik pengguna (*"Kenapa masuk rekomendasi?", "Bisa beli besok?", "Bagaimana prospek fundamental & dividen?", "Apakah utang aman?"*).
+  - Snapshot strip 4 metrik fundamental di header chat dan tombol pertanyaan cepat.
+  - Tombol **`[ 🗑️ Hapus Chat ]`** untuk membersihkan riwayat chat per emiten secara instan.
+  - Tombol & Alert **`[ 🔄 Coba Ulang dengan AI / Hubungkan AI Lagi ]`** otomatis jika respons berasal dari *Rule-Based Expert Engine*.
+  - Terhubung ke tabel `screener_chat_logs` lokal SQLite dengan retensi siklus trading dan auto-purge saat *Scan Sinyal EOD*.
+- [x] 23.5 On-Demand Custom Stock Analyzer & Budget Filter ([`useScreener.ts`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/hooks/useScreener.ts) & [`page.tsx`](file:///Users/donidarmawan/Documents/me/assiten-saham/frontend/app/screener/page.tsx)):
+  - Input kode ticker apa saja (misal `MEDC`, `BREN`, `PGAS`) untuk analisis instan 3 bulan dengan skor 1-10 dan indikator fundamental lengkap.
+  - Budget Filter Bar (`≤ Rp 2.000`, `≤ Rp 1.000`, `≤ Rp 500`, `Semua`) dan instant in-memory client-side sorting.
+- [x] 23.6 Workspace Skill Antigravity ([`.agents/skills/idx-eod-screener/`](file:///Users/donidarmawan/Documents/me/assiten-saham/.agents/skills/idx-eod-screener/)):
+  - Script CLI `scan_screener.py` untuk pemindaian pool saham likuid BEI, filter strategi (`BREAKOUT`, `VALUE`, `OVERSOLD`), filter anggaran harga maksimal (`--max-price`), serta analisis on-demand kode ticker apa saja (`--ticker`).
+  - Output visual terminal: Confidence bar Skor AI 1–10, badge kesesuaian profil (`⚡ Cocok Trading`, `🏛️ Cocok Investasi`, `✨ Trading & Investasi`), 4 metrik fundamental (MC, Float %, ROE %, DER), level transaksi (Area Beli, TP, SL), dan estimasi modal per lot.
+
 

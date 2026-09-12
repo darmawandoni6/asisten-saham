@@ -1132,6 +1132,11 @@ def discuss_screener_recommendation(
     rrr = screener_item.get("risk_reward_ratio", screener_item.get("riskRewardRatio", "1 : 2.0"))
     ma_status = screener_item.get("ma_status", screener_item.get("maStatus", "Normal"))
 
+    market_cap_formatted = screener_item.get("market_cap_formatted") or "-"
+    free_float_pct = screener_item.get("free_float_pct")
+    roe_pct = screener_item.get("roe_pct")
+    der = screener_item.get("der")
+
     # Hitung default Skor Perhatian 1-10
     if score_100 >= 90 or (score_100 >= 87 and ("2." in rrr or "3." in rrr or "4." in rrr)):
         default_conviction_score = 10
@@ -1154,6 +1159,8 @@ def discuss_screener_recommendation(
 
     q_clean = user_question.strip() if user_question else ""
 
+    fund_info_str = f"Market Cap: {market_cap_formatted} | Free Float: {f'{free_float_pct}%' if free_float_pct is not None else 'N/A'} | ROE: {f'{roe_pct}%' if roe_pct is not None else 'N/A'} | DER: {f'{der}x' if der is not None else 'N/A (Sektor Finansial/Aman)'}"
+
     if has_valid_api:
         try:
             history_context = ""
@@ -1168,13 +1175,14 @@ def discuss_screener_recommendation(
                     history_context = "\nRiwayat Diskusi Sebelumnya:\n" + "\n".join(history_lines) + "\n"
 
             system_prompt = (
-                "Anda adalah AI Senior Quantitative Analyst & Technical Strategist spesialis pasar saham Bursa Efek Indonesia (IDX). "
-                "Tugas Anda adalah membedah secara objektif mengapa suatu saham masuk dalam rekomendasi EOD Screener, "
+                "Anda adalah AI Senior Quantitative Analyst & Technical-Fundamental Strategist spesialis pasar saham Bursa Efek Indonesia (IDX). "
+                "Tugas Anda adalah membedah secara objektif mengapa suatu saham direkomendasikan di EOD Screener, "
                 "menilai tingkat kelayakan beli dengan Skor Perhatian (1-10) di mana SKOR 10 berarti 'WAJIB DIBELI BESOK PAGI' "
-                "karena setup teknikalnya sudah matang dan RRR prima, serta menjawab pertanyaan trader secara taktis dan disiplin risiko.\n\n"
+                "karena setup teknikalnya prima dan fundamentalnya sehat, serta menjawab pertanyaan trader/investor mengenai prospek, "
+                "apakah saham ini layak dibeli, valuasi, rasio utang (DER), profitabilitas (ROE), dan manajemen risiko.\n\n"
                 "ATURAN DAN SKALA SKOR PERHATIAN (1-10):\n"
-                "• 10/10: WAJIB DIBELI BESOK PAGI (Setup sempurna, breakout valid/oversold lantai kuat, RRR >= 1:2.0, volume akumulasi).\n"
-                "• 8-9/10: SANGAT DIREKOMENDASIKAN (Kondisi sangat bagus, siap antre dengan konfirmasi pembukaan 09:00 WIB).\n"
+                "• 10/10: WAJIB DIBELI BESOK PAGI (Setup sempurna, breakout valid/oversold kuat, fundamental solid, RRR >= 1:2.0).\n"
+                "• 8-9/10: SANGAT DIREKOMENDASIKAN (Kondisi prima, siap pasang antrean dengan konfirmasi pembukaan 09:00 WIB).\n"
                 "• 6-7/10: LAYAK PANTAU / AKUMULASI (Bagus untuk swing atau cicil DCA bertahap di area support).\n"
                 "• 4-5/10: SPEKULATIF / WAIT & SEE (Volatilitas tinggi atau dekat resisten).\n"
                 "• 1-3/10: HINDARI SEMENTARA (Risiko breakdown lebih dominan).\n\n"
@@ -1183,7 +1191,7 @@ def discuss_screener_recommendation(
                 '  "conviction_score": 10,\n'
                 '  "conviction_label": "Wajib Dibeli Besok Pagi (Setup Sempurna)",\n'
                 '  "conviction_reason": "Ringkasan 1-2 kalimat alasan skor conviction ini...",\n'
-                '  "answer": "Penjelasan detail komprehensif membedah teknikal, alasan rekomendasi, SOP entry jam 09:00 WIB, dan menjawab pertanyaan pengguna jika ada...",\n'
+                '  "answer": "Penjelasan detail komprehensif membedah teknikal, fundamental (Market Cap, ROE, DER, Free Float), alasan rekomendasi, SOP entry jam 09:00 WIB, dan menjawab pertanyaan pengguna jika ada...",\n'
                 '  "suggested_questions": ["Pertanyaan taktis 1", "Pertanyaan taktis 2", "Pertanyaan taktis 3"]\n'
                 "}\n"
                 "Pastikan seluruh harga rupiah bulat (contoh: Rp 1.450)."
@@ -1193,6 +1201,7 @@ def discuss_screener_recommendation(
             Data Rekomendasi Screener EOD:
             - Saham: {ticker} ({name})
             - Sektor: {sector}
+            - Fundamental Kunci: {fund_info_str}
             - Harga Closing Terakhir: Rp {int(price):,} ({change_pct:+.2f}%)
             - Strategi Screener: {strategy}
             - AI Technical Score (0-100): {score_100:.0f}/100
@@ -1205,8 +1214,8 @@ def discuss_screener_recommendation(
             - Wajib Dipantau Besok: {watch_trigger}
 
             {history_context}
-            Pertanyaan Trader:
-            "{q_clean if q_clean else 'Mengapa saham ini direkomendasikan dan berapa skor perhatian (1-10) untuk dibeli besok pagi?'}"
+            Pertanyaan Pengguna:
+            "{q_clean if q_clean else 'Mengapa saham ini direkomendasikan, bagaimana prospek fundamentalnya, dan berapa skor perhatian (1-10) untuk dibeli besok pagi?'}"
             """
 
             resp_text, used_provider = call_llm(
@@ -1227,9 +1236,9 @@ def discuss_screener_recommendation(
             conv_label = parsed.get("conviction_label", default_conviction_label)
             ans = parsed.get("answer") or parsed.get("rationale") or _clean_chat_response(resp_text)
             sugg = parsed.get("suggested_questions") or [
-                f"Apakah aman pasang antrean buy di area {buy_area} saat pembukaan?",
-                f"Berapa porsi lot maksimal dari saldo kas untuk {ticker}?",
-                f"Apa tanda pembatalan setup jika market merah besok?"
+                f"Apakah prospek {ticker} aman untuk swing trade vs hold jangka menengah?",
+                f"Berapa alokasi lot yang ideal dari saldo kas untuk {ticker}?",
+                f"Bagaimana dampak rasio utang/DER ({f'{der}x' if der else 'N/A'}) terhadap kinerja saham ini?"
             ]
 
             return {
@@ -1247,10 +1256,19 @@ def discuss_screener_recommendation(
             print(f"[discuss_screener_recommendation] {active_provider} error: {e}, falling back to rule-based engine")
 
     # Fallback Deterministic Rule-Based Expert Engine
+    fund_summary = f"Dari sisi fundamental, emiten memiliki kapitalisasi pasar {market_cap_formatted}"
+    if roe_pct is not None:
+        fund_summary += f", profitabilitas ROE {roe_pct}%"
+    if der is not None:
+        fund_summary += f", serta rasio utang DER {der}x"
+    if free_float_pct is not None:
+        fund_summary += f" dengan kepemilikan publik (Free Float) {free_float_pct}%"
+    fund_summary += "."
+
     if strategy == "BREAKOUT":
         rec_detail = (
             f"Saham {ticker} ({name}) berhasil menembus dan bertahan di atas garis penahan MA20 dengan indikator RSI {rsi:.1f}. "
-            f"Fase sideways telah selesai dan fase ekspansi momentum bullish dimulai. "
+            f"Fase sideways telah selesai dan fase ekspansi momentum bullish dimulai. {fund_summary} "
             f"Rasio Risk:Reward tercatat menarik pada {rrr} dengan target penguatan menuju Rp {int(target_price):,} "
             f"dan batas proteksi ketat (Stop Loss) di Rp {int(stop_loss):,}."
         )
@@ -1262,6 +1280,7 @@ def discuss_screener_recommendation(
     elif strategy == "OVERSOLD":
         rec_detail = (
             f"Saham {ticker} ({name}) mengalami tekanan jual jenuh ekstrem dengan RSI {rsi:.1f} tepat di atas lantai Support Mayor. "
+            f"{fund_summary} "
             f"Secara statistik, probabilitas terjadinya pantulan teknikal (Technical Rebound / Buy on Weakness) sangat tinggi "
             f"dengan potensi gain menuju Rp {int(target_price):,} dan risiko terbatas pada level Stop Loss Rp {int(stop_loss):,} (RRR {rrr})."
         )
@@ -1273,7 +1292,7 @@ def discuss_screener_recommendation(
     else:  # VALUE
         rec_detail = (
             f"Saham {ticker} ({name}) merupakan emiten berbobot fundamental solid di sektor {sector} yang sedang berkonsolidasi sehat "
-            f"di area lantai MA50 (Rp {int(price):,}). Valuasi saat ini berada di area diskon akumulasi institusi dengan rasio RRR {rrr}."
+            f"di area lantai MA50 (Rp {int(price):,}). {fund_summary} Valuasi saat ini berada di area akumulasi dengan rasio RRR {rrr}."
         )
         action_sop = (
             f"1. **Buka Market (09:00 WIB)**: Antre santai di area beli ideal {buy_area}.\n"
@@ -1304,12 +1323,12 @@ def discuss_screener_recommendation(
         "ticker": ticker,
         "conviction_score": default_conviction_score,
         "conviction_label": default_conviction_label,
-        "conviction_reason": f"Setup {strategy} dengan AI Score {score_100:.0f}/100 dan RRR {rrr}.",
+        "conviction_reason": f"Setup {strategy} dengan AI Score {score_100:.0f}/100, RRR {rrr}, dan {fund_tag_str if 'fund_tag_str' in locals() else 'fundamental stabil'}.",
         "answer": full_answer,
         "suggested_questions": [
             f"Apakah aman pasang antrean buy di area {buy_area} saat pembukaan 09:00 WIB?",
-            f"Berapa alokasi lot yang ideal untuk saldo kas saya?",
-            f"Apa level invalidasi jika IHSG mengalami koreksi besok?"
+            f"Bagaimana prospek laba dan rasio utang/DER emiten ini?",
+            f"Berapa alokasi lot yang ideal untuk saldo kas saya?"
         ]
     }
 

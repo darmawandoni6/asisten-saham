@@ -75,16 +75,32 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
   - Modal interaktif menyajikan 4 pilar analisis mendalam: Logika Utama, Batas Risiko & Invalidasi (Plan B), Arus Kas & Estimasi Waktu, serta Checklist Aksi Jam Bursa Besok Pagi.
   - Tanya jawab interaktif lanjutan (Q&A) dengan Gemini 2.0 Flash / 9Router AI / Rule-Based Expert Engine.
 
-### 5. 🔍 EOD Stock Screener & 3-Pilar Watchlist Intelijen (`/screener`)
-* **Filter Anggaran Terjangkau (Budget Filter Bar)**: Pilihan filter cepat khusus modal terukur (**`≤ Rp 2.000 (Default)`**, **`≤ Rp 1.000`**, **`≤ Rp 500`**, dan **`Semua Harga`**), lengkap dengan label estimasi modal riil per lot (**`Rp {price * 100}/lot`**) pada tampilan Kartu maupun Tabel.
-* **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
-  - 💡 **Pilar 1 (Alasan Rekomendasi / Why Buy)**: Ulasan teknikal objektif berbasis data historis (status MA20/50, RSI oversold, momentum breakout).
-  - 👁️ **Pilar 2 (Hal Wajib Dipantau Besok / Watch Trigger 09:00 WIB)**: Syarat objektif saat market buka pagi hari sebelum melakukan entry.
-  - 🎯 **Pilar 3 (Panduan Level & Risk:Reward Ratio)**: Area beli ideal, Target TP, Stop Loss, dan rasio *Risk:Reward* (RRR) otomatis.
-* **Client-Side (FE-Only) Sorting**: Pengurutan tabel super cepat tanpa beban query database pada seluruh kolom (Ticker, Strategi, Harga Close, Perubahan %, RSI, TP, SL, RRR, AI Score).
-* **Top 25 Rekomendasi Terkurasi & Universe Likuid Terjangkau**: Pemindaian universe saham likuid BEI (termasuk emiten berfundamental sehat di bawah Rp 2.000 seperti `MBMA`, `ENRG`, `IATA`, `BRIS`, `AKRA`, `SIDO`, `DEWA`, `BUMI`, `ELSA`, `ERAA`, `MAPA`, `BBTN`) pasca-closing market yang otomatis disortir berdasarkan AI Score tertinggi.
-* **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung dianalisis kondisi teknikalnya dan dimasukkan ke daftar screener.
-* **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 2.0)**, dan arti tingkatan **AI Score (0–100)** secara instan.
+### 5. 🔍 EOD Stock Screener & AI Intelligence (`/screener`)
+* **Top 10 Rekomendasi Terkurasi EOD**: Pemindaian universe saham likuid BEI (termasuk emiten berfundamental sehat $\le$ Rp 2.000) pasca-closing market yang disaring menjadi **Top 10 saham terbaik** berdasarkan Skor Keyakinan AI 1–10.
+* **4 Metrik Fundamental Terintegrasi**: Auto-fetch indikator fundamental kunci langsung dari Yahoo Finance:
+  - 🏛️ **Market Cap**: Kapitalisasi pasar terformat (Triliun/Miliar Rupiah).
+  - 🌊 **Free Float %**: Rasio saham publik yang beredar bebas di pasar.
+  - 📈 **Return on Equity (ROE %)**: Efisiensi profitabilitas laba bersih terhadap ekuitas.
+  - ⚖️ **Debt to Equity Ratio (DER)**: Rasio kesehatan utang berbunga terhadap modal sendiri.
+* **Informasi Saham Komprehensif**:
+  - Kode Saham & Nama Emiten lengkap dengan Jenis Saham (Sektor Industri).
+  - **Badge Kesesuaian Profil**: Klasifikasi otomatis `⚡ Cocok Trading` (disiplin SL), `🏛️ Cocok Investasi` (akumulasi DCA), atau `✨ Trading & Investasi` (bluechip breakout).
+  - Harga Terakhir & Estimasi Modal per Lot (`Rp {price * 100}/lot`).
+  - Perubahan Harga Nominal Rupiah (`+Rp 20` / `-Rp 10`) & Persentase (`%`).
+  - RSI(14) & Rasio Risk:Reward (RRR).
+  - **Skor Keyakinan AI 1–10** (AI Conviction Score) & **Reason dari AI** (ulasan hibrida teknikal + fundamental dengan validasi RRR).
+* **Tabel Screener Modern dengan Expanded Row Layout**:
+  - Tampilan baris utama rapi & ringkas (7 kolom utama: `# Ticker`, `Harga Close`, `Perubahan`, `RSI`, `Risk:Reward`, `Skor AI`, `Aksi`).
+  - Sektor/Jenis Saham, 4 Pill Fundamental, dan Level Trading (Area Beli, TP, SL) berada di **Expanded Row** (`colSpan={7}`) bersama panel diskusi AI.
+* **💬 Diskusi AI Multi-Turn Terkontekstualisasi (`ScreenerAIDiscussion`)**:
+  - Chat interaktif langsung untuk membedah alasan AI merekomendasikan saham tersebut.
+  - Tanya jawab fleksibel (*"Bisa beli besok?", "Bagaimana prospek fundamental & dividen?", "Apakah utang aman?"*).
+  - Snapshot strip 4 indikator fundamental dan tombol pertanyaan cepat.
+  - Tombol **`[ 🗑️ Hapus Chat ]`** untuk reset percakapan instan dan **`[ 🔄 Coba Ulang AI ]`** jika menggunakan rule-based fallback.
+* **Filter Anggaran Terjangkau (Budget Filter Bar)**: Pilihan filter cepat khusus modal terukur (**`≤ Rp 2.000 (Default)`**, **`≤ Rp 1.000`**, **`≤ Rp 500`**, dan **`Semua Harga`**).
+* **Analisis Saham Kustom (On-Demand)**: Pengguna dapat mengetik kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`) untuk langsung menganalisis teknikal + fundamental 3 bulan dan memasukkannya ke daftar screener.
+* **Client-Side (FE-Only) Sorting**: Pengurutan tabel super cepat tanpa beban query database pada seluruh kolom (Ticker, Sektor, Harga Close, Perubahan %, RSI, Market Cap, ROE, DER, RRR, Skor AI).
+* **Quick Modal Bantuan (`[ℹ️ Kamus Badge]`) & Tooltips**: Pop-up interaktif untuk melihat formula strategi, perbedaan **RRR vs Skor AI**, matematika **Risk : Reward Ratio (RRR $\ge$ 1 : 1.5)**, dan glosarium indikator.
 
 ### 6. 📈 Interactive Candlestick Chart
 * Grafik candlestick harian berbasis **TradingView Lightweight Charts v5**.
@@ -101,6 +117,7 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 ### 8. 🤖 Workspace Skills (`.agents/skills/`)
 * **`idx-eod-sync` (`.agents/skills/idx-eod-sync/`)**: Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa Yahoo Finance, menghitung ulang indikator teknikal, menyinkronkan saldo kas, dan mencetak laporan eksekutif pasca-closing.
 * **`idx-recovery-plan` (`.agents/skills/idx-recovery-plan/`)**: Modul skill otomatis Antigravity untuk memindai saham floating loss, menjalankan kalkulasi AI 3-skenario (Cut Loss, Average Down, Hold), dan mencetak visual conviction bar di terminal.
+* **`idx-eod-screener` (`.agents/skills/idx-eod-screener/`)**: Modul skill otomatis Antigravity untuk memindai pasar saham BEI, mengkurasi Top Picks dengan 4 pilar fundamental (Market Cap, Float %, ROE %, DER), menghitung Risk:Reward Ratio (RRR), memberikan skor keyakinan AI 1–10, mengklasifikasikan kesesuaian profil (`⚡ Cocok Trading`, `🏛️ Cocok Investasi`, `✨ Trading & Investasi`), serta menganalisis saham kustom on-demand.
 
 ### 9. ⚡ Ultra-Light Architecture & Auto-Shutdown (0 MB RAM saat Idle)
 * **Single-Process FastAPI Port 8000**: Frontend Next.js di-export menjadi static web bundle (`frontend/out`) dan disajikan langsung oleh FastAPI. Server Node.js **tidak perlu berjalan di background** (hemat ~100MB RAM permanen).
@@ -192,6 +209,12 @@ Data pasar BEI otomatis ditarik setiap Senin–Jumat pukul 17:30 WIB. Namun Anda
   make sync-eod
   # atau
   ./backend/venv/bin/python .agents/skills/idx-eod-sync/scripts/sync_eod.py
+
+  # Analisis rencana pemulihan modal (Recovery Plan)
+  ./backend/venv/bin/python .agents/skills/idx-recovery-plan/scripts/sync_recovery.py
+
+  # Pemindaian pasar saham EOD Screener (Top Picks)
+  ./backend/venv/bin/python .agents/skills/idx-eod-screener/scripts/scan_screener.py
 
   # Atau via cURL (saat server backend aktif)
   curl -s -X POST http://localhost:8000/api/v1/stocks/fetch-all

@@ -235,6 +235,8 @@ export interface ScreenerRawItem {
   price: number;
   change_pct?: number;
   changePct?: number;
+  change_nominal?: number;
+  changeNominal?: number;
   volume: number;
   rsi: number;
   ma_status?: string;
@@ -245,6 +247,25 @@ export interface ScreenerRawItem {
   convictionScore?: number;
   conviction_label?: string;
   convictionLabel?: string;
+  conviction_reason?: string;
+  convictionReason?: string;
+  ai_analysis?: string;
+  aiAnalysis?: string;
+  ai_source?: string;
+  aiSource?: string;
+  profile_suitability?: 'TRADING' | 'INVESTASI' | 'BOTH';
+  profileSuitability?: 'TRADING' | 'INVESTASI' | 'BOTH';
+  profile_suitability_label?: string;
+  profileSuitabilityLabel?: string;
+  market_cap?: number | null;
+  marketCap?: number | null;
+  market_cap_formatted?: string;
+  marketCapFormatted?: string;
+  free_float_pct?: number | null;
+  freeFloatPct?: number | null;
+  roe_pct?: number | null;
+  roePct?: number | null;
+  der?: number | null;
   catalyst?: string;
   support: number;
   resistance: number;
@@ -272,8 +293,11 @@ export interface ScreenerItem {
   ticker: string;
   name: string;
   sector: string;
+  profileSuitability?: 'TRADING' | 'INVESTASI' | 'BOTH';
+  profileSuitabilityLabel?: string;
   price: number;
   changePct: number;
+  changeNominal?: number;
   volume: number;
   rsi: number;
   maStatus: string;
@@ -281,6 +305,14 @@ export interface ScreenerItem {
   score: number; // 0 - 100
   convictionScore?: number; // 1 - 10 (10 = Wajib Dibeli Besok Pagi)
   convictionLabel?: string;
+  convictionReason?: string;
+  aiAnalysis?: string;
+  aiSource?: string;
+  marketCap?: number | null;
+  marketCapFormatted?: string;
+  freeFloatPct?: number | null;
+  roePct?: number | null;
+  der?: number | null;
   catalyst: string;
   support: number;
   resistance: number;

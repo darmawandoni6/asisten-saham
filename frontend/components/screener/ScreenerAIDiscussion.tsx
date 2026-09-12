@@ -1,8 +1,18 @@
 'use client';
 
-import React from 'react';
-
-import { AlertTriangle, Bot, Eye, HelpCircle, Loader2, Send, Sparkles, Target, Trash2, User } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bot,
+  Eye,
+  HelpCircle,
+  Loader2,
+  RotateCw,
+  Send,
+  Sparkles,
+  Target,
+  Trash2,
+  User,
+} from 'lucide-react';
 
 import { MarkdownText } from '@/components/MarkdownText';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -40,11 +50,22 @@ export function ScreenerAIDiscussion({
     error: null,
   };
 
-  const convScore = disc.data?.conviction_score ?? item.convictionScore ?? 8;
+  const lastAssistantMsg = [...disc.messages].reverse().find(m => m.role === 'assistant');
+  const activeSource = lastAssistantMsg?.source || disc.data?.source || item.aiSource;
+  const isRuleBased = activeSource === 'rule_based';
+
+  const handleRetryAI = () => {
+    const lastUserMsg = [...disc.messages].reverse().find(m => m.role === 'user');
+    const questionToRetry =
+      lastUserMsg?.message || `Kenapa saham ${item.ticker} ini masuk rekomendasi dan bagaimana prospeknya?`;
+    onSendQuestion(item.ticker, questionToRetry);
+  };
+
+  const convScore = item.convictionScore ?? disc.data?.conviction_score ?? 8;
   const isConv10 = convScore >= 10;
   const convLabel =
-    disc.data?.conviction_label ??
     item.convictionLabel ??
+    disc.data?.conviction_label ??
     (isConv10
       ? 'Wajib Dibeli Besok Pagi'
       : convScore >= 9
@@ -57,24 +78,44 @@ export function ScreenerAIDiscussion({
     disc.data?.suggested_questions && disc.data.suggested_questions.length > 0
       ? disc.data.suggested_questions
       : [
-          `Apakah aman pasang antrean buy di area ${item.buyArea} saat pembukaan 09:00 WIB?`,
-          `Berapa alokasi lot yang ideal dari saldo kas untuk ${item.ticker}?`,
-          `Apa batas invalidasi risiko jika market bergerak koreksi besok?`,
+          `Kenapa saham ${item.ticker} ini masuk rekomendasi dan bagaimana prospeknya?`,
+          `Bisakah saham ${item.ticker} ini saya beli besok pagi pada jam 09:00 WIB?`,
+          `Bagaimana kesehatan fundamental (ROE ${item.roePct ?? 'N/A'}% & DER ${item.der ?? 'N/A'}x) emiten ini?`,
+          `Berapa batas risiko Stop Loss dan area antre beli idealnya?`,
         ];
 
   return (
     <div className="space-y-4">
       {/* 1. Conviction Score Bar & Technical Assessment Row */}
       <div className="grid grid-cols-1 gap-3.5 text-xs md:grid-cols-3">
-        {/* Box 1: Alasan Rekomendasi (Why Buy) */}
+        {/* Box 1: Alasan Rekomendasi (Why Buy) + Snapshot Fundamental */}
         <Card className="space-y-1.5 rounded-xl border-slate-200 bg-white p-3.5 shadow-2xs">
           <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-slate-900 uppercase">
             <span className="text-emerald-600">💡</span>
             <span>Alasan Rekomendasi:</span>
           </div>
           <p className="font-sans leading-relaxed text-slate-700">{item.whyBuy || item.catalyst}</p>
-          <div className="pt-1 font-mono text-[11px] text-slate-500">
-            Status MA: <strong className="text-slate-800">{item.maStatus}</strong>
+          <div className="space-y-1 pt-1.5 font-mono text-[10px] text-slate-500">
+            <div>
+              Status MA: <strong className="text-slate-800">{item.maStatus}</strong>
+            </div>
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
+                MC: <strong>{item.marketCapFormatted || '-'}</strong>
+              </span>
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
+                Float:{' '}
+                <strong>
+                  {item.freeFloatPct !== null && item.freeFloatPct !== undefined ? `${item.freeFloatPct}%` : 'N/A'}
+                </strong>
+              </span>
+              <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">
+                ROE: <strong>{item.roePct !== null && item.roePct !== undefined ? `${item.roePct}%` : 'N/A'}</strong>
+              </span>
+              <span className="rounded bg-blue-50 px-1.5 py-0.5 text-blue-800">
+                DER: <strong>{item.der !== null && item.der !== undefined ? `${item.der}x` : 'N/A'}</strong>
+              </span>
+            </div>
           </div>
         </Card>
 
@@ -205,25 +246,43 @@ export function ScreenerAIDiscussion({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
             {/* Provider Badge */}
             <Badge
               variant="outline"
               className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold ${
-                disc.data?.source && disc.data.source !== 'rule_based'
+                !isRuleBased
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                  : 'border-slate-200 bg-slate-100 text-slate-600'
+                  : 'border-amber-200 bg-amber-50 text-amber-800'
               }`}
             >
-              <Sparkles className="h-3 w-3 text-emerald-600" />
+              <Sparkles className={`h-3 w-3 ${!isRuleBased ? 'text-emerald-600' : 'text-amber-600'}`} />
               <span>
-                {disc.data?.source === '9router'
+                {activeSource === '9router'
                   ? '9Router AI'
-                  : disc.data?.source && disc.data.source !== 'rule_based'
+                  : !isRuleBased && activeSource
                     ? 'AI Copilot'
-                    : 'Rule-Based Expert Engine'}
+                    : isRuleBased
+                      ? 'Rule-Based Expert Engine'
+                      : '9Router AI Ready'}
               </span>
             </Badge>
+
+            {/* Retry Button if Rule-Based */}
+            {isRuleBased && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRetryAI}
+                disabled={disc.isSending}
+                className="h-6 gap-1 border-amber-300 bg-amber-50 px-2 text-[10px] font-bold text-amber-800 hover:bg-amber-100"
+                title="Coba hubungkan kembali ke AI LLM"
+              >
+                <RotateCw className={`h-2.5 w-2.5 ${disc.isSending ? 'animate-spin' : ''}`} />
+                <span>Coba Ulang AI</span>
+              </Button>
+            )}
 
             {/* Clear History Button */}
             {disc.messages.length > 0 && (
@@ -232,8 +291,8 @@ export function ScreenerAIDiscussion({
                 variant="ghost"
                 size="sm"
                 onClick={() => onClearHistory(item.ticker)}
-                className="h-6 gap-1 px-1.5 text-[11px] font-semibold text-slate-400 hover:text-rose-600"
-                title="Hapus riwayat chat emiten ini"
+                className="h-6 gap-1 px-1.5 text-[11px] font-semibold text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                title="Hapus seluruh riwayat chat saham ini"
               >
                 <Trash2 className="h-3 w-3" />
                 <span>Hapus Chat</span>
@@ -241,6 +300,29 @@ export function ScreenerAIDiscussion({
             )}
           </div>
         </div>
+
+        {/* Rule-Based Fallback Alert Banner & Retry CTA */}
+        {isRuleBased && (
+          <div className="flex flex-col items-start justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-2.5 text-xs text-amber-900 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+              <span>
+                <strong>Mode Offline/Rule-Based:</strong> Respon dihasilkan oleh Expert Engine berbasis indikator.
+              </span>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={disc.isSending}
+              onClick={handleRetryAI}
+              className="h-6.5 shrink-0 gap-1 rounded-lg border-amber-300 bg-white px-2.5 text-[11px] font-bold text-amber-800 shadow-2xs hover:bg-amber-100"
+            >
+              <RotateCw className={`h-3 w-3 ${disc.isSending ? 'animate-spin' : ''}`} />
+              <span>Hubungkan AI Lagi</span>
+            </Button>
+          </div>
+        )}
 
         {/* Loading initial discussion state */}
         {disc.isLoading && disc.messages.length === 0 ? (
@@ -260,11 +342,12 @@ export function ScreenerAIDiscussion({
                 <MarkdownText
                   content={
                     disc.data?.answer ||
-                    `Saham **${item.ticker}** (${item.name}) masuk rekomendasi strategi **${item.strategy}** dengan AI Score **${item.score}/100** dan Rasio Risk:Reward **${item.riskRewardRatio}**.\n\n` +
+                    `Saham **${item.ticker}** (${item.name}) masuk rekomendasi strategi **${item.strategy}** dengan Skor Keyakinan **${item.convictionScore ?? 8}/10** dan Rasio Risk:Reward **${item.riskRewardRatio}**.\n\n` +
                       `* **Area Beli Ideal**: ${item.buyArea}\n` +
                       `* **Target Profit (TP)**: Rp ${formatNumber(item.targetPrice || item.resistance)} (+${item.potentialGainPct}%)\n` +
                       `* **Stop Loss (SL)**: Rp ${formatNumber(item.stopLoss || item.support)} (-${item.potentialRiskPct}%)\n\n` +
-                      `**Checklist Jam 09:00 WIB**: ${item.watchTrigger}`
+                      `**Checklist Jam 09:00 WIB**: ${item.watchTrigger}\n\n` +
+                      `*👉 Klik tombol **Pertanyaan Cepat** di bawah atau ketik pertanyaan Anda untuk memulai diskusi interaktif bersama 9Router AI.*`
                   }
                   className="text-xs leading-relaxed"
                 />

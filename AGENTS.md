@@ -140,33 +140,40 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 ### G. Workspace Skills (`.agents/skills/`)
 - **`idx-eod-sync` (`.agents/skills/idx-eod-sync/`)**: Modul skill otomatis Antigravity untuk menjalankan penarikan data closing bursa, menghitung indikator teknikal, mendiagnosis portofolio, dan mencetak laporan eksekutif pasca-closing.
 - **`idx-recovery-plan` (`.agents/skills/idx-recovery-plan/`)**: Modul skill otomatis Antigravity untuk menganalisis saham floating loss menggunakan AI Tri-Scenario Recovery Engine (Cut Loss, Precision Average Down, Hold for Exit Rebound), menghitung skor keyakinan 1–10, saran alokasi lot riil, serta mencetak rencana eksekusi penyelamatan modal.
+- **`idx-eod-screener` (`.agents/skills/idx-eod-screener/`)**: Modul skill otomatis Antigravity untuk memindai pasar saham BEI, mengkurasi Top Picks dengan 4 pilar fundamental (Market Cap, Float %, ROE %, DER), menghitung Risk:Reward Ratio (RRR), memberikan skor keyakinan AI 1–10, mengklasifikasikan kesesuaian profil (`⚡ Cocok Trading`, `🏛️ Cocok Investasi`, `✨ Trading & Investasi`), serta menganalisis saham kustom on-demand.
 - Database SQLite di `backend/database.py` dan `.env` dipatok absolut ke `/Users/donidarmawan/Documents/me/assiten-saham/backend/assiten_saham.db` sehingga eksekusi dari CLI / skill Antigravity dari folder kerja mana pun selalu merujuk ke database yang sama persis tanpa duplikasi file kosong di root folder.
 
 ### H. Kamus Lengkap Badge & Glosarium Terintegrasi
 - **Pusat Kamus (`/guide` Tab 3)**: Memetakan 4 kategori (Badge Screener `OVERSOLD`/`BREAKOUT`/`VALUE` + AI Score scale, Badge Kelayakan Recovery, 5 Warna Status Aksi Dashboard, dan Glosarium Istilah Pasar Modal).
 - **Quick Modal Bantuan (`/screener`)**: Komponen modal pop-up `[ℹ️ Kamus Badge]` di samping tombol scan untuk referensi instan tanpa meninggalkan halaman.
 
-### I. EOD Screener Top Picks, Budget Filter & Analisis Kustom On-Demand
-- **Expanded Universe Saham Likuid Terjangkau**: Pool emiten pada `STOCK_PROFILES` di `backend/services/screener_engine.py` diperluas mencakup saham likuid dan fundamental stabil dengan harga $\le$ Rp 2.000 (seperti `MBMA`, `ENRG`, `IATA`, `BRIS`, `AKRA`, `SIDO`, `DEWA`, `BUMI`, `ELSA`, `ERAA`, `MAPA`, `BBTN`, dll) dengan kuota screening Top 25 picks (`scan_market_pool(db, top_n=25)`).
+### I. EOD Screener Top 10 Curated Picks, 4 Fundamental Metrics & AI Intelligence
+- **Top 10 Rekomendasi Terkurasi**: Pool emiten likuid BEI $\le$ Rp 2.000 pada `STOCK_PROFILES` di `backend/services/screener_engine.py` dipindai dan dikurasi menjadi **Top 10 picks** (`scan_market_pool(db, top_n=10)`) berdasarkan Skor Keyakinan AI 1–10 (`conviction_score`).
+- **4 Metrik Fundamental Terintegrasi**: Fungsi `fetch_stock_fundamentals(ticker)` di `backend/services/data_fetcher.py` mengambil:
+  1. *Market Cap*: Nilai kapitalisasi pasar (format Triliun/Miliar Rp).
+  2. *Free Float %*: `(floatShares / sharesOutstanding) * 100`.
+  3. *Return on Equity (ROE %)*: Laba bersih / ekuitas emiten.
+  4. *Debt to Equity Ratio (DER)*: Rasio total utang / ekuitas (khusus perbankan/finansial ditampilkan `N/A`).
+- **Skala Skor Keyakinan AI 1–10**:
+  - Skor keyakinan objektif menggabungkan parameter teknikal (MA20/50, RSI, Breakout) dan penguat fundamental (+1.0 untuk ROE > 10%, +0.5 untuk DER < 1.0x, +0.5 untuk MC > 10T).
+  - Alasan AI hibrida menyajikan evaluasi kondisi teknikal dan kesehatan fundamental secara terpadu.
 - **Budget Filter Bar & Estimasi Modal per Lot (`frontend/app/screener/page.tsx`)**:
   - Filter anggaran cepat khusus modal terukur: `≤ Rp 2.000 (Default)`, `≤ Rp 1.000`, `≤ Rp 500`, dan `Semua Harga`.
   - Tampilan Kartu & Tabel menampilkan label estimasi modal riil per lot (`Rp {price * 100}/lot`) untuk mempermudah alokasi kas RDN tanpa over-sizing.
-- **On-Demand Custom Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI di luar daftar rekomendasi (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal (MA, RSI, Support, Resistance), menentukan strategi & AI Score, serta menyimpannya ke database `ScreenerResult`.
+- **On-Demand Custom Stock Analyzer**: Endpoint `POST /api/v1/screener/analyze` memungkinkan pengguna memasukkan kode ticker BEI apa saja (contoh: `BREN`, `AMMN`, `PGAS`, `MEDC`). Sistem otomatis mengambil data 3 bulan dari Yahoo Finance, menghitung indikator teknikal + fundamental, menentukan strategi & AI Score 1–10, serta menyimpannya ke database `ScreenerResult`.
 
-### J. 3-Pilar Intelijen Rekomendasi, SOP 4 Langkah & Edukasi RRR
-- **Pusat Intelijen 3 Pilar (Bukan Tombol Beli Statis)**:
-  1. `Alasan Rekomendasi (Why Buy)`: Landasan teknikal objektif mengapa saham terpilih dari data historis (status MA, oversold RSI, breakout).
-  2. `Wajib Dipantau Besok (Watch Trigger 09:00 WIB)`: Syarat konfirmasi saat pembukaan market sebelum melakukan entry.
-  3. `Panduan Level & Risk/Reward Ratio (RRR)`: Area beli ideal, target resistance (TP), batas support/invalidasi (SL), dan rasio *Risk:Reward* (RRR) otomatis.
-- **SOP 4 Langkah Cara Memilih Saham di Screener (Tertanam di `/guide` Tab 2)**:
-  1. *Langkah 1 (Filter Anggaran)*: Sesuaikan dengan Saldo Kas RDN, patuhi aturan alokasi $\le$ 20–25% modal per saham (anti *all-in*).
-  2. *Langkah 2 (Pilih Strategi)*: Selaraskan karakter trader (Oversold = *Buy on Weakness*, Breakout = *Trend Following*, Value = *Medium-term Swing*).
-  3. *Langkah 3 (Validasi 3 Pilar)*: Wajib periksa AI Score $\ge 80-85$, RRR $\ge 1 : 2.0$, dan baca trigger pembukaan jam 09:00 WIB.
-  4. *Langkah 4 (Order Disiplin di Sekuritas)*: Antre di area beli ideal, pasang Stop Order (GTC) otomatis, dan pasang TP1 untuk kunci laba 50% lot.
-- **Client-Side (FE-Only) Sorting**: Pengurutan tabel sepenuhnya diproses in-memory di React state (`sortedItems`) pada seluruh kolom (Ticker, Strategi, Harga, Perubahan %, RSI, TP, SL, RRR, AI Score) tanpa re-query backend.
+### J. Expanded Row Table Layout & Multi-Turn AI Screener Discussion
+- **Tabel Screener Modern dengan Expanded Rows (`ScreenerTableView.tsx`)**:
+  - Baris utama tetap bersih dan ringkas (7 kolom: `# Ticker`, `Harga Close`, `Perubahan Nominal & %`, `RSI`, `Risk:Reward`, `Skor AI 1-10`, `Aksi`).
+  - Sektor/Jenis Saham, 4 Pill Fundamental (Market Cap, Float %, ROE %, DER), dan Level Trading (Area Beli, Target TP, Stop Loss) diposisikan pada baris ekspansi (*expanded rows* `colSpan={7}`) di atas modul diskusi AI.
+- **Multi-Turn AI Discussion (`ScreenerAIDiscussion.tsx` & `ai_copilot.py`)**:
+  - Diskusi interaktif langsung untuk setiap emiten di screener via endpoint `POST /api/v1/screener/{ticker}/discuss`.
+  - Terkoneksi ke 9Router / OpenAI LLM dengan fallback transparan ke Rule-Based Expert Engine.
+  - Percakapan multi-turn disimpan permanen di tabel `screener_chat_logs` SQLite dan dibersihkan otomatis saat sinkronisasi data pasar baru.
+- **Client-Side (FE-Only) Sorting**: Pengurutan tabel sepenuhnya diproses in-memory di React state (`sortedItems`) pada seluruh kolom (Ticker, Sektor, Harga, Perubahan %, RSI, Market Cap, ROE, DER, RRR, Skor AI) tanpa re-query backend.
 - **Edukasi Interaktif RRR & AI Score**:
   - Rumus RRR: $1 : (\text{TP} - \text{Entry}) / (\text{Entry} - \text{SL})$. Standar transaksi ideal $\ge 1 : 2.0$.
-  - AI Score (0–100): Filter probabilitas statistik data historis (bukan ramalan masa depan).
+  - AI Conviction Score (1–10): Filter probabilitas statistik data historis & kesehatan fundamental.
   - Terintegrasi di Quick Modal Kamus, Tooltips tabel/kartu, dan Glosarium `/guide` (Tab 3).
 
 ### K. Ultra-Light Architecture & Auto-Shutdown Engine (`backend/routers/system.py`)
@@ -229,15 +236,20 @@ cd frontend && npm run format:check # Verifikasi formatting frontend
 ./backend/venv/bin/python .agents/skills/idx-recovery-plan/scripts/sync_recovery.py
 ./backend/venv/bin/python .agents/skills/idx-recovery-plan/scripts/sync_recovery.py --ticker DEWA.JK --force
 
-# 5. Tes Endpoint Sinkronisasi EOD via API
+# 5. Pindaian Pasar & Analisis Saham EOD Screener via Workspace Skill
+./backend/venv/bin/python .agents/skills/idx-eod-screener/scripts/scan_screener.py
+./backend/venv/bin/python .agents/skills/idx-eod-screener/scripts/scan_screener.py --ticker BREN.JK
+./backend/venv/bin/python .agents/skills/idx-eod-screener/scripts/scan_screener.py --top 5 --strategy BREAKOUT
+
+# 6. Tes Endpoint Sinkronisasi EOD via API
 curl -s -X POST http://localhost:8000/api/v1/stocks/fetch-all
 
-# 6. Tes Endpoint Bedah Logika Skenario AI
+# 7. Tes Endpoint Bedah Logika Skenario AI
 curl -s -X POST http://localhost:8000/api/v1/recovery/SIDO.JK/discuss \
   -H "Content-Type: application/json" \
   -d '{"scenario_id": "holdForBep", "user_question": "apakah dividen aman?"}'
 
-# 7. Tes Endpoint Analisis AI & Dashboard
+# 8. Tes Endpoint Analisis AI & Dashboard
 curl -s -X POST http://localhost:8000/api/v1/analysis/SIDO.JK
 curl -s http://localhost:8000/api/v1/dashboard
 ```
@@ -254,10 +266,14 @@ assiten-saham/
 │       │   ├── SKILL.md       # Panduan operasional & instruksi agent
 │       │   └── scripts/
 │       │       └── sync_eod.py# Script eksekutor penarik data Yahoo Finance
-│       └── idx-recovery-plan/ # Workspace Skill: AI Tri-Scenario Recovery
-│           ├── SKILL.md       # Panduan operasional analisis recovery
+│       ├── idx-recovery-plan/ # Workspace Skill: AI Tri-Scenario Recovery
+│       │   ├── SKILL.md       # Panduan operasional analisis recovery
+│       │   └── scripts/
+│       │       └── sync_recovery.py # Script eksekutor recovery plan
+│       └── idx-eod-screener/  # Workspace Skill: EOD Market Screener & Intelligence
+│           ├── SKILL.md       # Panduan operasional pemindaian pasar
 │           └── scripts/
-│               └── sync_recovery.py # Script eksekutor recovery plan
+│               └── scan_screener.py # Script eksekutor pemindaian pasar & on-demand
 ├── AGENTS.md                  # Panduan operasional AI Agent (file ini)
 ├── README.md                  # Dokumentasi proyek untuk pengguna
 ├── TODO.md                    # Tracking checklist fitur

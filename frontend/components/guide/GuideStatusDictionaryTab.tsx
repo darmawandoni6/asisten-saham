@@ -28,11 +28,19 @@ const GLOSSARY_TERMS = [
   },
   {
     term: 'Risk : Reward Ratio (RRR)',
-    desc: 'Perbandingan antara batas risiko kerugian (jarak harga entry ke Stop Loss) dengan potensi target keuntungan (jarak harga entry ke Take Profit). Nilai ≥ 1 : 2.0 memungkinkan portofolio tetap untung meski win rate hanya 40%.',
+    desc: 'Perbandingan matematis antara jarak risiko kerugian (entry ke Stop Loss) dengan potensi keuntungan (entry ke Take Profit). Nilai ≥ 1 : 1.5 memungkinkan portofolio tetap untung meski win rate hanya 40%.',
   },
   {
-    term: 'AI Technical Score',
-    desc: 'Skor kuantitatif (0–100) yang mengukur tingkat kematangan dan konvergensi indikator teknikal (MA, RSI, Support/Resist) pasca penutupan bursa sebagai saringan probabilitas statistik harian.',
+    term: 'Skor Keyakinan AI (1 – 10)',
+    desc: 'Skala penilaian holistik (1 s/d 10) yang memadukan probabilitas setup teknikal, 4 pilar fundamental (Market Cap, Float %, ROE %, DER), dan validasi RRR untuk menyaring keputusan beli esok pagi.',
+  },
+  {
+    term: 'Kesesuaian Profil (Trading vs Investasi)',
+    desc: 'Klasifikasi cerdas yang membedakan saham: ⚡ Cocok Trading (momentum/siklikal, wajib SL ketat), 🏛️ Cocok Investasi (fundamental solid di support/undervalued), dan ✨ Trading & Investasi (bluechip breakout).',
+  },
+  {
+    term: '4 Pilar Fundamental Screener',
+    desc: 'Metrik kesehatan emiten terintegrasi: Market Cap (kapitalisasi pasar), Free Float % (saham publik), ROE % (tingkat profitabilitas laba bersih), dan DER (beban utang terhadap ekuitas).',
   },
   {
     term: 'Realized PnL vs Floating PnL',
@@ -147,7 +155,7 @@ export function GuideStatusDictionaryTab() {
                   🎯 Risk : Reward Ratio (RRR)
                 </span>
                 <span className="rounded bg-emerald-100 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-900">
-                  Fondasi Profit
+                  Jarak Matematis
                 </span>
               </div>
               <strong className="block text-xs font-bold text-slate-900">
@@ -163,8 +171,8 @@ export function GuideStatusDictionaryTab() {
                 </div>
               </div>
               <p className="text-xs leading-relaxed text-emerald-950">
-                💡 <strong>Simulasi 10 Trade:</strong> Jika 6 trade rugi (-Rp 300) dan 4 trade untung (+Rp 400), total
-                modal tetap <strong>cuan bersih +Rp 100</strong>.
+                💡 <strong>Standar:</strong> &ge; 1 : 1.5 (Layak) | &ge; 1 : 2.0 (Sangat Layak) | &lt; 1 : 1.0
+                (Hindari).
               </p>
             </div>
 
@@ -172,32 +180,68 @@ export function GuideStatusDictionaryTab() {
             <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="block text-xs font-bold tracking-wider text-slate-900 uppercase">
-                  🤖 AI Technical Score (0 – 100)
+                  ⭐ Skor Keyakinan AI (1 – 10)
                 </span>
                 <span className="rounded bg-slate-200 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-800">
-                  Filter Probabilitas
+                  Probabilitas &amp; Kualitas
                 </span>
               </div>
               <strong className="block text-xs font-bold text-slate-900">
-                Tingkat Kematangan Setup &amp; Konvergensi Indikator
+                Kombinasi Teknikal, 4 Fundamental &amp; Validasi RRR
               </strong>
               <p className="text-xs leading-relaxed text-slate-600">
-                Mengukur seberapa ideal titik masuk saat closing bursa (posisi MA, momentum RSI, dan jarak
-                support/resist).
+                Menyaring probabilitas tren MA/RSI, 4 pilar fundamental (ROE, DER, Float, MC), dan validasi RRR.
               </p>
               <div className="space-y-1.5 pt-0.5">
                 <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-1.5 px-2.5 text-[11px]">
-                  <strong className="font-bold text-emerald-800">&ge; 85 (Hijau Zamrud)</strong>
-                  <span className="text-slate-600">Peluang Utama (Setup Sangat Matang)</span>
+                  <strong className="font-bold text-emerald-800">🔥 Skor 10/10 (Wajib Beli)</strong>
+                  <span className="text-slate-600">Setup Prima (Tren Valid, RRR &ge; 1 : 1.8)</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-white p-1.5 px-2.5 text-[11px]">
-                  <strong className="font-bold text-blue-800">75 – 84 (Biru / Amber)</strong>
-                  <span className="text-slate-600">Sinyal Baik (Tunggu Trigger Pagi)</span>
+                  <strong className="font-bold text-blue-800">⚡ Skor 8 – 9/10 (Siaga 1 Beli)</strong>
+                  <span className="text-slate-600">Momentum Kuat (Konfirmasi 09:00 WIB)</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-1.5 px-2.5 text-[11px]">
-                  <strong className="font-bold text-slate-700">&lt; 75 (Abu-abu)</strong>
-                  <span className="text-slate-600">Sinyal Moderat (Hanya Watchlist)</span>
+                  <strong className="font-bold text-slate-700">👀 Skor 6 – 7/10 (Layak Pantau)</strong>
+                  <span className="text-slate-600">Tunggu Pullback / Cicil DCA Support</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Profil Kesesuaian: Trading vs Investasi */}
+          <div className="mt-3 space-y-2 rounded-xl border border-sky-200 bg-sky-50/40 p-4">
+            <div className="flex items-center justify-between">
+              <span className="block text-xs font-bold tracking-wider text-slate-900 uppercase">
+                🧭 Kesesuaian Profil Emiten (Trading vs Investasi)
+              </span>
+              <span className="text-[11px] font-bold text-sky-800">Disiplin Gaya Transaksi</span>
+            </div>
+            <div className="grid grid-cols-1 gap-3 text-xs md:grid-cols-3">
+              <div className="space-y-1 rounded-lg border border-sky-200 bg-white p-3">
+                <Badge variant="outline" className="border-sky-200 bg-sky-50 font-bold text-sky-800">
+                  ⚡ Cocok Trading
+                </Badge>
+                <p className="text-slate-600">Setup momentum/breakout atau emiten siklikal/beban utang lebih tinggi.</p>
+                <span className="block font-bold text-rose-700">👉 Wajib disiplin Stop Loss ketat!</span>
+              </div>
+              <div className="space-y-1 rounded-lg border border-indigo-200 bg-white p-3">
+                <Badge variant="outline" className="border-indigo-200 bg-indigo-50 font-bold text-indigo-800">
+                  🏛️ Cocok Investasi
+                </Badge>
+                <p className="text-slate-600">
+                  Fundamental solid (MC &ge; 10T, ROE &ge; 10%, DER rendah) di area support.
+                </p>
+                <span className="block font-bold text-indigo-800">👉 Cicil akumulasi bertahap (DCA).</span>
+              </div>
+              <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-3">
+                <Badge variant="outline" className="border-emerald-200 bg-emerald-50 font-bold text-emerald-800">
+                  ✨ Trading &amp; Investasi
+                </Badge>
+                <p className="text-slate-600">
+                  Emiten blue chip berfundamental prima yang sedang mengalami bullish breakout.
+                </p>
+                <span className="block font-bold text-emerald-800">👉 Fleksibel untuk swing maupun hold dividen.</span>
               </div>
             </div>
           </div>

@@ -54,14 +54,14 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 >
                   🎯 RISK : REWARD RATIO (RRR)
                 </Badge>
-                <span className="text-[11px] font-bold text-emerald-800">Matematika Ketahanan Modal</span>
+                <span className="text-[11px] font-bold text-emerald-800">Matematika Jarak Harga</span>
               </div>
               <strong className="block text-sm text-slate-900">
-                Kunci Profit Konsisten: Mengapa RRR &ge; 1 : 2.0 Sangat Krusial?
+                Kunci Profit Konsisten: Mengapa RRR &ge; 1 : 1.5 Sangat Krusial?
               </strong>
               <p className="leading-relaxed text-slate-700">
-                RRR membandingkan <strong>berapa rupiah risiko yang Anda korbankan (Stop Loss)</strong> terhadap{' '}
-                <strong>berapa rupiah potensi keuntungan yang Anda incar (Target TP)</strong>.
+                RRR menghitung <strong>jarak rupiah risiko yang Anda tanggung (ke Stop Loss)</strong> dibanding{' '}
+                <strong>jarak rupiah potensi untung yang Anda incar (ke Target TP)</strong>.
               </p>
 
               <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-2">
@@ -92,32 +92,34 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                   1 : 1.5 (Cukup Layak)
                 </Badge>
                 <Badge variant="secondary" className="bg-rose-100 font-medium text-rose-800">
-                  &lt; 1 : 1.0 (Hindari / Tidak Sepadan)
+                  &lt; 1 : 1.0 (Hindari — Risiko Lebih Besar dari Untung)
                 </Badge>
               </div>
             </div>
 
-            {/* 2. Skor Perhatian & Keyakinan Beli (1-10) Section */}
+            {/* 2. Skor Keyakinan AI (1-10) vs RRR Section */}
             <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="block text-xs font-bold tracking-wider text-slate-900 uppercase">
-                  ⭐ SKOR PERHATIAN &amp; KEYAKINAN BELI (1 – 10)
+                  ⭐ SKOR KEYAKINAN AI (1 – 10) VS RISK:REWARD
                 </span>
-                <span className="text-[11px] font-semibold text-slate-500">Skala Keputusan Beli 09:00 WIB</span>
+                <span className="text-[11px] font-semibold text-slate-500">Probabilitas &amp; Kualitas Setup</span>
               </div>
               <p className="leading-relaxed text-slate-600">
-                Skor Perhatian mengukur <strong>tingkat keyakinan dan kesiapan aksi beli</strong> pada pembukaan market
-                esok pagi (09:00 WIB), memadukan kematangan teknikal MA/RSI dengan rasio Risk:Reward (RRR).
+                <strong>Perbedaan Mendasar:</strong> RRR mengukur <em>jarak rupiah untung vs rugi</em>, sedangkan Skor
+                AI mengukur <em>probabilitas keberhasilan setup</em> (menggabungkan MA20/50, RSI, 4 pilar fundamental
+                ROE/DER/MC, dan validasi RRR).
               </p>
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[11px] leading-snug text-amber-950">
-                ⚠️ <strong>ATURAN DISIPLIN:</strong> Skor 10/10 menandakan setup paling prima untuk langsung dipasang
-                antrean beli. Namun tetap patuhi SOP pembukaan 09:00 WIB dan pasang Stop Loss otomatis di sekuritas.
+                ⚠️ <strong>KENAPA SAHAM BULLISH BISA DAPAT SKOR 6/10?</strong> Jika harga sudah terlalu dekat dengan
+                target resisten (sehingga RRR &lt; 1 : 1.0), AI otomatis membatasi skor maksimal <strong>6/10</strong>{' '}
+                agar Anda tidak mengejar harga di pucuk (*chasing high*) dan menyarankan <em>Tunggu Pullback</em>.
               </div>
               <div className="grid grid-cols-1 gap-2 pt-1 text-xs sm:grid-cols-3">
                 <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-2.5">
                   <strong className="block font-black text-emerald-900">🔥 Skor 10/10 (Wajib Beli Besok)</strong>
                   <span className="mt-0.5 block text-[11px] leading-snug text-emerald-950">
-                    Setup Sempurna (Breakout/Rebound Valid, RRR &ge; 1:2.0, Volume Akumulasi).
+                    Setup Sempurna (Tren Valid, Fundamental Kuat, RRR &ge; 1 : 1.8).
                   </span>
                 </div>
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5">
@@ -129,7 +131,7 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <strong className="block font-bold text-slate-800">👀 Skor 6 – 7/10 (Layak Pantau)</strong>
                   <span className="mt-0.5 block text-[11px] leading-snug text-slate-600">
-                    Cocok untuk cicil akumulasi bertahap (DCA) di area Support Major.
+                    Tunggu pullback atau cicil akumulasi bertahap (DCA) di area Support Major.
                   </span>
                 </div>
               </div>
@@ -204,6 +206,58 @@ export function ScreenerKamusModal({ isOpen, onClose }: ScreenerKamusModalProps)
                   👉 <strong>Rekomendasi Aksi:</strong> Cicil beli santai (*DCA*) untuk portofolio investasi jangka
                   menengah-panjang.
                 </p>
+              </div>
+            </div>
+
+            {/* 4. Profil Kesesuaian: Trading vs Investasi */}
+            <div className="space-y-2 rounded-xl border border-sky-200 bg-sky-50/50 p-4">
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="border-sky-300 bg-sky-100 font-mono text-xs font-bold text-sky-900">
+                  🧭 KESESUAIAN PROFIL TRADING VS INVESTASI
+                </Badge>
+                <span className="text-[11px] font-bold text-sky-800">Mindset &amp; SOP Eksekusi</span>
+              </div>
+              <strong className="block text-sm text-slate-900">
+                Pilih Gaya Transaksi yang Tepat untuk Menghindari Nyangkut
+              </strong>
+              <p className="leading-relaxed text-slate-700">
+                Badge ini memetakan profil emiten agar Anda tidak salah memperlakukan saham trading sebagai investasi:
+              </p>
+
+              <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-3">
+                <div className="space-y-1 rounded-lg border border-sky-200 bg-white p-2.5 text-[11px]">
+                  <Badge variant="outline" className="border-sky-200 bg-sky-50 font-bold text-sky-800">
+                    ⚡ Cocok Trading
+                  </Badge>
+                  <p className="text-slate-600">Setup teknikal momentum/breakout atau saham komoditas siklikal.</p>
+                  <span className="block font-bold text-rose-700">
+                    👉 Wajib disiplin Stop Loss &amp; amankan profit bertahap!
+                  </span>
+                </div>
+
+                <div className="space-y-1 rounded-lg border border-indigo-200 bg-white p-2.5 text-[11px]">
+                  <Badge variant="outline" className="border-indigo-200 bg-indigo-50 font-bold text-indigo-800">
+                    🏛️ Cocok Investasi
+                  </Badge>
+                  <p className="text-slate-600">
+                    Fundamental kuat (MC &ge; 10T, ROE &ge; 10%, DER rendah/sehat, dividen konsisten).
+                  </p>
+                  <span className="block font-bold text-indigo-800">
+                    👉 Akumulasi cicil DCA santai di support major.
+                  </span>
+                </div>
+
+                <div className="space-y-1 rounded-lg border border-emerald-200 bg-white p-2.5 text-[11px]">
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 font-bold text-emerald-800">
+                    ✨ Trading &amp; Investasi
+                  </Badge>
+                  <p className="text-slate-600">
+                    Emiten blue chip solid yang sekaligus memiliki setup breakout tren bullish prima.
+                  </p>
+                  <span className="block font-bold text-emerald-800">
+                    👉 Fleksibel untuk swing trade maupun simpan jangka panjang.
+                  </span>
+                </div>
               </div>
             </div>
           </div>
