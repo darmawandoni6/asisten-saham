@@ -181,7 +181,7 @@ $$\text{Modal Tambahan} = \text{Lot Tambahan} \times \text{Harga Beli Bawah} \ti
 - **Desktop Launcher & Native macOS Applet**:
   - `Asisten Saham.app` dikompilasi sebagai **Native macOS Applet** (`osacompile`) dengan aset icon resmi `Contents/Resources/app.icns`.
   - Disinkronkan ke `~/Desktop/Asisten Saham.app` dan `/Applications/Asisten Saham.app` (Dock) dengan detached process (`nohup`) sehingga dapat langsung diklik ganda dari Desktop maupun Dock tanpa terminal window.
-  - Skrip pendukung (`start_app.sh`, `stop_app.sh`, `*.command`) diabaikan di `.gitignore` untuk menjaga repositori tetap bersih.
+  - Skrip pendukung (`start_app.sh`, `stop_app.sh`, `build_app.sh`, `scripts/`) kini di-track penuh di Git untuk kemudahan eksekusi via CLI maupun peluncur aplikasi desktop.
 
 ### L. Automatic Trading Balance & Smart Lot Management
 - **Sinkronisasi Saldo Kas RDN Otomatis (Auto-Sync Cash Balance)**:

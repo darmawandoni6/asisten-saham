@@ -1,6 +1,6 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–19 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Status: **Tahap 0–22 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
 > Frontend: Next.js 16 Static Export + shadcn/ui (@base-ui/react) + Stockbit Clean Light Mode (`http://localhost:8000`)
 > Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 

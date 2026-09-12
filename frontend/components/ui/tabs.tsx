@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, React.ComponentPropsWith
     <BaseTabs.Tab
       ref={ref}
       className={cn(
-        'inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold whitespace-nowrap text-slate-600 ring-offset-white transition-all hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-white data-[active]:text-slate-900 data-[active]:shadow-2xs data-[selected]:bg-white data-[selected]:text-slate-900 data-[selected]:shadow-2xs',
+        'inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold whitespace-nowrap ring-offset-white transition-all hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-active:bg-white data-active:text-slate-900 data-active:shadow-2xs',
         className,
       )}
       {...props}
@@ -49,4 +49,4 @@ const TabsContent = React.forwardRef<HTMLDivElement, React.ComponentPropsWithout
 );
 TabsContent.displayName = 'TabsContent';
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };
