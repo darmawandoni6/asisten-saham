@@ -1,6 +1,6 @@
 # ✅ TODO — Asisten Saham
 
-> Status: **Tahap 0–17 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
+> Status: **Tahap 0–18 Selesai (Fullstack Operasional & Refactored Modular) 🚀**
 > Frontend: Next.js 16 Static Export + shadcn/ui + Stockbit Clean Light Mode (`http://localhost:8000`)
 > Backend: FastAPI + SQLite + yfinance + EOD Skill + 9Router AI Gateway (`http://localhost:8000`)
 
@@ -267,3 +267,21 @@
   - Ekstraksi state & tabs ke custom hook `useGuide.ts`.
 - [x] 17.4 Verifikasi Kualitas & Build:
   - 100% lolos `npm run format:check` dan `npm run build` static export.
+
+---
+
+## 🎛️ TAHAP 18 — Unified Dashboard Action View & View Switcher [SELESAI ✅]
+> Menggabungkan Smart Action Cards dan Daily Action Sheet menjadi satu antarmuka terpadu di Dashboard dengan View Switcher (Cards ⊞ / Table ☰), pengurutan prioritas urgensi otomatis, dan akses aksi interaktif lengkap (Chart & AI Copilot).
+
+- [x] 18.1 Eliminasi Redundansi Tampilan Dashboard:
+  - Menggabungkan daftar kartu bertingkat dan tabel menjadi satu section utama "Keputusan & Status Aksi Saham".
+- [x] 18.2 Segmented Toggle View Switcher:
+  - Tombol pengalih mode tampilan Stockbit Clean (Mode Kartu ⊞ / Mode Tabel ☰) di header section.
+- [x] 18.3 Penyelarasan Fitur & Aksi Interaktif:
+  - Penambahan tombol *Buka Chart* (`LineChart`) dan *AI Copilot* (`Sparkles`) pada setiap baris tabel `DailyActionSheet`.
+  - Penempatan tombol cepat *Kirim Telegram* di header section utama.
+- [x] 18.4 Pengurutan Prioritas Urgensi Konsisten:
+  - Penyelarasan `PRIORITY_MAP` (#1 Cut Loss s/d #7 Hold) untuk kedua mode tampilan.
+- [x] 18.5 Pembaruan Dokumentasi:
+  - Pembaruan deskripsi fitur Dashboard pada `README.md` dan `TODO.md`.
+

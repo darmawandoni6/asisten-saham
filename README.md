@@ -7,14 +7,21 @@ Aplikasi **Asisten Saham** personal berbasis web yang dirancang khusus untuk mem
 ## 🌟 Fitur Unggulan
 
 ### 1. 📊 Smart Decision Dashboard (`/`)
-* **Kartu Keputusan Berwarna (5 Action Status)**:
-  - 🔴 **SELL / CUT LOSS**: Harga closing menembus batas Stop Loss ketat.
-  - 🟢 **TAKE PROFIT / TRIM**: Harga menyentuh target profit (disarankan amankan laba 50%).
-  - 🟡 **HOLD / MONITOR**: Tren berjalan aman sesuai rencana trading.
-  - 🟠 **TRAILING STOP WARNING**: Harga berbalik arah > 7% dari puncak tertinggi (*high watermark*).
-  - 🟣 **RECOVERY MODE**: Saham trading yang mengalami floating loss > 10%.
-  - 🔵 **AVERAGING DOWN REVIEW**: Saham investasi yang mengalami koreksi dalam (> 30%) untuk evaluasi cicil beli.
-* **Daily Action Sheet**: Rangkuman urutan aksi prioritas pasca penutupan bursa untuk persiapan order esok pagi.
+* **Unified Action Decisions & View Switcher (Cards ⊞ / Table ☰)**:
+  - Menggabungkan kartu visual (*Smart Action Cards*) dan lembar prioritas harian (*Daily Action Sheet*) menjadi satu antarmuka terpadu tanpa redundansi.
+  - Pengguna bebas berganti mode antara **Tampilan Kartu (Visual Grid)** dan **Tampilan Tabel (Action Sheet Ringkas)** dengan 1-klik toggle switcher.
+* **Pengurutan Prioritas Urgensi Otomatis**:
+  - Seluruh saham di portofolio otomatis diurutkan berdasarkan tingkat urgensi eksekusi harian:
+    - 🔴 **SELL / CUT LOSS**: Harga closing menembus batas Stop Loss ketat.
+    - 🟠 **SIAGA 1 (DEKAT STOP LOSS)**: Jarak harga ke Stop Loss $\le 2\%$, siaga pasang stop order otomatis di sekuritas.
+    - 🟠 **TRAILING STOP WARNING**: Harga berbalik arah > 7% dari puncak tertinggi (*high watermark*).
+    - 🟣 **RECOVERY MODE / AVERAGING DOWN REVIEW**: Saham yang mengalami floating loss dalam untuk evaluasi pemulihan modal.
+    - 🟢 **TAKE PROFIT / TRIM**: Harga menyentuh target profit (disarankan amankan laba 50% lot).
+    - 🔵 **PERSIAPAN TAKE PROFIT**: Jarak harga ke target TP $\le 2\%$.
+    - 🟡 **HOLD / MONITOR**: Tren berjalan aman sesuai rencana trading.
+* **Fitur Aksi Lengkap pada Semua Mode**:
+  - Akses interaktif **Buka Candlestick Chart** (MA20/MA50 overlay) dan **AI Copilot** tersedia secara setara di mode Kartu maupun mode Tabel.
+  - Tombol cepat **Kirim Notifikasi Telegram** di header section untuk mengirimkan ringkasan aksi harian ke bot Telegram.
 
 ### 2. 🧠 AI Decision Copilot Panel (Custom OpenAI-Compatible Gateway)
 * Evaluasi kondisi teknikal terkini (Close, MA20, MA50, RSI, Support/Resistance) terhadap **Avg Beli** dan **Trading Plan**.

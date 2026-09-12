@@ -1,17 +1,6 @@
 'use client';
 
-import React from 'react';
-
-import {
-  AlertOctagon,
-  AlertTriangle,
-  BellRing,
-  CheckCircle2,
-  ExternalLink,
-  LifeBuoy,
-  PauseCircle,
-  Send,
-} from 'lucide-react';
+import { AlertOctagon, AlertTriangle, CheckCircle2, LifeBuoy, LineChart, PauseCircle, Sparkles } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,9 +11,10 @@ import { Holding } from '@/types';
 interface Props {
   holdings: Holding[];
   onOpenStock?: (holding: Holding) => void;
+  onSelectStock?: (holding: Holding) => void;
 }
 
-export function DailyActionSheet({ holdings, onOpenStock }: Props) {
+export function DailyActionSheet({ holdings, onOpenStock, onSelectStock }: Props) {
   const priorityMap: Record<string, number> = {
     SELL_CUT_LOSS: 1,
     SL_PROXIMITY_WARNING: 2,
@@ -95,41 +85,8 @@ export function DailyActionSheet({ holdings, onOpenStock }: Props) {
   };
 
   return (
-    <Card className="rounded-xl border-slate-200 bg-white p-5 shadow-2xs">
-      <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
-            <BellRing className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              Daily Action Sheet (EOD Pasar 17:30 WIB)
-              <Badge
-                variant="outline"
-                className="border-emerald-200 bg-emerald-50 text-[10px] font-bold text-emerald-700"
-              >
-                Otomatis
-              </Badge>
-            </h3>
-            <p className="text-xs text-slate-500">
-              Daftar aksi terurut berdasarkan tingkat urgensi eksekusi sebelum market buka besok pagi
-            </p>
-          </div>
-        </div>
-
-        <Button
-          type="button"
-          variant="emerald"
-          size="sm"
-          onClick={() => alert('Kirim notifikasi Telegram bot untuk saham terpilih!')}
-          className="gap-2 self-start rounded-lg text-xs font-semibold shadow-2xs sm:self-auto"
-        >
-          <Send className="h-3.5 w-3.5" />
-          <span>Kirim Notifikasi Telegram</span>
-        </Button>
-      </div>
-
-      <div className="mt-4 overflow-x-auto">
+    <Card className="overflow-hidden rounded-xl border-slate-200 bg-white shadow-2xs">
+      <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
@@ -150,7 +107,7 @@ export function DailyActionSheet({ holdings, onOpenStock }: Props) {
                 </td>
                 <td className="px-3 py-3.5">
                   <div className="font-mono text-xs font-bold text-slate-900">{h.ticker}</div>
-                  <div className="max-w-[140px] truncate text-[11px] text-slate-500">{h.name}</div>
+                  <div className="max-w-35 truncate text-[11px] text-slate-500">{h.name}</div>
                 </td>
                 <td className="px-3 py-3.5 font-mono font-bold text-slate-900">Rp {formatNumber(h.currentPrice)}</td>
                 <td className="px-3 py-3.5 font-mono text-[11px] text-slate-600">
@@ -169,16 +126,28 @@ export function DailyActionSheet({ holdings, onOpenStock }: Props) {
                   <p className="max-w-sm text-[11px] leading-snug text-slate-600">{h.actionReason}</p>
                 </td>
                 <td className="px-3 py-3.5 text-right">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onOpenStock?.(h)}
-                    className="h-7 w-7 p-0 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                    title="Buka Detail"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onSelectStock?.(h)}
+                      className="h-7 w-7 p-0 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                      title="Buka Candlestick Chart"
+                    >
+                      <LineChart className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onOpenStock?.(h)}
+                      className="h-7 w-7 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-800"
+                      title="Buka AI Copilot"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

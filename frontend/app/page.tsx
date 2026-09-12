@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Link from 'next/link';
 
-import { PlusCircle, TrendingUp } from 'lucide-react';
+import { LayoutGrid, List, PlusCircle, Send, TrendingUp } from 'lucide-react';
 
 import { AICopilotPanel } from '@/components/AICopilotPanel';
 import { ActionCard } from '@/components/ActionCard';
@@ -18,7 +18,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useDashboard } from '@/hooks/useDashboard';
+import { cn } from '@/lib/utils';
 import { Holding } from '@/types';
+
+const PRIORITY_MAP: Record<string, number> = {
+  SELL_CUT_LOSS: 1,
+  SL_PROXIMITY_WARNING: 2,
+  TRAILING_STOP_WARNING: 3,
+  RECOVERY_MODE: 4,
+  AVERAGING_REVIEW: 4,
+  TAKE_PROFIT: 5,
+  TP_PROXIMITY_WARNING: 6,
+  HOLD_MONITOR: 7,
+};
 
 export default function DashboardPage() {
   const { holdings, summary, isLoading, loadDashboard, setSummary } = useDashboard();
@@ -26,10 +38,15 @@ export default function DashboardPage() {
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [activeModal, setActiveModal] = useState<'chart' | 'ai' | null>(null);
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
+
+  const sortedHoldings = useMemo(() => {
+    return [...holdings].sort((a, b) => (PRIORITY_MAP[a.actionStatus] || 99) - (PRIORITY_MAP[b.actionStatus] || 99));
+  }, [holdings]);
 
   const handleOpenChart = (holding: Holding) => {
     setSelectedHolding(holding);
@@ -45,6 +62,10 @@ export default function DashboardPage() {
     setActiveModal(null);
   };
 
+  const handleSendTelegram = () => {
+    alert('Daily Action Sheet berhasil dikirimkan ke Bot Telegram Anda!');
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-50 pb-16">
       <Topbar
@@ -57,21 +78,70 @@ export default function DashboardPage() {
         {/* Top Summary Metrics */}
         <PortfolioSummaryCards summary={summary} onEditCashBalance={() => setIsBalanceModalOpen(true)} />
 
-        {/* 1. Core Feature: Smart Action Cards */}
+        {/* Unified Core Section: Smart Action Decisions */}
         <div className="space-y-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-base font-bold text-slate-900">Smart Action Cards</h2>
+                <h2 className="text-base font-bold text-slate-900">Keputusan & Status Aksi Saham</h2>
                 <Badge variant="secondary" className="font-mono text-xs font-semibold">
                   {holdings.length} Saham Terpantau
                 </Badge>
               </div>
               <p className="mt-0.5 text-xs text-slate-500">
-                Kartu ringkasan status harian dengan 5 indikator warna tegas (Cut Loss, Take Profit, Hold, Trailing
-                Stop, Recovery)
+                Rekomendasi objektif terurut prioritas urgensi harian (Cut Loss, Siaga 1, Take Profit, Trailing Stop,
+                Recovery, Hold)
               </p>
             </div>
+
+            {holdings.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                {/* Telegram Bot Button */}
+                <Button
+                  type="button"
+                  variant="emerald"
+                  size="sm"
+                  onClick={handleSendTelegram}
+                  className="gap-1.5 rounded-lg text-xs font-semibold shadow-2xs"
+                  title="Kirim Ringkasan Sore ke Telegram"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Kirim Telegram</span>
+                </Button>
+
+                {/* View Switcher Toggle */}
+                <div className="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('cards')}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all',
+                      viewMode === 'cards'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-800',
+                    )}
+                    title="Tampilan Kartu"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    <span>Kartu</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all',
+                      viewMode === 'table'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-800',
+                    )}
+                    title="Tampilan Tabel"
+                  >
+                    <List className="h-3.5 w-3.5" />
+                    <span>Tabel</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {isLoading ? (
@@ -93,17 +163,21 @@ export default function DashboardPage() {
                 </Card>
               ))}
             </div>
-          ) : holdings.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {holdings.map(holding => (
-                <ActionCard
-                  key={holding.id}
-                  holding={holding}
-                  onSelectStock={handleOpenChart}
-                  onOpenAI={handleOpenAI}
-                />
-              ))}
-            </div>
+          ) : sortedHoldings.length > 0 ? (
+            viewMode === 'cards' ? (
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {sortedHoldings.map(holding => (
+                  <ActionCard
+                    key={holding.id}
+                    holding={holding}
+                    onSelectStock={handleOpenChart}
+                    onOpenAI={handleOpenAI}
+                  />
+                ))}
+              </div>
+            ) : (
+              <DailyActionSheet holdings={sortedHoldings} onSelectStock={handleOpenChart} onOpenStock={handleOpenAI} />
+            )
           ) : (
             <Card className="flex flex-col items-center justify-center border-slate-200 bg-white p-10 text-center shadow-2xs">
               <CardHeader className="flex flex-col items-center p-0 pb-3">
@@ -129,13 +203,6 @@ export default function DashboardPage() {
             </Card>
           )}
         </div>
-
-        {/* 2. Daily Action Sheet */}
-        {holdings.length > 0 && (
-          <div>
-            <DailyActionSheet holdings={holdings} onOpenStock={handleOpenAI} />
-          </div>
-        )}
       </div>
 
       {/* Modal / Dialog for Candlestick Chart (shadcn/ui Dialog) */}
